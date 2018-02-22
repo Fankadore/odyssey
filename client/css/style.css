@@ -1,0 +1,14 @@
+body {
+	background: #000;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	font-family: "Times New Roman", serif;
+	color: #FFF;
+}
+p {
+	font-family: Arial, sans-serif;
+	color: #FFF;
+}
