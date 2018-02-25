@@ -1,11 +1,12 @@
 'use strict';
+//TEEEEEESTINGGG
 
 const Client = {};
 
 Client.connect = function() {
 	Client.socket = io.connect();
 	Client.selfId = null;
-	
+
 	Client.socket.on('init', function(data) {
 		if (data.selfId >= 0) {
 			if (Client.selfId === null) {
@@ -109,7 +110,7 @@ Client.connect = function() {
 							player.setDead(pack.isDead);
 						}
 					}
-					
+
 					if (pack.health !== undefined) {
 						player.health = pack.health;
 					}
@@ -376,7 +377,7 @@ Client.connect = function() {
 			}
 		}
 	}
-	
+
 	Client.socket.on('loadMap', function(data) {
 		for (let currentLayer = 0; currentLayer < MAP_LAYERS; currentLayer++) {
 			for (let y = 0; y < MAP_ROWS; y++) {
@@ -395,7 +396,7 @@ Client.connect = function() {
 		ClientMapItem.list = {};
 		ClientEffect.list = {};
 		ClientText.list = {};
-		
+
 	});
 };
 
