@@ -375,7 +375,7 @@ Client.connect = function() {
 				}
 			}
 		}
-	}
+	});
 
 	Client.socket.on('loadMap', function(data) {
 		for (let currentLayer = 0; currentLayer < MAP_LAYERS; currentLayer++) {

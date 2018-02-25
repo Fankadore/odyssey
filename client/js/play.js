@@ -1,7 +1,7 @@
 'use strict';
 
 const Game = {};
-const UI = {};
+let UI = {};
 
 Game.create = function() {
 	Game.createMap();
@@ -52,7 +52,7 @@ Game.createInputs = function() {
 	keyCtrl.onUp.add(function() {
 		Client.keyPress('attack', false);
 	});
-	
+
 	// Player Movement Inputs
 	cursors.left.onDown.add(function() {
 		if (cursors.lastPressed !== 'left') {
@@ -74,7 +74,7 @@ Game.createInputs = function() {
 			Client.cursorPress('down');
 		}
 	});
-	
+
 	cursors.left.onUp.add(function() {
 		if(cursors.lastPressed === 'left') {
 			if (cursors.right.isDown) {
@@ -171,7 +171,7 @@ Game.createInputs = function() {
 			}
 		}
 	});
-	
+
 	game.input.mousePointer.leftButton.onDown.add(function() { Game.singleClick() }, Game.player);
 	game.input.mousePointer.rightButton.onDown.add(function() {Game.rightClick() }, Game.player);
 };
@@ -179,7 +179,7 @@ Game.createInputs = function() {
 Game.update = function() {
 	// Stat Bars Update
 	UI.statBar.update();
-	
+
 	if (!cursors.left.isDown && !cursors.right.isDown && !cursors.up.isDown && !cursors.down.isDown) {
 		Client.cursorPress(null);
 	}
@@ -188,11 +188,11 @@ Game.update = function() {
 Game.singleClick = function() {
 	let x = game.input.mousePointer.x;
 	let y = game.input.mousePointer.y;
-	
+
  	if (isWithinMapBounds(x, y)) {
 		x = findGridPosition(x);
 		y = findGridPosition(y);
-		
+
 		for (let i in ClientMapItem.list) {
 			let item = ClientMapItem.list[i];
 			if (item) {
@@ -201,7 +201,7 @@ Game.singleClick = function() {
 				}
 			}
 		}
-		
+
 		for (let i in ClientPlayer.list) {
 			let target = ClientPlayer.list[i];
 			if (target.gridPosition.x === x & target.gridPosition.y === y) {
@@ -222,7 +222,7 @@ Game.singleClick = function() {
 			x = findInventoryGridX(x);
 			y = findInventoryGridY(y);
 			let slot = findInventorySlot(x, y);
-			
+
 			let item = ClientInventoryItem.list[slot];
 			if (item) {
 				item.singleClick();
@@ -232,7 +232,7 @@ Game.singleClick = function() {
 			x = findEquipmentGridX(x);
 			y = findEquipmentGridY(y);
 			let slot = findEquipmentSlot(x, y);
-			
+
 			let item = ClientInventoryItem.list[slot];
 			if (item) {
 				item.singleClick();
@@ -244,7 +244,7 @@ Game.singleClick = function() {
 Game.rightClick = function() {
 	let x = game.input.mousePointer.x;
 	let y = game.input.mousePointer.y;
-	
+
  	if (isWithinMapBounds(x, y)) {
 		x = findGridPosition(x);
 		y = findGridPosition(y);

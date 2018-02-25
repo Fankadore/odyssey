@@ -31,7 +31,7 @@ const MAX_SPRITES = 13;
 const MAX_EFFECTS = 70;
 
 const INVENTORY_SIZE = 20;
-const EQUIPMENT_SIZE = 5;	
+const EQUIPMENT_SIZE = 5;
 
 const START_MAP = 1;
 const START_X = 5;
@@ -84,7 +84,7 @@ const items = [
 		sprite: 68,
 		type: 'none',
 		reusable: false,
-		
+
 		use:		function() {
 						return true;
 					},
@@ -100,7 +100,7 @@ const items = [
 		sprite: 1,
 		type: 'potion',
 		reusable: false,
-		
+
 		use:		function() {
 						let value = 10;
 						this.health += value;
@@ -116,13 +116,13 @@ const items = [
 		drop:	function() {
 						return true;
 					},
-	}, 
+	},
 	{	// type 2
 		name: "Energy Potion",
 		sprite: 2,
 		type: 'potion',
 		reusable: false,
-		
+
 		use:		function() {
 						let value = 10;
 						this.energy += value;
@@ -138,13 +138,13 @@ const items = [
 		drop:	function() {
 						return true;
 					},
-	}, 
+	},
 	{	// type 3
 		name: "Incognito",
 		sprite: 12,
 		type: 'special',
 		reusable: true,
-		
+
 		use:		function() {
 						this.setSprite(game.rnd.integerInRange(1, MAX_SPRITES));
 						return true;
@@ -161,7 +161,7 @@ const items = [
 		sprite: 10,
 		type: 'weapon',
 		reusable: true,
-		
+
 		use:		function() {
 						return true;
 					},
@@ -171,20 +171,20 @@ const items = [
 		drop:	function() {
 						return true;
 					},
-		
+
 		damageBonus: 1,
 		defenceBonus: 0,
 		healthMaxBonus: 0,
 		energyMaxBonus: 0,
 		rangeBonus: 0,
-		
+
 	},
 	{	// type 5
 		name: "Axe",
 		sprite: 14,
 		type: 'weapon',
 		reusable: true,
-		
+
 		use:		function() {
 						return true;
 					},
@@ -194,15 +194,15 @@ const items = [
 		drop:	function() {
 						return true;
 					},
-		
+
 		damageBonus: 2,
 		defenceBonus: 0,
 		healthMaxBonus: 0,
 		energyMaxBonus: 0,
 		rangeBonus: 0,
-		
+
 	},
-	
+
 ];
 
 const maps = [
@@ -364,7 +364,7 @@ class Tile {
 		for (let i = 0; i < MAP_LAYERS; i++) {
 			this.layer[i] = mapData.tiles[i][(y * MAP_COLUMNS) + x];
 		}
-		
+
 		this.wall = mapData.walls[(y * MAP_COLUMNS) + x];
 		this.canAttack = false;
 		this.healthMax = 0;
@@ -384,9 +384,9 @@ class Tile {
 		this.attackScript = function() {
 			// Run MapAttack#_x_y script
 		};
-		
+
 	}
-	
+
 }
 
 class Map {
@@ -399,12 +399,12 @@ class Map {
 		//this.dropChance = 0 = 0% chance to drop items in inventory (drop nothing), 100 = 100% chance to drop (drop everything)
 		this.dropAmountEQ = clamp(data.dropAmountEQ, 0, EQUIPMENT_SIZE);
 		//this.dropAmountEQ = number of equipped items the player will drop on death. dropEQ = EQUIPMENT_SIZE = drop all equipment
-		
+
 		this.items = data.items;
 		this.bots = data.bots;
 		this.effects = data.effects;
 		this.texts = data.texts;
-		
+
 		this.tiles = [];
 		for (let y = 0; y < MAP_COLUMNS; y++) {
 			this.tiles[y] = [];
@@ -412,12 +412,12 @@ class Map {
 				this.tiles[y][x] = new Tile(data, x, y);
 			}
 		}
-		
+
 		this.initPack = {players: [], items: [], bots: [], effects: [], texts: []};
 		this.removePack = {players: [], items: [], bots: [], effects: [], texts: []};
 		Map.list[this.id] = this;
 	}
-	
+
 	upload() {
 		Map.data[this.id] = JSON.parse(fs.readFileSync('./server/data/map.json', 'utf8'))[this.id];
 		for (let y = 0; y < MAP_ROWS; y++) {
@@ -435,7 +435,7 @@ class Map {
 			}
 		}
 	}
-	
+
 	update() {
 		let mapPack = {
 			name: this.name,
@@ -444,7 +444,7 @@ class Map {
 			effects: [],
 			texts: []
 		};
-		
+
 		for (let i in this.items) {
 			mapPack.items.push(this.items[i].update());
 		}
@@ -457,10 +457,10 @@ class Map {
 		for (let i in this.texts) {
 			mapPack.texts[i].push(this.texts[i].update());
 		}
-		
+
 		return mapPack;
 	}
-	
+
 	getPack() {
 		let mapPack = {
 			name: this.name,
@@ -470,7 +470,7 @@ class Map {
 			effects: [],
 			texts: []
 		};
-		
+
 		for (let i in this.items) {
 			mapPack.items.push(this.items[i].getPack());
 		}
@@ -483,16 +483,16 @@ class Map {
 		for (let i in this.texts) {
 			mapPack.texts.push(this.texts[i].getPack());
 		}
-		
+
 		return mapPack;
 	}
-	
+
 	getTilePack() {
 		let tilePack = [];
 		for (let i = 0; i < MAP_LAYERS; i++) {
 			tilePack[i] = [];
 		}
-		
+
 		for (let y = 0; y < MAP_ROWS; y++) {
 			for (let x = 0; x < MAP_COLUMNS; x++) {
 				for (let i = 0; i < MAP_LAYERS; i++) {
@@ -500,10 +500,10 @@ class Map {
 				}
 			}
 		}
-		
+
 		return tilePack;
 	}
-	
+
 	static updateAll() {
 		let allMapPack = [];
 		for (let i in Map.list) {
@@ -540,7 +540,7 @@ class Actor extends Entity {
 		}
 		super(map, x, y, sprite);
 		this.name = name;
-		
+
 		this.startPosition = {
 			x: this.gridPosition.x,
 			y: this.gridPosition.y
@@ -548,7 +548,7 @@ class Actor extends Entity {
 		this.destination = {
 			x: this.gridPosition.x,
 			y: this.gridPosition.y
-		};	
+		};
 		this.isMoving = false;
 		this.isRunning = false;
 		this.direction = 'down';
@@ -557,51 +557,51 @@ class Actor extends Entity {
 		this.laziness = 0;
 
 		this.inventory = new Array(INVENTORY_SIZE);
-		
+
 		this.isDead = false;
 		this.respawnTimer = 0;
 		this.respawnCooldown = 200;
 		this.respawnMap = map;
 		this.respawnX = x;
 		this.respawnY = y;
-		
+
 		this._healthMaxBase = 10;						// maximum health a player can have without bonuses
 		this._healthMax = this._healthMaxBase;	// maximum health a player can have including bonuses
 		this._health = this._healthMax;					// current health
 		this._energyMaxBase = 40;
 		this._energyMax = this._energyMaxBase;
 		this._energy = this._energyMax;
-		
+
 		this.damageBase = 1;
 		this.damage = this.damageBase;				// amount of health removed when attacking
-		this.defenceBase = 0;						
+		this.defenceBase = 0;
 		this.defence = this.defenceBase;				// amount of damage blocked when attacked
 		this.rangeBase = 1;
 		this.range = this.rangeBase;						// number of tiles your attack can reach
 
 		this.isAttacking = false;
 		this.attackSpeed = 1000;							// time between attacks in ms
-		this.attackTimer = 0;	
+		this.attackTimer = 0;
 		this.target = null;
 		this.kills = 0;
 		this.deaths = 0;
-		
+
 		this.calcStats();
 		this.restore();
 	}
-	
+
 	get health() {
 		return this._health;
 	}
-	
+
 	set health(val) {
 		this._health = clamp(val, 0, this._healthMax);
 	}
-	
+
 	get healthMaxBase() {
 		return this._healthMaxBase;
 	}
-	
+
 	set healthMaxBase(val) {
 		if (val < 1) {
 			this._healthMaxBase = 1;
@@ -610,11 +610,11 @@ class Actor extends Entity {
 			this._healthMaxBase = val;
 		}
 	}
-	
+
 	get healthMax() {
 		return this._healthMax;
 	}
-	
+
 	set healthMax(val) {
 		if (val < 1) {
 			this._healthMax = 1;
@@ -623,19 +623,19 @@ class Actor extends Entity {
 			this._healthMax = val;
 		}
 	}
-	
+
 	get energy() {
 		return this._energy;
 	}
-	
+
 	set energy(val) {
 		this._energy = clamp(val, 0, this._energyMax);
 	}
-	
+
 	get energyMaxBase() {
 		return this._energyMaxBase;
 	}
-	
+
 	set energyMaxBase(val) {
 		if (val < 0) {
 			this._energyMaxBase = 0;
@@ -644,11 +644,11 @@ class Actor extends Entity {
 			this._energyMaxBase = val;
 		}
 	}
-	
+
 	get energyMax() {
 		return this._energyMax;
 	}
-	
+
 	set energyMax(val) {
 		if (val < 0) {
 			this._energyMax = 0;
@@ -657,9 +657,9 @@ class Actor extends Entity {
 			this._energyMax = val;
 		}
 	}
-	
-	
-	update() {		
+
+
+	update() {
 		// Respawn Cooldown
 		if (this.isDead) {
 			this.respawnTimer += 30 / FRAMERATE;
@@ -668,20 +668,20 @@ class Actor extends Entity {
 			}
 			return;
 		}
-		
+
 		// Inventory Item Update
 		for (let slot = 0; slot < INVENTORY_SIZE + EQUIPMENT_SIZE; slot++) {
 			if (this.inventory[slot]) {
 				this.inventory[slot].update();
 			}
 		}
-		
+
 		// Attack Cooldown
 		if (this.attackTimer > 0) {
 			if (this.attackTimer > this.attackSpeed - 300) {
 				this.isAttacking = false;
 			}
-			
+
 			if (this.attackTimer - (1000 / FRAMERATE) <= 0) {
 				this.attackTimer = 0;
 			}
@@ -689,7 +689,7 @@ class Actor extends Entity {
 				this.attackTimer -= 1000 / FRAMERATE;
 			}
 		}
-		
+
 		// Set Run from Input
 		if (this.pressingRun) {
 			if (this.energy > 0) {
@@ -702,7 +702,7 @@ class Actor extends Entity {
 		else {
 			this.isRunning = false;
 		}
-		
+
 		// Player Movement
 		if (this.x / TILE_SIZE !== this.destination.x || this.y / TILE_SIZE !== this.destination.y) {
 			this.x = lerp(this.startPosition.x, this.destination.x, this.movementTimer) * TILE_SIZE;
@@ -725,17 +725,17 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	// Movement
 	checkActorInRange(direction, target, range) {
 		if (target.map !== this.map) {
 			return false;
 		}
-		
+
 		if (target.gridPosition === this.gridPosition) {
 			return false;	// Stacked does not count as in range
 		}
-		
+
 		if (target.gridPosition.y === this.gridPosition.y) {
 			if (direction === 'left') {
 				if (this.gridPosition.x === 0) {
@@ -772,10 +772,10 @@ class Actor extends Entity {
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	checkVacant(direction) {
 		// Check for Map Edges
 		if (direction === 'left') {
@@ -798,10 +798,10 @@ class Actor extends Entity {
 				return false;
 			}
 		}
-		
+
 		// Check for Wall Tiles
-		
-		
+
+
 		// Check for Players
 		for (let i in Player.list) {
 			let target = Player.list[i];
@@ -811,7 +811,7 @@ class Actor extends Entity {
 				}
 			}
 		}
-		
+
 		// Check for Bots
 		for (let i in Bot.list) {
 			let target = Bot.list[i];
@@ -821,23 +821,23 @@ class Actor extends Entity {
 				}
 			}
 		}
-		
+
 		return true;
 	}
-		
+
 	move(direction) {
 		if (this.isMoving) {
 			return;
 		}
-		
+
 		if(direction) {
 			this.direction = direction;
 		}
-		
+
 		if (!this.checkVacant(direction)) {
 			return;
 		}
-		
+
 		// Set new destination
 		if (direction === 'left') {
 			this.destination.x--;
@@ -875,7 +875,7 @@ class Actor extends Entity {
 		// Clamp to map boundries
 		this.destination.x = clamp(this.destination.x, 0, MAP_ROWS - 1);
 		this.destination.y = clamp(this.destination.y, 0, MAP_COLUMNS - 1);
-		
+
 		if (this.startPosition.x !== this.destination.x || this.startPosition.y !== this.destination.y) {
 			// Set move speed
 			if (this.isRunning) {
@@ -892,16 +892,16 @@ class Actor extends Entity {
 			else {
 				this.moveSpeed = 400;
 			}
-			
+
 			this.isMoving = true;
 		}
 	}
-	
+
 	moveToTarget(target, hostile) {
 		if (!target) {
 			return;
 		}
-		
+
 		if (target.gridPosition.x === this.gridPosition.x && target.gridPosition.y === this.gridPosition.y) {
 			this.move();
 		}
@@ -1010,16 +1010,16 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	// Combat
 	attack(direction = this.direction) {
 		if (this.attackTimer > 0) {
 			return;
 		}
-		
+
 		this.isAttacking = true;
 		this.attackTimer = this.attackSpeed;
-		
+
 		for (let i in Player.list) {
 			let target = Player.list[i];
 			if (this.checkActorInRange(direction, target, this.range)) {
@@ -1028,7 +1028,7 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	takeDamage(damage, source) {
 		this.health -= damage;
 		new FloatText(this.map, this.gridPosition.x, this.gridPosition.y, damage, '#FF0000');
@@ -1037,7 +1037,7 @@ class Actor extends Entity {
 			return;
 		}
 	}
-	
+
 	respawn() {
 		sendServerMessage(this.name + " is back from the dead.");
 		this.map = this.respawnMap;
@@ -1049,17 +1049,17 @@ class Actor extends Entity {
 		this.destination.y = this.respawnY;
 		this.x = this.respawnX * TILE_SIZE;
 		this.y = this.respawnY * TILE_SIZE;
-		
+
 		this.calcStats();
 		this.restore();
-		
+
 		this.isWalking = false;
 		this.isRunning = false;
 		this.isAttacking = false;
 		this.isDead = false;
 		this.respawnTimer = 0;
 	}
-	
+
 	setDead(source) {
 		if (Map.list[this.map].dropChance > 0) {
 			for (let i = 0; i < INVENTORY_SIZE; i++) {
@@ -1072,7 +1072,7 @@ class Actor extends Entity {
 			if (Map.list[this.map].dropAmountEQ > EQUIPMENT_SIZE) {
 				Map.list[this.map].dropAmountEQ = EQUIPMENT_SIZE;
 			}
-			
+
 			let slots = [];
 			for (let i = 0; i < dropAmountEQ; i++) {
 				if (this.inventory[i + INVENTORY_SIZE]) {
@@ -1080,19 +1080,19 @@ class Actor extends Entity {
 				}
 			}
 			shuffle(slots);
-			
+
 			for (let i = 0; i < slots.length; i++) {
 				this.dropItem(slots[i] + INVENTORY_SIZE);
 			}
 		}
-		
+
 		this.isDead = true;
 		this.health = 0;
 		this.energy = 0;
 		this.gridPosition.x = 100;
 		this.gridPosition.y = 100;
 		this.deaths++;
-		
+
 		if (source) {
 			if (source instanceof Player) {
 				sendServerMessage(source.name + " has murdered " + this.name + " in cold blood!");
@@ -1109,7 +1109,7 @@ class Actor extends Entity {
 			sendServerMessage(this.name + " has died!");
 		}
 	}
-	
+
 	// Inventory
 	pickUp() {
 		for (let i in Map.list[this.map].items) {
@@ -1123,7 +1123,7 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	getItem(id, stack) {
 		if (stack > 0) {			// Stackable Items
 			let emptySlot = -1;
@@ -1137,7 +1137,7 @@ class Actor extends Entity {
 				else if (emptySlot < 0) {
 					emptySlot = slot;
 				}
-				
+
 				if (slot === INVENTORY_SIZE - 1) {
 					if (emptySlot >= 0 && emptySlot < INVENTORY_SIZE) {
 						new InventoryItem(this.id, emptySlot, id, stack);
@@ -1165,7 +1165,7 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	dropItem(slot) {
 		let item = this.inventory[slot];
 		if (item) {
@@ -1175,7 +1175,7 @@ class Actor extends Entity {
 				if (slot >= INVENTORY_SIZE) {
 					this.calcStats();
 				}
-				
+
 				// Create Map Item
 				new MapItem(this.map, this.gridPosition.x, this.gridPosition.y, item.id, item.stack);
 			}
@@ -1184,18 +1184,18 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	useItem(slot) {
 		let item = this.inventory[slot];
 		if (!item) {
 			return;
 		}
-		
+
 		// Run 'use' script
 		if (!items[item.id].use.call(this, slot)) {
 			return;
 		}
-		
+
 		// Equipment Items
 		if (item.checkIsEquipment()) {
 			if (slot < INVENTORY_SIZE) {		// Check if item is equipped
@@ -1206,7 +1206,7 @@ class Actor extends Entity {
 			}
 			return;
 		}
-		
+
 		// Non-Equipment Items
 		if (!item.reusable) {
 			if (item.stack > 1) {
@@ -1218,7 +1218,7 @@ class Actor extends Entity {
 			return;
 		}
 	}
-	
+
 	hasItem(id) {
 		for (let i = 0; i < INVENTORY_SIZE; i++) {
 			if (this.inventory[i].id === id) {
@@ -1227,12 +1227,12 @@ class Actor extends Entity {
 		}
 		return false;
 	}
-	
+
 	moveItemToSlot(slot, newSlot) {
 		if (!newSlot) {
 			return;
 		}
-		
+
 		let item = this.inventory[slot];
 		if (item) {
 			let newItem = this.inventory[newSlot];
@@ -1357,7 +1357,7 @@ class Actor extends Entity {
 			}
 		}
 	}
-	
+
 	checkIsInventoryFull() {
 		for (let slot = 0; slot < INVENTORY_SIZE; slot++) {
 			if (!this.inventory[slot]) {
@@ -1366,7 +1366,7 @@ class Actor extends Entity {
 		}
 		return true;
 	}
-	
+
 	findFirstEmptySlot() {
 		for (let slot = 0; slot < INVENTORY_SIZE; slot++) {
 			if (!this.inventory[slot]) {
@@ -1375,7 +1375,7 @@ class Actor extends Entity {
 		}
 		return null;
 	}
-	
+
 	// Character Stats
 	calcStats() {
 		let damageTotalBonus = 0;
@@ -1383,7 +1383,7 @@ class Actor extends Entity {
 		let healthMaxTotalBonus = 0;
 		let energyMaxTotalBonus = 0;
 		let rangeTotalBonus = 0;
-		
+
 		// For each equipped item check for bonuses
 		for (let i = 0; i < EQUIPMENT_SIZE; i++) {
 			let item = this.inventory[INVENTORY_SIZE + i];
@@ -1393,22 +1393,22 @@ class Actor extends Entity {
 				healthMaxTotalBonus += item.healthMaxBonus;
 				energyMaxTotalBonus += item.energyMaxBonus;
 				rangeTotalBonus += item.rangeBonus;
-				
+
 			}
 		}
-		
+
 		this.damage = this.damageBase + damageTotalBonus;
 		this.defence = this.defenceBase + defenceTotalBonus;
 		this.healthMax = this.healthMaxBase + healthMaxTotalBonus;
 		this.energyMax = this.energyMaxBase + energyMaxTotalBonus;
 		this.range = this.rangeBase + rangeTotalBonus;
 	}
-	
+
 	restore() {
 		this.health = this.healthMax;
 		this.energy = this.energyMax;
 	}
-	
+
 }
 
 class Player extends Actor {
@@ -1428,32 +1428,32 @@ class Player extends Actor {
 		this.pressingPickUp = false;
 		this.pressingRun = false;
 		this.pressingAttack = false;
-				
+
 		this.healthMaxBase = 20;				// maximum health a player can have
 		this.damageBase = 2;					// amount of health removed per attack
 		this.calcStats();
 		this.restore();
-		
+
 		this.inventoryInitPack = [];
 		this.inventoryUpdatePack = [];
 		this.inventoryRemovePack = [];
-		
+
 		Player.list[this.id] = this;
 		SOCKET_LIST[this.id].player = this;
 		Map.list[this.map].initPack.players.push(this.getPack());
 		this.loadMap();
 	}
-	
+
 	update() {
 		super.update();		// Default Actor Update
-		
+
 		if (!this.isDead) {
 			if (this.pressingAttack) {
 				if (this.attackTimer === 0) {
 					this.attack();
 				}
 			}
-			
+
 			// If player is not moving, get input and move in that direction
 			if (!this.isMoving) {
 				if (this.lastPressed) {
@@ -1461,7 +1461,7 @@ class Player extends Actor {
 				}
 			}
 		}
-		
+
 		return this.getPack();
 	}
 
@@ -1482,7 +1482,7 @@ class Player extends Actor {
 			isDead: this.isDead
 		}
 	}
-	
+
 	getSelfPack() {
 		return {
 			health: this.health,
@@ -1504,45 +1504,45 @@ class Player extends Actor {
 			}
 		}
 	}
-	
+
 	loadMap() {
 		this.socket.emit('loadMap', {
 			map: Map.list[this.map].getPack()
 		});
 	}
-	
-	
+
+
 	doubleClickItem(slot) {
 		if (!this.isDead) {
 			this.useItem(slot);
 		}
 	}
-	
+
 	rightClickItem(slot) {
 		if (!this.isDead) {
 			this.dropItem(slot);
 		}
 	}
-	
+
 	dragStopMap(slot, x, y) {
 		this.dropItem(slot);
 	}
-	
+
 	dragStopInventory(slot, newSlot) {
 		let item = this.inventory[slot];
 		if (item) {
 			this.moveItemToSlot(slot, newSlot);
 		}
 	}
-	
+
 	dragStopEquipment(slot, newSlot) {
 		let item = this.inventory[slot];
 		if (item) {
 			this.moveItemToSlot(slot, newSlot);
 		}
 	}
-	
-	
+
+
 	static getAllInitPack(player) {
 		let playerPack = [];
 		for (let i in Player.list) {
@@ -1553,7 +1553,7 @@ class Player extends Actor {
 		}
 		return playerPack;
 	}
-	
+
 	static updateAll() {
 		let playerPack = [];
 		for (let i in Player.list) {
@@ -1596,7 +1596,7 @@ class Player extends Actor {
 				sendPlayerMessage(player.id, "You whisper to " + Player.list[data.id].name + ", \"" + data.message + "\"");
 			}
 		});
-		
+
 		socket.on('spawnItem', function(data) {
 			if (Player.list[socket.id].adminAccess > 0) {
 				new MapItem(data.map, data.x, data.y, data.id, data.stack);
@@ -1613,7 +1613,7 @@ class Player extends Actor {
 				sendPlayerMessage(socket.id, "You don't have access to that command.");
 			}
 		});
-		
+
 		socket.on('doubleClickItem', function(data) {
 			let item = player.inventory[data.slot];
 			if (item) {
@@ -1644,7 +1644,7 @@ class Player extends Actor {
 				player.dragStopEquipment(data.slot, data.newSlot);
 			}
 		});
-		
+
 		// Initialize all Entities
 		let initPack = Map.list[player.map].getPack();
 		socket.emit('init', {
@@ -1657,18 +1657,18 @@ class Player extends Actor {
 			inventory: player.getInventoryPack(),
 			self: player.getSelfPack()
 		});
-		
+
 		sendServerMessage(player.name + " has logged in.");
 	}
-	
+
 	static onDisconnect(socket) {
 		let player = Player.list[socket.id];
 		sendServerMessage(player.name + " has logged out.");
-		
+
 		Map.list[player.map].removePack.players.push(player.id);
 		delete Player.list[player.id];
 	}
-	
+
 }
 
 Player.list = {};
@@ -1677,11 +1677,11 @@ class Bot extends Actor {
 	constructor(id, map, x, y) {
 		super(map, x, y, bots[id].name, bots[id].sprite);
 		this.id = id;
-		
+
 		this.moveTimer = 0;
 		this.hostile = false;		// Whether bot attacks on sight
 		this.setTask('wandering');
-		
+
 		let botList = Map.list[map].bots;
 		for (let i = 0; i <= botList.length; i++) {
 			if (!botList[i]) {
@@ -1689,19 +1689,19 @@ class Bot extends Actor {
 				break;
 			}
 		}
-		
+
 		Map.list[this.map].bots[this.mapIndex] = this;
 		Map.list[this.map].initPack.bots.push(this.getPack());
 	}
-	
+
 	update() {
 		super.update(); 	// Default Actor Update
 		if (this.isDead) {
 			return;
 		}
-		
+
 		this.moveTimer++;
-		
+
 		// AI Inputs
 		switch(this.task) {
 			case 'wandering':		// Move randomly
@@ -1730,10 +1730,10 @@ class Bot extends Actor {
 			default: 					// Stand still
 			break;
 		}
-		
+
 		return this.getPack();
 	}
-	
+
 	getPack() {
 		return {
 			mapIndex: this.mapIndex,
@@ -1755,7 +1755,7 @@ class Bot extends Actor {
 		Map.list[this.map].removePack.bots.push(this.mapIndex);
 		delete Map.list[this.map].bots[this.mapIndex];
 	}
-	
+
 	move(direction) {
 		let moveTime = 24;
 		if (this.isRunning) {
@@ -1766,24 +1766,24 @@ class Bot extends Actor {
 			this.moveTimer = 0;
 		}
 	}
-	
+
 	takeDamage(damage, source) {
 		if (source instanceof Actor) {
 			this.setTask('attacking', source);
 		}
 		super.takeDamage(damage, source);
 	}
-	
+
 	respawn() {
 		super.respawn();
 		this.setTask('wandering');
 	}
-	
+
 	pickUp() {
 		super.pickUp();
 		this.checkBestEquipment();
 	}
-	
+
 	setTask(task, target) {
 		switch (task) {
 			case 'wandering':
@@ -1818,14 +1818,14 @@ class Bot extends Actor {
 			break;
 		}
 	}
-	
+
 	checkBestEquipment() {
 		for (let slot = 0; slot < INVENTORY_SIZE; slot++) {
 			let item = this.inventory[slot];
 			if (!item) {
 				continue;
 			}
-			
+
 			switch (item.type) {
 				case 'weapon':
 					if (this.inventory[INVENTORY_SIZE]) {
@@ -1885,7 +1885,7 @@ class Bot extends Actor {
 			}
 		}
 	}
-	
+
 
 }
 
@@ -1895,11 +1895,11 @@ class MapItem extends Entity {
 
 		this.id = id;
 		this.stack = stack;
-		
+
 		// from database...
 		this.name = items[this.id].name;
 		this.sprite = items[this.id].sprite;
-		
+
 		// Get first unused Map Index
 		let itemList = Map.list[this.map].items;
 		if (itemList.length === 0) {
@@ -1919,7 +1919,7 @@ class MapItem extends Entity {
 	update() {
 		return this.getPack();
 	}
-	
+
 	getPack() {
 		return {
 			mapIndex: this.mapIndex,
@@ -1935,7 +1935,7 @@ class MapItem extends Entity {
 		Map.list[this.map].removePack.items.push(this.mapIndex);
 		delete Map.list[this.map].items[this.mapIndex];
 	}
-	
+
 }
 
 class InventoryItem {
@@ -1949,7 +1949,7 @@ class InventoryItem {
 		this.type = items[this.id].type;
 		this.sprite = items[this.id].sprite;
 		this.reusable = items[this.id].reusable;
-		
+
 		if (this.checkIsEquipment()) {
 			this.damageBonus = items[this.id].damageBonus;
 			this.defenceBonus = items[this.id].defenceBonus;
@@ -1957,12 +1957,12 @@ class InventoryItem {
 			this.energyMaxBonus = items[this.id].energyMaxBonus;
 			this.rangeBonus = items[this.id].rangeBonus;
 		}
-		
+
 		this.equipped = false;
-		
+
 		this.clicked = false;
 		this.clickTime = 0;
-		
+
 		// Get first unused Inventory Index
 		let inventory = Player.list[this.playerId].inventory;
 		if (inventory.length === 0) {
@@ -1975,7 +1975,7 @@ class InventoryItem {
 				}
 			}
 		}
-		
+
 		Player.list[this.playerId].inventory[this.slot] = this;
 		Player.list[this.playerId].inventoryInitPack.push(this.getPack());
 	}
@@ -2000,12 +2000,12 @@ class InventoryItem {
 			rangeBonus: this.rangeBonus
 		};
 	}
-	
+
 	remove() {
 		Player.list[this.playerId].inventoryRemovePack.push(this.slot);
 		delete Player.list[this.playerId].inventory[this.slot];
 	}
-	
+
 	checkIsEquipment() {
 		if (this.type === 'weapon' || this.type === 'shield' || this.type === 'armour' || this.type === 'helmet' || this.type === 'ring') {
 			return true;
@@ -2014,7 +2014,7 @@ class InventoryItem {
 			return false;
 		}
 	}
-	
+
 	findEquipmentSlot() {
 		switch (this.type) {
 			case "weapon":
@@ -2037,7 +2037,7 @@ class InventoryItem {
 			break;
 		}
 	}
-	
+
 }
 
 class Effect {
@@ -2049,11 +2049,11 @@ class Effect {
 
 		this.x = x * TILE_SIZE;
 		this.y = y * TILE_SIZE;
-		
+
 		this.speed = speed;
 		this.loop = loop;
 		this.counter = 0;
-		
+
 		// Get first unused Map Index
 		let effectList = Map.list[this.map].effects;
 		if (effectList.length === 0) {
@@ -2070,10 +2070,10 @@ class Effect {
 		Map.list[this.map].effects[this.mapIndex] = this;
 		Map.list[this.map].initPack.effects.push(this.getPack());
 	}
-	
+
 	update() {
 		this.counter += 1000 / FRAMERATE;
-		
+
 		if (this.counter >= this.speed) {
 			this.counter = 0;
 
@@ -2096,7 +2096,7 @@ class Effect {
 
 		return this.getPack();
 	}
-	
+
 	getPack() {
 		return {
 			mapIndex: this.mapIndex,
@@ -2106,12 +2106,12 @@ class Effect {
 			frame: this.frame,
 		};
 	}
-	
+
 	remove() {
 		Map.list[this.map].removePack.effects.push(this.mapIndex);
 		delete Map.list[this.map].effects[this.mapIndex];
 	}
-	
+
 }
 
 class Text {
@@ -2122,7 +2122,7 @@ class Text {
 		this.message = message;
 		this.colour = colour;
 		this.counter = 0;
-		
+
 		// Get first unused Map Index
 		let textList = Map.list[this.map].texts;
 		if (textList.length === 0) {
@@ -2135,15 +2135,15 @@ class Text {
 				}
 			}
 		}
-		
+
 		Map.list[this.map].texts[this.mapIndex] = this;
 		Map.list[this.map].initPack.texts.push(this.getPack());
 	}
-	
+
 	update() {
 		return getPack();
 	}
-	
+
 	getPack() {
 		return {
 			mapIndex: this.mapIndex,
@@ -2158,7 +2158,7 @@ class Text {
 		Map.list[this.map].removePack.texts.push(this.mapIndex);
 		delete Map.list[this.map].texts[this.mapIndex];
 	}
-	
+
 }
 
 class FloatText extends Text {
@@ -2170,11 +2170,11 @@ class FloatText extends Text {
 	update() {
 		this.counter += 1000 / FRAMERATE;
 		this.y -= 30 / FRAMERATE;
-		
+
 		if (this.counter >= 1500) {
 			this.remove();
 		}
-		
+
 		return this.getPack();
 	}
 }
@@ -2188,11 +2188,11 @@ class ScrollText extends Text {
 	update() {
 		this.counter += 1000 / FRAMERATE;
 		this.x += 30 / FRAMERATE;
-		
+
 		if (this.counter >= 1500) {
 			this.remove();
 		}
-		
+
 		return this.getPack();
 	}
 }
@@ -2216,19 +2216,19 @@ server.listen(process.env.PORT || 2000, function() {
 let lastSocketID = 0;
 let SOCKET_LIST = {};
 let currentTime = 0;
-let messagePackMaster = {messages: []};
+let messagePackMaster = [];
 
 // Message Functions
 function sendServerMessage(message) {
-	messagePackMaster.messages.push({message});
+	messagePackMaster.push({message});
 }
 
 function sendMapMessage(map, message) {
-	messagePackMaster.messages.push({message, map});
+	messagePackMaster.push({message, map});
 }
 
 function sendPlayerMessage(id, message) {
-	messagePackMaster.messages.push({message, id});
+	messagePackMaster.push({message, id});
 }
 
 
@@ -2241,21 +2241,21 @@ io.sockets.on('connection', function(socket){
 	socket.id = lastSocketID++;
 	SOCKET_LIST[socket.id] = socket;
 	console.log("New Connection: " + socket.id);
-	
+
 	socket.on('disconnect', function() {
 		if (Player.list[socket.id]) {
 			Player.onDisconnect(socket);
 		}
 		delete SOCKET_LIST[socket.id];
 	});
-	
+
 	socket.on('login', function() {
 		if (!Player.list[socket.id]) {
 			Player.onConnect(socket);
 		}
 	});
-	
-	
+
+
 });
 
 setInterval(function() {
@@ -2263,7 +2263,7 @@ setInterval(function() {
 
 	let playerUpdatePack = Player.updateAll();
 	let mapUpdatePack = Map.updateAll();
-	
+
 	for (let i in SOCKET_LIST) {
 		let socket = SOCKET_LIST[i];
 		let player = socket.player;
@@ -2271,11 +2271,11 @@ setInterval(function() {
 			// Create Initialize Pack
 			let initPack = Map.list[player.map].initPack;
 			initPack.inventory = player.inventoryInitPack;
-			
+
 			// Create Update Pack
 			let currentMapUpdatePack = mapUpdatePack[player.map];
 			let currentPlayerUpdatePack = playerUpdatePack.filter(target => target.map === player.map);
-			
+
 			let updatePack = {
 				players: currentPlayerUpdatePack,
 				items: currentMapUpdatePack.items,
@@ -2285,11 +2285,11 @@ setInterval(function() {
 				inventory: player.getInventoryPack(),
 				self: player.getSelfPack()
 			};
-			
+
 			// Create Remove Pack
 			let removePack = Map.list[player.map].removePack;
 			removePack.inventory = player.inventoryRemovePack;
-			
+
 			let messagePack = messagePackMaster.filter(function(pack) {
 				// Server Message
 				if (!pack.map && !pack.id) {
@@ -2308,19 +2308,19 @@ setInterval(function() {
 					}
 				}
 			});
-			
+
 			// Emit Packs to Client
 			socket.emit('init', initPack);
 			socket.emit('update', updatePack);
 			socket.emit('remove', removePack);
-			socket.emit('message', messagePack);
-			
+			socket.emit('message', { messagePack });
+
 			// Reset Player Inventory Init and Remove Packs
 			player.inventoryInitPack = [];
 			player.inventoryRemovePack = [];
 		}
 	}
-	
+
 	// Reset Map Init and Remove Packs
 	for (let i in Map.list) {
 		let map = Map.list[i];
@@ -2329,8 +2329,8 @@ setInterval(function() {
 			map.removePack = {players: [], items: [], bots: [], effects: [], texts: []};
 		}
 	}
-	
+
 	// Reset Message Pack Master
-	messagePackMaster = {messages: []};
+	messagePackMaster = [];
 
 }, 1000/FRAMERATE);

@@ -64,6 +64,18 @@ let keyFive;
 
 
 // Global Functions
+function clamp(value, min, max) {
+	if (value < min) {
+		return min;
+	}
+	else if (value > max) {
+		return max;
+	}
+	else {
+		return value;
+	}
+}
+
 function findGridPosition(x) {			// Takes a pixel position and turns it into a grid position
 	return (x - x % TILE_SIZE) / TILE_SIZE;
 }
