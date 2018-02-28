@@ -205,7 +205,7 @@ Game.singleClick = function() {
 		for (let i in ClientPlayer.list) {
 			let target = ClientPlayer.list[i];
 			if (target.gridPosition.x === x & target.gridPosition.y === y) {
-				Game.info.setToPlayer(target);
+				UI.info.setToPlayer(target);
 				if (target === Game.player) {
 					console.log("You see yourself!");
 				}

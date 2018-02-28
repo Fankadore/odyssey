@@ -455,7 +455,7 @@ class Map {
 			mapPack.effects.push(this.effects[i].update());
 		}
 		for (let i in this.texts) {
-			mapPack.texts[i].push(this.texts[i].update());
+			mapPack.texts.push(this.texts[i].update());
 		}
 
 		return mapPack;
@@ -2130,7 +2130,7 @@ class Text {
 		}
 		else {
 			for (let i = 0; i <= textList.length; i++) {
-				if (!effectList[i]) {
+				if (!textList[i]) {
 					this.mapIndex = i;
 				}
 			}
