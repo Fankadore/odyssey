@@ -79,7 +79,7 @@ class Game {
 		
 		// Check for Bots
 		let bots = map.bots.filter((bot) => {
-			if (bot.x === x && bot.y === y) return true;
+			if (bot.x === x && bot.y === y && !bot.isDead) return true;
 		});
 		if (bots.length > 0) return false;
 		
