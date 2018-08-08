@@ -2,18 +2,23 @@
   "name": "odyssey",
   "version": "1.0.0",
   "description": "An open source remake of the Odyssey game engine.",
-  "main": "app.js",
+  "main": "server/server.app.js",
   "dependencies": {
     "express": "^4.16.3",
     "mongod": "^2.0.0",
     "mongojs": "^2.6.0",
+    "node-gameloop": "^0.1.4",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
-    "nodemon": "^1.17.5"
+    "nodemon": "^1.17.5",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0"
   },
   "scripts": {
-    "test": "nodemon app.js"
+    "build": "webpack --config ./client/webpack.config.js",
+    "build-server": "webpack --config ./server/webpack.config.js",
+    "start-dev": "nodemon ./server/server.app.js"
   },
   "author": "Fankadore",
   "license": "MIT"
