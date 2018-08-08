@@ -2,6 +2,7 @@ import db from '../db.js';
 import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
+import Actor from './Actor.js';
 
 // A Bot is an Actor with conditional inputs
 

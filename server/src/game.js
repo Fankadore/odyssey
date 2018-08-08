@@ -4,6 +4,7 @@ import Map from './classes/map.js';
 import Player from './classes/player.js';
 import db from './db.js';
 import config from './config.js';
+import Bot from './classes/bot.js';
 
 class Game {
 	constructor() {
@@ -89,6 +90,10 @@ class Game {
 		if (players.length > 0) return false;
 
 		return true;
+	}
+
+	spawnBot(ref, mapId, x, y) {
+		new Bot(ref, mapId, x, y);
 	}
 }
 

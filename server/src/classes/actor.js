@@ -386,6 +386,8 @@ export default class Actor extends Entity {
 
 		this.isAttacking = true;
 
+		game.spawnBot(0, 1, 5, 5);
+
 		let targetList = game.playerList.filter((player) => {
 			if (player === this || player.isDead) return false;
 			if (!this.checkInRange(direction, player, this.range)) return false;

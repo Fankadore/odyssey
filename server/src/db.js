@@ -385,6 +385,10 @@ class Database {
   saveMapData(data) {
     mongo.maps.save(data.id, data);
   }
+
+  getBotData(ref) {
+    return this.bots[ref];
+  }
 }
 
 const db = new Database();
