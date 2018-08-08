@@ -63,13 +63,16 @@ export default class Bot extends Actor {
 	getPack() {
 		return {
 			id: this.id,
-			map: this.map,
-			x: this.x,
-			y: this.y,
 			name: this.name,
 			sprite: this.sprite,
 			direction: this.direction,
-			isMoving: this.isMoving,
+			map: this.map,
+			x: this.startX,
+			y: this.startY,
+			z: this.z,
+			destinationX: this.destinationX,
+			destinationY: this.destinationY,
+			lerp: this.lerp,
 			isRunning: this.isRunning,
 			isAttacking: this.isAttacking,
 			isDead: this.isDead
