@@ -77,14 +77,16 @@ class Game {
 		if (map.tiles[y][x].wall === true) return false;
 		
 		// Check for Bots
-		map.bots.forEach((bot) => {
-			if (bot.x === x && bot.y === y) return false;
+		let bots = map.bots.filter((bot) => {
+			if (bot.x === x && bot.y === y) return true;
 		});
+		if (bots.length > 0) return false;
 		
 		// Check for Players
-		this.playerList.forEach((player) => {
-			if (player.map === mapId && player.x === x && player.y === y) return false;
+		let players = this.playerList.filter((player) => {
+			if (player.map === map.id && player.x === x && player.y === y && !player.isDead) return true;
 		});
+		if (players.length > 0) return false;
 
 		return true;
 	}
