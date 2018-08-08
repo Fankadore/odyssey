@@ -82,6 +82,34 @@ export default class GameScene extends Scene {
 			});
 		}
 
+		// Update Bots
+		let bots = data.map.bots;
+		if (bots) {
+			let addBots = bots.filter((botData) => {	// filter players on new list but not old
+				if (!botData) return false;
+				return (this.list.bots[botData.id] === null || this.list.bots[botData.id] === undefined);
+			});
+			let removeBots = this.list.bots.filter((bot) => {	// filter players on old list but not new
+				if (!bot) return false;
+				return (bots[bot.id] === null || bots[bot.id] === undefined);
+			});
+			let updateBots = this.list.bots.filter((bot) => {	// filter players on both lists
+				if (!bot) return false;
+				return (bots[bot.id] !== null && bots[bot.id] !== undefined);
+			});
+
+			addBots.forEach((botData) => {
+				this.list.bots[botData.id] = new Actor(this, botData);
+			});
+			removeBots.forEach((bot) => {
+				bot.destroy();
+				delete this.list.bots[bot.id];
+			});
+			updateBots.forEach((bot) => {
+				bot.update(bots[bot.id]);
+			});
+		}
+		
 		this.list.texts.forEach((text) => {
 			text.update(delta);
 		});
