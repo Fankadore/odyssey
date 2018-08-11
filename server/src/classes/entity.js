@@ -11,5 +11,6 @@ export default class Entity {
 			sprite = 0;
 		}
 		this.sprite = sprite;
+		this.isVisiable = true;
 	}
 }
