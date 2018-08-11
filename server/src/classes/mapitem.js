@@ -3,13 +3,16 @@ import game from '../game.js';
 import util from '../util.js';
 
 export default class MapItem extends Entity {
-	constructor(map, x, y, itemRef, stack) {
+	constructor(mapId, x, y, itemClass, stack) {
 		let data = db.getItemData(itemRef);
 
-		super(map, x, y, data.sprite);
-		this.itemRef = itemRef;
+		super(mapId, x, y, data.sprite);
+		this.class = itemClass;
 		this.stack = stack;
+		
 		this.name = data.name;
+		this.type = data.type;
+		this.reusable = data.reusable;
 		this.damageBonus = data.damageBonus;
 		this.defenceBonus = data.defenceBonus;
 		this.healthMaxBonus = data.healthMaxBonus;
