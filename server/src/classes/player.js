@@ -80,7 +80,8 @@ export default class Player extends Actor {
 			lerp: this.lerp,
 			isRunning: this.isRunning,
 			isAttacking: this.isAttacking,
-			isDead: this.isDead
+			isDead: this.isDead,
+			isVisible: this.isVisiable
 		};
 	}
 	
