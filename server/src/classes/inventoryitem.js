@@ -3,10 +3,10 @@ import game from '../game.js';
 import util from '../util.js';
 
 export default class InventoryItem {
-	constructor(playerId, slot, itemRef, stack) {
+	constructor(playerId, slot, itemClass, stack) {
 		this.player = playerId;
 		this.slot = slot;
-		this.itemRef = itemRef;
+		this.class = itemClass;
 		this.stack = stack;
 
 		let data = db.getItemData(this.itemRef);
@@ -59,20 +59,24 @@ export default class InventoryItem {
 			return false;
 		}
 	}
-	
-	findEquipmentSlot() {
-		switch (this.type) {
-			case "weapon": return config.INVENTORY_SIZE;
-			break;
-			case "shield": return config.INVENTORY_SIZE + 1;
-			break;
-			case "armour": return config.INVENTORY_SIZE + 2;
-			break;
-			case "helmet": return config.INVENTORY_SIZE + 3;
-			break;
-			case "ring": return config.INVENTORY_SIZE + 4;
-			break;
-			default: return null;
+
+	canEquip(slot) {
+		if (slot === config.INVENTORY_SIZE) {
+			if (this.type === 'weapon') return true;
 		}
+		else if (slot === config.INVENTORY_SIZE + 1) {
+			if (this.type === 'shield') return true;
+		}
+		else if (slot === config.INVENTORY_SIZE + 2) {
+			if (this.type === 'armour') return true;
+		}
+		else if (slot === config.INVENTORY_SIZE + 3) {
+			if (this.type === 'helmet') return true;
+		}
+		else if (slot === config.INVENTORY_SIZE + 4) {
+			if (this.type === 'ring') return true;
+		}
+
+		return false;
 	}
 }
