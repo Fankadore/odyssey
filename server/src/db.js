@@ -11,94 +11,50 @@ class Database {
         sprite: 68,
         type: 'none',
         reusable: false,
-        
-        use:		function() {
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              }
+        damageBonus: 0,
+        defenceBonus: 0,
+        healthMaxBonus: 0,
+        energyMaxBonus: 0,
+        rangeBonus: 0
       },
       {	// type 1
         name: "Health Potion",
         sprite: 1,
         type: 'potion',
         reusable: false,
-        
-        use:		function() {
-                let value = 10;
-                this.health += value;
-                new FloatText(this.gridPosition.x, this.gridPosition.y, value, "#00FF00");
-                if (this.health > this.healthMax) {
-                  this.health = this.healthMax;
-                }
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              }
+        damageBonus: 0,
+        defenceBonus: 0,
+        healthMaxBonus: 0,
+        energyMaxBonus: 0,
+        rangeBonus: 0
       }, 
       {	// type 2
         name: "Energy Potion",
         sprite: 2,
         type: 'potion',
         reusable: false,
-        
-        use:		function() {
-                let value = 10;
-                this.energy += value;
-                new FloatText(this.gridPosition.x, this.gridPosition.y, value, "#FFFF00");
-                if (this.energy > this.energyMax) {
-                  this.energy = this.energyMax;
-                }
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              }
+        damageBonus: 0,
+        defenceBonus: 0,
+        healthMaxBonus: 0,
+        energyMaxBonus: 0,
+        rangeBonus: 0
       }, 
       {	// type 3
         name: "Incognito",
         sprite: 12,
         type: 'special',
         reusable: true,
-        
-        use:		function() {
-                this.setSprite(game.rnd.integerInRange(1, MAX_SPRITES));
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              }
+        damageBonus: 0,
+        defenceBonus: 0,
+        healthMaxBonus: 0,
+        energyMaxBonus: 0,
+        rangeBonus: 0
       },
       {	// type 4
         name: "Sword",
         sprite: 10,
         type: 'weapon',
         reusable: true,
-        
-        use:		function() {
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              },
-        
         damageBonus: 1,
         defenceBonus: 0,
         healthMaxBonus: 0,
@@ -111,23 +67,11 @@ class Database {
         sprite: 14,
         type: 'weapon',
         reusable: true,
-        
-        use:		function() {
-                return true;
-              },
-        get:		function() {
-                return true;
-              },
-        drop:	function() {
-                return true;
-              },
-        
         damageBonus: 2,
         defenceBonus: 0,
         healthMaxBonus: 0,
         energyMaxBonus: 0,
         rangeBonus: 0
-        
       }
       
     ];
@@ -388,6 +332,14 @@ class Database {
 
   getBotData(ref) {
     return this.bots[ref];
+  }
+
+  saveBotData(mapId, id) {
+
+  }
+
+  getItemData(ref) {
+    return this.items[ref];
   }
 }
 
