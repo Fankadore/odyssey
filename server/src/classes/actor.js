@@ -601,131 +601,88 @@ export default class Actor extends Entity {
 	}
 	
 	moveItemToSlot(slot, newSlot) {
-		if (!slot || !newSlot) return;
-		if (slot === newSlot) return;
+		if (!slot || !newSlot || slot === newSlot) return;
+		if (slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
+		if (newSlot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
 
 		let item = this.inventory[slot];
 		let newItem = this.inventory[newSlot];
+		if (!item) return;
 
-		if (item) {
-			if (newItem) {
-				if (slot >= config.INVENTORY_SIZE) {
-					if (newSlot >= config.INVENTORY_SIZE) {
-						if (newItem.type === item.type) {
-							item.slot = newSlot;
-							newItem.slot = slot;
-							util.swap(this.inventory, slot, newSlot);
-						}
-						else {
-							game.sendPlayerMessage(this.id, "That cannot be equipped there.");
-						}
-					}
-					else {
-						if (newItem.type === item.type) {
-							item.equipped = false;
-							newItem.equipped = true;
-							item.slot = newSlot;
-							newItem.slot = slot;
-							util.swap(this.inventory, slot, newSlot);
-							this.calcBonusStats();
-						}
-						else {
-							newSlot = this.findFirstEmptySlot();
-							if (newSlot) {
-								item.equipped = false;
-								item.slot = newSlot;
-								util.swap(this.inventory, slot, newSlot);
-								this.calcBonusStats();
-							}
-							else {
-								game.sendPlayerMessage(this.id, "Your inventory is full.");
-							}
-						}
-					}
-				}
-				else {
-					if (newSlot >= config.INVENTORY_SIZE) {
-						if (newItem.type === item.type) {
-							item.equipped = true;
-							newItem.equipped = false;
-							item.slot = newSlot;
-							newItem.slot = slot;
-							util.swap(this.inventory, slot, newSlot);
-							this.calcBonusStats();
-						}
-						else {
-							game.sendPlayerMessage(this.id, "That cannot be equipped there.");
-						}
-					}
-					else {
-						item.slot = newSlot;
-						newItem.slot = slot;
-						util.swap(this.inventory, slot, newSlot);
-					}
-				}
+		function swapSlots() {
+			item.slot = newSlot;
+			if (newItem) newItem.slot = slot;
+			util.swap(this.inventory, slot, newSlot);
+			this.calcBonusStats();
+		}
+		
+		if (newSlot >= config.INVENTORY_SIZE) {	// Target slot is for equipment
+			if (!item.canEquip(newSlot)) {
+				game.sendPlayerMessage(this.id, "That cannot be equipped there.");
+				return;
 			}
-			else {
-				if (slot >= config.INVENTORY_SIZE) {
-					if (newSlot >= config.INVENTORY_SIZE) {
-						if (newSlot === item.findEquipmentSlot()) {
-							item.slot = newSlot;
-							this.inventory[newSlot] = item;
-							delete this.inventory[slot];
-						}
-						else {
-							game.sendPlayerMessage(this.id, "That cannot be equipped there.");
-						}
-					}
-					else {
-						item.equipped = false;
-						item.slot = newSlot;
-						this.inventory[newSlot] = item;
-						delete this.inventory[slot];
-						this.calcBonusStats();
-					}
-				}
-				else {
-					if (newSlot >= config.INVENTORY_SIZE) {
-						if (newSlot === item.findEquipmentSlot()) {
-							item.equipped = true;
-							item.slot = newSlot;
-							this.inventory[newSlot] = item;
-							delete this.inventory[slot];
-							this.calcBonusStats();
-						}
-						else {
-							game.sendPlayerMessage(this.id, "That cannot be equipped there.");
-						}
-					}
-					else {
-						item.slot = newSlot;
-						this.inventory[newSlot] = item;
-						delete this.inventory[slot];
-					}
-				}
-			}
+		}
+
+		// No new item in new slot
+		if (!newItem) {
+			swapSlots();
+			return;
+		}
+
+		// New item in new slot, old item in inventory
+		if (slot < config.INVENTORY_SIZE) {
+			swapSlots();
+			return;
+		}
+
+		// Old item is equipped, new item is equipped
+		if (newSlot >= config.INVENTORY_SIZE) {
+			swapSlots();
+			return
+		}
+
+		// Old item is equipped, new item in inventory, same item type
+		if (newItem.type === item.type) {
+			swapSlots();
+			return;
+		}
+
+		// Old item is equipped, new item in inventory, different types
+		newSlot = this.findFirstEmptySlot();
+		if (newSlot) {
+			swapSlots();
+		}
+		else {
+			game.sendPlayerMessage(this.id, "Your inventory is full.");
 		}
 	}
 
 	equipItem(slot) {
-		let newSlot = item.findEquipmentSlot();
+		let newSlot = null;
+		for (let i = config.INVENTORY_SIZE; i < config.EQUIPMENT_SIZE; i++) {
+			if (item.canEquip(i)) {
+				newSlot = i;
+				break;
+			}
+		}
+		if (!newSlot) return;
+
 		this.moveItemToSlot(slot, newSlot);
-		this.calcBonusStats();
 	}
 
 	unequipItem(slot) {
+		if (slot < config.INVENTORY_SIZE) return;
+		
 		let item = this.inventory[slot];
 		if (!item) return;
 		
-		if (item.slot >= config.INVENTORY_SIZE) {
-			let newSlot = this.findFirstEmptySlot();
-			if (newSlot === null) {
-				game.sendPlayerMessage(this.id, "Your inventory is full.");
-			}
-			else {
-				this.moveItemToSlot(slot, newSlot);
-			}
+		let newSlot = this.findFirstEmptySlot();
+		if (!newSlot) {
+			game.sendPlayerMessage(this.id, "Your inventory is full.");
+			return;
 		}
+
+		this.moveItemToSlot(slot, newSlot);
 	}
 	
 	findFirstEmptySlot() {
