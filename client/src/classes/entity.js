@@ -13,6 +13,8 @@ class Entity extends Phaser.GameObjects.Sprite {
       y
     };
     this.sprite = sprite;
+    this.setOrigin(0, 0);
+    this.setTexture(spritesheet, sprite);
     scene.add.existing(this);
   }
 }

@@ -1,7 +1,7 @@
 import { Scene } from './lib/phaser.js';
-import Text from './classes/text.js';
-import Entity from './classes/entity.js';
 import Actor from './classes/actor.js';
+import MapItem from './classes/mapitem.js';
+import Text from './classes/text.js';
 import config from './config.js';
 
 export default class GameScene extends Scene {
@@ -58,15 +58,12 @@ export default class GameScene extends Scene {
 		// Update Players
 		if (data.players) {
 			let addPlayers = data.players.filter((playerData) => {	// filter players on new list but not old
-				if (!playerData) return false;
 				return (this.list.players[playerData.id] === null || this.list.players[playerData.id] === undefined);
 			});
 			let removePlayers = this.list.players.filter((player) => {	// filter players on old list but not new
-				if (!player) return false;
 				return (data.players[player.id] === null || data.players[player.id] === undefined);
 			});
 			let updatePlayers = this.list.players.filter((player) => {	// filter players on both lists
-				if (!player) return false;
 				return (data.players[player.id] !== null && data.players[player.id] !== undefined);
 			});
 
@@ -82,38 +79,84 @@ export default class GameScene extends Scene {
 			});
 		}
 
-		if (data.map) {
-			// Update Bots
-			let bots = data.map.bots;
-			if (bots) {
-				let addBots = bots.filter((botData) => {	// filter players on new list but not old
-					if (!botData) return false;
-					return (this.list.bots[botData.id] === null || this.list.bots[botData.id] === undefined);
-				});
-				let removeBots = this.list.bots.filter((bot) => {	// filter players on old list but not new
-					if (!bot) return false;
-					return (bots[bot.id] === null || bots[bot.id] === undefined);
-				});
-				let updateBots = this.list.bots.filter((bot) => {	// filter players on both lists
-					if (!bot) return false;
-					return (bots[bot.id] !== null && bots[bot.id] !== undefined);
-				});
-				
-				addBots.forEach((botData) => {
-					this.list.bots[botData.id] = new Actor(this, botData);
-				});
-				removeBots.forEach((bot) => {
-					bot.destroy();
-					delete this.list.bots[bot.id];
-				});
-				updateBots.forEach((bot) => {
-					bot.update(bots[bot.id]);
-				});
-				
-				this.list.texts.forEach((text) => {
-					text.update(delta);
-				});
-			}
+		if (!data.map) return;
+
+		// Update Bots
+		let bots = data.map.bots;
+		if (bots) {
+			let addBots = bots.filter((botData) => {	// filter bots on new list but not old
+				return (this.list.bots[botData.id] === null || this.list.bots[botData.id] === undefined);
+			});
+			let removeBots = this.list.bots.filter((bot) => {	// filter bots on old list but not new
+				return (bots[bot.id] === null || bots[bot.id] === undefined);
+			});
+			let updateBots = this.list.bots.filter((bot) => {	// filter bots on both lists
+				return (bots[bot.id] !== null && bots[bot.id] !== undefined);
+			});
+			
+			addBots.forEach((botData) => {
+				this.list.bots[botData.id] = new Actor(this, botData);
+			});
+			removeBots.forEach((bot) => {
+				bot.destroy();
+				delete this.list.bots[bot.id];
+			});
+			updateBots.forEach((bot) => {
+				bot.update(bots[bot.id]);
+			});
+		}
+
+		// Update Map Items
+		let items = data.map.items;
+		if (items) {
+			let addItems = items.filter((itemData) => {	// filter item on new list but not old
+				if (!itemData) return false;
+				return (this.list.items[itemData.id] == null);
+			});
+			let removeItems = this.list.items.filter((item) => {	// filter items on old list but not new
+				if (!item) return false;
+				return (items[item.id] == null);
+			});
+			let updateItems = this.list.items.filter((item) => {	// filter items on both lists
+				if (!item) return false;
+				return (items[item.id] != null);
+			});
+
+			addItems.forEach((itemData) => {
+				this.list.items[itemData.id] = new MapItem(this, itemData);
+			});
+			removeItems.forEach((item) => {
+				item.destroy();
+				delete this.list.items[item.id];
+			});
+			updateItems.forEach((item) => {
+				item.update(items[item.id]);
+			});
+		}
+		
+		// Update Text
+		let texts = data.map.texts;
+		if (texts) {
+			let addTexts = texts.filter((textData) => {	// filter text on new list but not old
+				return (this.list.texts[textData.id] == null);
+			});
+			let removeTexts = this.list.texts.filter((text) => {	// filter texts on old list but not new
+				return (texts[text.id] == null);
+			});
+			let updateTexts = this.list.texts.filter((text) => {	// filter texts on both lists
+				return (texts[text.id] != null);
+			});
+			
+			addTexts.forEach((textData) => {
+				this.list.texts[textData.id] = new Text(this, textData);
+			});
+			removeTexts.forEach((text) => {
+				text.destroy();
+				delete this.list.texts[text.id];
+			});
+			updateTexts.forEach((text) => {
+				text.update(texts[text.id]);
+			});
 		}
 	}
 
