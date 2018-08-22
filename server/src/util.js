@@ -19,10 +19,10 @@ function swap(array, i, j) {
 }
 
 function firstEmptyIndex(array) {
+  if (array.length < 1) return 0;
+  
   for (let i = 0; i <= array.length; i++) {
-    if (!array[i]) {
-      return i;
-    }
+    if (array[i] == null) return i;
   }
 }
 
@@ -43,10 +43,16 @@ function clamp(value, minimum, maximum) {
   }
 }
 
+function randomInt(minimum, maximum) {
+  maximum++;
+  return Math.floor((Math.random() * maximum) + minimum);
+}
+
 export default {
   shuffle,
   swap,
   firstEmptyIndex,
   lerp,
-  clamp
+  clamp,
+  randomInt
 };
