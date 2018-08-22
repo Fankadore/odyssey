@@ -32,7 +32,7 @@ export default class Player extends Actor {
 	loadMap() {
 		
 	}
-	
+
 	update(delta) {
 		super.update(delta);		// Default Actor Update
 		
@@ -81,7 +81,7 @@ export default class Player extends Actor {
 			isRunning: this.isRunning,
 			isAttacking: this.isAttacking,
 			isDead: this.isDead,
-			isVisible: this.isVisiable
+			isVisible: this.isVisible
 		};
 	}
 	
@@ -97,16 +97,6 @@ export default class Player extends Actor {
 			attackTimer: this.attackTimer,
 			inventory: this.getInventoryPack()
 		};
-	}
-	
-	getInventoryPack() {
-		let inventoryPack = [];
-		
-		this.inventory.forEach((item) => {
-			inventoryPack[item.slot] = item.getPack();
-		});
-		
-		return inventoryPack;
 	}
 	
 	checkAdmin(access = 1) {
@@ -153,12 +143,6 @@ export default class Player extends Actor {
 				}
 			break;
 			case 'dragStopInventory':
-				if (this.inventory[data.slot]) {
-					if (!this.isDead) {
-						this.moveItemToSlot(data.slot, data.newSlot);
-					}
-				}
-			break;
 			case 'dragStopEquipment':
 				if (this.inventory[data.slot]) {
 					if (!this.isDead) {
@@ -181,7 +165,7 @@ export default class Player extends Actor {
 			// God Inputs
 			case 'spawnItem':
 				if (this.checkAdmin(2)) {
-					game.spawnItem(data.mapId, data.x, data.y, data.type, data.stack);
+					game.spawnMapItem(data.mapId, data.x, data.y, data.type, data.stack);
 				}
 				else {
 					game.sendPlayerMessage(this.id, `You don't have access to that command.`);
