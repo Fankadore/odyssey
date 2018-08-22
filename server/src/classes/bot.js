@@ -2,26 +2,62 @@ import db from '../db.js';
 import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
-import Actor from './Actor.js';
+import Actor from './actor.js';
 
 // A Bot is an Actor with conditional inputs
 
 export default class Bot extends Actor {
-	constructor(botRef, map, x, y) {
-		let data = db.getBotData(botRef);
+	constructor(data) {
+		if (data.botClass == null || data.map == null || data.x == null || data.y == null) return;
 
-		super(map, x, y, data.name, data.sprite);
-		this.botRef = botRef;
-		this.hostile = data.hostile;		// Whether bot attacks on sight
+		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.map].bots);
+		
+		let classData = db.getBotData(data.botClass);
+		if (!data.name) data.name = classData.name;
+		if (data.sprite == null) data.sprite = classData.sprite;
+		if (data.hostile == null) data.hostile = classData.hostile;
+		if (data.damageBase == null) data.damageBase = classData.damageBase;
+		if (data.defenceBase == null) data.defenceBase = classData.defenceBase;
+		if (data.healthMaxBase == null) data.healthMaxBase = classData.healthMaxBase;
+		if (data.energyMaxBase == null) data.energyMaxBase = classData.energyMaxBase;
+		if (data.rangeBase == null) data.rangeBase = classData.rangeBase;
 
+		super(data.map, data.x, data.y, data.name, data.sprite);
+		this.id = data.id;
+		this.botClass = data.botClass;
+		this.hostile = data.hostile;
+		this.damageBase = data.damageBase;
+		this.defenceBase = data.defenceBase;
+		this.healthMaxBase = data.healthMaxBase;
+		this.energyMaxBase = data.energyMaxBase;
+		this.rangeBase = data.rangeBase;
+		
 		this.target = null;
 		this.setTask('wandering');
 		this.moveTimer = 0;
-		
-		this.id = util.firstEmptyIndex(game.mapList[this.map].bots);
+
 		game.mapList[this.map].bots[this.id] = this;
 	}
 	
+	getMapItem(mapId, id) {
+		let slot = super.getMapItem(mapId, id);
+		if (slot == null) return;
+		
+		let item = game.mapList[mapId].items[id];
+		item.moveToBot(this.map, this.id, slot);
+	}
+
+	getItem(data) {
+		let slot = super.getItem(data);
+		if (slot == null) return;
+
+		data.owner = 'bot';
+		data.mapId = this.map;
+		data.id = this.id;
+		data.slot = slot;
+		new Item(data);
+	}
+
 	update(delta) {
 		super.update(delta); 	// Default Actor Update
 		if (this.isDead) return;
@@ -75,7 +111,8 @@ export default class Bot extends Actor {
 			lerp: this.lerp,
 			isRunning: this.isRunning,
 			isAttacking: this.isAttacking,
-			isDead: this.isDead
+			isDead: this.isDead,
+			isVisible: this.isVisible
 		};
 	}
 
