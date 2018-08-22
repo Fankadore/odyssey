@@ -1,10 +1,12 @@
 import fs from 'fs';
 
-import Map from './classes/map.js';
-import Player from './classes/player.js';
 import db from './db.js';
 import config from './config.js';
+import util from './util.js';
+import Map from './classes/map.js';
+import Player from './classes/player.js';
 import Bot from './classes/bot.js';
+import Item from './classes/item.js';
 
 class Game {
 	constructor() {
@@ -12,10 +14,7 @@ class Game {
 		this.mapList = [];
 		this.messageQueue = [];
 
-		this.createMaps();
-	}
-
-	createMaps() {
+		// Create Maps
 		this.mapData = JSON.parse(fs.readFileSync('./server/data/map.json', 'utf8'));
 		for (let id = 0; id < config.MAX_MAPS; id++) {
 			this.mapList[id] = new Map(id, this.mapData[id]);
@@ -39,6 +38,7 @@ class Game {
 		return pack;
 	}
 
+	// Players
 	playerLogin(id) {
 		let player = new Player(id);
 		this.playerList[id] = player;
@@ -55,19 +55,21 @@ class Game {
 		}
 	}
 
+	// Messages
 	sendServerMessage(message) {
 		this.messageQueue.push({message});
 	}
 
-	sendMapMessage(map, message) {
-		this.messageQueue.push({message, map});
+	sendMapMessage(mapId, message) {
+		this.messageQueue.push({message, mapId});
 	}
 
 	sendPlayerMessage(id, message) {
 		this.messageQueue.push({message, id});
 	}
 
-	checkVacant(mapId, x, y) {
+	// Map
+	isVacant(mapId, x, y) {
 		// Check for Map Edges
 		if (x < 0 || x >= config.MAP_COLUMNS) return false;
 		if (y < 0 || y >= config.MAP_ROWS) return false;
@@ -92,8 +94,24 @@ class Game {
 		return true;
 	}
 
-	spawnBot(ref, mapId, x, y) {
-		new Bot(ref, mapId, x, y);
+	spawnBot(mapId, x, y, botClass) {
+		new Bot(mapId, x, y, botClass);
+	}
+	
+	spawnMapItem(mapId, x, y, itemClass, stack = 0) {
+		new Item({
+			owner: 'map',
+			mapId,
+			id: util.firstEmptyIndex(this.mapList[mapId].items),
+			x,
+			y,
+			itemClass,
+			stack
+		});
+	}
+
+	spawnDamageText(mapId, x, y, damage) {
+		new Text(mapId, x, y, damage, '#FF0000', 0, -1);
 	}
 }
 
