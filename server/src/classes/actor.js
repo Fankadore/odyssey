@@ -3,7 +3,6 @@ import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
 import Entity from './entity.js';
-import Text from './text.js';
 
 // An Actor is an Entity which can move, attack and interact with items
 
@@ -92,28 +91,12 @@ export default class Actor extends Entity {
 
 	calcBaseStats() {	// Class and Level
 		//TODO: check db for class stats: base and increase per level
-		// this.damageBase = class.base.damage + (class.increasePerLevel.damage * this.level);
+		// this.damageBase = playerClass.damageBase + (playerClass.increasePerLevel.damage * this.level);
 		this.damageBase = 5;
 		this.defenceBase = 0;
 		this.healthMaxBase = 10;
 		this.energyMaxBase = 40;
 		this.rangeBase = 1;
-	}
-
-	calcBonusStats() {	// Items (equipped and passive) and Effects (spells and potions)
-		let itemBonus = this.calcItemBonus();
-		let effectBonus = this.calcEffectBonus();
-
-		this.damageBonus = itemBonus.damage + effectBonus.damage;
-		this.defenceBonus = itemBonus.defence + effectBonus.defence;
-		this.healthMaxBonus = itemBonus.healthMax + effectBonus.healthMax;
-		this.energyMaxBonus = itemBonus.energyMax + effectBonus.energyMax;
-		this.rangeBonus = itemBonus.range + effectBonus.range;
-	}
-
-	calcStats() {
-		this.calcBaseStats();
-		this.calcBonusStats();
 	}
 
 	calcItemBonus() {
@@ -160,6 +143,22 @@ export default class Actor extends Entity {
 		// TODO: work out how to do effects for spells and potions
 		return effectBonus;
 	}
+	
+	calcBonusStats() {	// Items (equipped and passive) and Effects (spells and potions)
+		let itemBonus = this.calcItemBonus();
+		let effectBonus = this.calcEffectBonus();
+
+		this.damageBonus = itemBonus.damage + effectBonus.damage;
+		this.defenceBonus = itemBonus.defence + effectBonus.defence;
+		this.healthMaxBonus = itemBonus.healthMax + effectBonus.healthMax;
+		this.energyMaxBonus = itemBonus.energyMax + effectBonus.energyMax;
+		this.rangeBonus = itemBonus.range + effectBonus.range;
+	}
+
+	calcStats() {
+		this.calcBaseStats();
+		this.calcBonusStats();
+	}
 
 	restore() {
 		this.health = this.healthMax;
@@ -175,23 +174,23 @@ export default class Actor extends Entity {
 		}
 
 		if (direction === 'left') {
-			if (!game.checkVacant(this.map, this.x - 1, this.y)) return;
+			if (!game.isVacant(this.map, this.x - 1, this.y)) return;
 			this.destinationX--;
 		}
 		else if (direction === 'right') {
-			if (!game.checkVacant(this.map, this.x + 1, this.y)) return;
+			if (!game.isVacant(this.map, this.x + 1, this.y)) return;
 			this.destinationX++;
 		}
 		else if (direction === 'up') {
-			if (!game.checkVacant(this.map, this.x, this.y - 1)) return;
+			if (!game.isVacant(this.map, this.x, this.y - 1)) return;
 			this.destinationY--;
 		}
 		else if (direction === 'down') {
-			if (!game.checkVacant(this.map, this.x, this.y + 1)) return;
+			if (!game.isVacant(this.map, this.x, this.y + 1)) return;
 			this.destinationY++;
 		}
 		else {
-			switch (Math.floor(Math.random() * (this.laziness + 3))) {
+			switch (util.randomInt(0, 3 + this.laziness)) {
 				case 0: this.move('left');
 				break;
 				case 1: this.move('right');
@@ -230,7 +229,7 @@ export default class Actor extends Entity {
 		if (target.x === this.x && target.y === this.y) {
 			this.move();
 		}
-		else if (Math.floor(Math.random() * 2 === 0)) {
+		else if (util.randomInt(0, 1) === 0) {
 			if (target.x < this.x) {
 				if (target.x >= (this.x - this.range) && target.y === this.y) {
 					if (hostile) {
@@ -385,7 +384,8 @@ export default class Actor extends Entity {
 		if (this.isAttacking || this.attackTimer > 0) return;
 
 		this.isAttacking = true;
-
+		game.spawnMapItem(this.map, this.x, this.y, 1);
+		
 		let actorList = game.playerList.concat(game.mapList[this.map].bots);
 		let targetList = actorList.filter((actor) => {
 			if (actor === this || actor.isDead) return false;
@@ -415,8 +415,7 @@ export default class Actor extends Entity {
 			}
 			console.log(`${source.name} hits ${this.name} for ${damage} damage.`);
 		}
-
-		new Text(this.map, this.x, this.y, damage, '#FF0000', 0, -1);
+		game.spawnDamageText(this.map, this.x, this.y, damage);
 	}
 	
 	respawn() {
@@ -497,111 +496,116 @@ export default class Actor extends Entity {
 	
 	// Inventory
 	pickUp() {
-		game.mapList[this.map].items.forEach((item) => {
-			if (item.x === this.x && item.y === this.y) {
-				if (this.getItem(item.itemClass, item.stack)) {
-					item.remove();
-				}
-			}
-		});
-	}
-	
-	getItem(itemClass, stack) {
-		if (stack > 0) {			// Stackable Items
-			let emptySlot = -1;
-			for (let slot = 0; slot < config.INVENTORY_SIZE; slot++) {
-				if (this.inventory[slot]) {
-					if (this.inventory[slot].class === itemClass) {
-						this.inventory[slot].stack += stack;
-						return true;
-					}
-				}
-				else if (emptySlot < 0) {
-					emptySlot = slot;
-				}
-				
-				if (slot === config.INVENTORY_SIZE - 1) {
-					if (emptySlot >= 0 && emptySlot < config.INVENTORY_SIZE) {
-						new InventoryItem(this.id, emptySlot, itemClass, stack);
-						return true;
-					}
-					else {	// Inventory full
-						return false;
-					}
-				}
-			}
-		}
-		else {			// Non-Stackable Item
-			for (let slot = 0; slot < config.INVENTORY_SIZE; slot++) {
-				if (!this.inventory[slot]) {
-					new InventoryItem(this.id, slot, itemClass, stack);
-					return true;
+		for (let item of game.mapList[this.map].items) {
+			if (item && item.x === this.x && item.y === this.y) {
+				let slot = this.getMapItem(item.map, item.id);
+				if (slot != null) {
+					item.moveToPlayer(this.id, slot);
 				}
 				else {
-					if (slot === config.INVENTORY_SIZE - 1) {	// Inventory full
-						return false;
-					}
+					// Inventory full
+					break;
 				}
 			}
 		}
+	}
+	
+	getMapItem(mapId, id) {
+		let item = game.mapList[mapId].items[id];
+		if (!item) return null;
+
+		if (item.stack > 0) {
+			let slot = this.findItemSlot(item.itemClass);
+			if (slot >= 0) {
+				this.inventory[slot].stack += item.stack;
+				item.remove();
+				return null;
+			}
+		}
+
+		let slot = this.findFirstEmptySlot();
+		return slot;
+	}
+
+	getItem(data) {
+		if (!data || data.itemClass == null) return null;
+
+		if (data.stack) {
+			slot = this.findItemSlot(data.itemClass);
+			if (slot >= 0) {
+				this.inventory[slot].stack += data.stack;
+				return null;
+			}
+		}
+
+		return this.findFirstEmptySlot();
 	}
 	
 	dropItem(slot) {
 		let item = this.inventory[slot];
 		if (!item) return;
 		
-		if (slot < config.INVENTORY_SIZE) {
-			// Destroy Inventory Item
-			item.remove();
-			
-			// Create Map Item
-			game.spawnItem(this.map, this.x, this.y, item.class, item.stack);
-		}
-		else {
+		if (slot >= config.INVENTORY_SIZE) {
 			this.unequipItem(slot);
-			this.calcBonusStats();
+			return;
 		}
+
+		item.moveToMap(this.map, this.x, this.y);
 	}
 	
 	useItem(slot) {
 		let item = this.inventory[slot];
 		if (!item) return;
+
 		// if (!db.items[item.id].use.call(this, slot)) return;	// Run 'use' script
 		
-		if (item.checkIsEquipment()) {	// Equipment Items
+		if (item.isEquipment()) {	// Equipment Items
 			if (slot < config.INVENTORY_SIZE) {	// Check if item is equipped
 				this.equipItem(slot);
 			}
 			else {
 				this.unequipItem(slot);
 			}
+			return;
 		}
-		else {	// Non-Equipment Items
-			if (!item.reusable) {
-				if (item.stack > 1) {
-					item.stack--;
-				}
-				else {
-					item.remove();
-				}
-			}
+
+		if (item.reusable) return;
+		
+		if (item.stack > 1) {
+			item.stack--;
+			return;
 		}
+
+		item.remove();
 	}
 	
 	hasItem(itemClass) {
 		let count = 0;
-		for (let i = 0; i < config.INVENTORY_SIZE; i++) {
-			if (this.inventory[i]) {
-				if (this.inventory[i].class === itemClass) {
+		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
+			if (this.inventory[slot]) {
+				if (this.inventory[slot].itemClass === itemClass) {
 					count++;
 				}
 			}
 		}
 		return count;
 	}
+
+	findItemSlot(itemClass) {
+		let slot = null;
+		for (let checkSlot = 0; checkSlot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; checkSlot++) {
+			if (this.inventory[checkSlot]) {
+				if (this.inventory[checkSlot].itemClass === itemClass) {
+					slot = checkSlot;
+					break;
+				}
+			}
+		}
+		return slot;
+	}
 	
 	moveItemToSlot(slot, newSlot) {
-		if (!slot || !newSlot || slot === newSlot) return;
+		if (slot == null || newSlot == null || slot === newSlot) return;	// null == undefined, null != 0
 		if (slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
 		if (newSlot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
 
@@ -649,12 +653,12 @@ export default class Actor extends Entity {
 
 		// Old item is equipped, new item in inventory, different types
 		newSlot = this.findFirstEmptySlot();
-		if (newSlot) {
-			swapSlots();
-		}
-		else {
+		if (newSlot == null) {
 			game.sendPlayerMessage(this.id, "Your inventory is full.");
+			return;
 		}
+
+		swapSlots();
 	}
 
 	equipItem(slot) {
@@ -662,22 +666,20 @@ export default class Actor extends Entity {
 		for (let i = config.INVENTORY_SIZE; i < config.EQUIPMENT_SIZE; i++) {
 			if (item.canEquip(i)) {
 				newSlot = i;
-				break;
+				if (!this.inventory[i]) break;
 			}
 		}
-		if (!newSlot) return;
+		if (newSlot === null) return;
 
 		this.moveItemToSlot(slot, newSlot);
 	}
 
 	unequipItem(slot) {
 		if (slot < config.INVENTORY_SIZE) return;
-		
-		let item = this.inventory[slot];
-		if (!item) return;
+		if (!this.inventory[slot]) return;
 		
 		let newSlot = this.findFirstEmptySlot();
-		if (!newSlot) {
+		if (newSlot == null) {
 			game.sendPlayerMessage(this.id, "Your inventory is full.");
 			return;
 		}
@@ -687,7 +689,7 @@ export default class Actor extends Entity {
 	
 	findFirstEmptySlot() {
 		for (let slot = 0; slot < config.INVENTORY_SIZE; slot++) {
-			if (!this.inventory[slot]) return slot;
+			if (this.inventory[slot] == null) return slot;
 		}
 		return null;
 	}
@@ -702,21 +704,15 @@ export default class Actor extends Entity {
 		// Respawning
 		if (this.isDead) {
 			this.respawnTimer += delta;
-			if (this.respawnTimer >= this.respawnSpeed) {
-				this.respawn();
-			}
+			if (this.respawnTimer >= this.respawnSpeed) this.respawn();
 			return;
 		}
 		
 		// Attacking
 		if (this.isAttacking || this.attackTimer > 0) {
 			this.attackTimer += delta;
-			if (this.attackTimer >= 0.3) {
-				this.isAttacking = false;
-			}
-			if (this.attackTimer >= this.attackSpeed) {
-				this.attackTimer = 0;
-			}
+			if (this.attackTimer >= 0.3) this.isAttacking = false;
+			if (this.attackTimer >= this.attackSpeed) this.attackTimer = 0;
 		}
 		
 		// Movement
@@ -735,5 +731,15 @@ export default class Actor extends Entity {
 				this.isMoving = false;
 			}
 		}
+	}
+
+	getInventoryPack() {
+		let inventoryPack = [];
+		
+		this.inventory.forEach((item) => {
+			inventoryPack[item.slot] = item.getPack();
+		});
+		
+		return inventoryPack;
 	}
 }
