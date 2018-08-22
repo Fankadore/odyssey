@@ -16,7 +16,7 @@ config.MAX_EFFECTS = 70;
 
 config.MAX_HEALTH_BASE = 200;
 config.MAX_HEALTH_BONUS = 55;
-config.MAX_ENERGY_BASE = 200;  
+config.MAX_ENERGY_BASE = 200;
 config.MAX_ENERGY_BONUS = 55;
 
 config.INVENTORY_SIZE = 20;
