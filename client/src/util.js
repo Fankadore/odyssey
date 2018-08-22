@@ -19,10 +19,10 @@ function swap(array, i, j) {
 }
 
 function firstEmptyIndex(array) {
+  if (array.length < 1) return 0;
+
   for (let i = 0; i <= array.length; i++) {
-    if (array[i] == null) {
-      return i;
-    }
+    if (array[i] == null) return i;
   }
 }
 
