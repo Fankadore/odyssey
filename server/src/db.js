@@ -1,15 +1,17 @@
 import mongojs from "mongojs";
+import config from "./config.js";
 
-const mongo = mongojs('localhost:27017/odyssey', ['accounts', 'players', 'maps', 'items', 'npcs']);
+const mongo = mongojs('localhost:27017/odyssey', ['accounts', 'players', 'maps', 'items', 'bots']);
 
 class Database {
   constructor() {
-    // This should be held in database
+    // These should be held in the database
     this.items = [
       {	// type 0
         name: "Blank Item",
         sprite: 68,
         type: 'none',
+        stack: 0,
         reusable: false,
         damageBonus: 0,
         defenceBonus: 0,
@@ -21,6 +23,7 @@ class Database {
         name: "Health Potion",
         sprite: 1,
         type: 'potion',
+        stack: 1,
         reusable: false,
         damageBonus: 0,
         defenceBonus: 0,
@@ -32,6 +35,7 @@ class Database {
         name: "Energy Potion",
         sprite: 2,
         type: 'potion',
+        stack: 1,
         reusable: false,
         damageBonus: 0,
         defenceBonus: 0,
@@ -43,6 +47,7 @@ class Database {
         name: "Incognito",
         sprite: 12,
         type: 'special',
+        stack: 0,
         reusable: true,
         damageBonus: 0,
         defenceBonus: 0,
@@ -54,6 +59,7 @@ class Database {
         name: "Sword",
         sprite: 10,
         type: 'weapon',
+        stack: 0,
         reusable: true,
         damageBonus: 1,
         defenceBonus: 0,
@@ -66,6 +72,7 @@ class Database {
         name: "Axe",
         sprite: 14,
         type: 'weapon',
+        stack: 0,
         reusable: true,
         damageBonus: 2,
         defenceBonus: 0,
@@ -200,7 +207,8 @@ class Database {
         damageBase: 10,
         defenceBase: 2,
         healthMaxBase: 20,
-        energyMaxBase: 40
+        energyMaxBase: 40,
+        rangeBase: 1
       },
       {	//id 1
         name: "Obbitt",
@@ -212,7 +220,8 @@ class Database {
         damageBase: 10,
         defenceBase: 2,
         healthMaxBase: 20,
-        energyMaxBase: 40
+        energyMaxBase: 40,
+        rangeBase: 1
       },
       {	//id 2
         name: "Frolik",
@@ -224,7 +233,8 @@ class Database {
         damageBase: 10,
         defenceBase: 2,
         healthMaxBase: 20,
-        energyMaxBase: 40
+        energyMaxBase: 40,
+        rangeBase: 1
       },
     ];
 
@@ -232,14 +242,22 @@ class Database {
       {	//id 0
         name: "Rat",
         sprite: 0,
-        damage: 1,
-        healthMax: 3,
+        hostile: false,
+        damageBase: 1,
+        defenceBase: 0,
+        healthMaxBase: 5,
+        energyMaxBase: 10,
+        rangeBase: 1
       },
       {	//id 1
         name: "Snake",
         sprite: 1,
-        damage: 2,
-        healthMax: 5,
+        hostile: true,
+        damageBase: 2,
+        defenceBase: 0,
+        healthMaxBase: 5,
+        energyMaxBase: 5,
+        rangeBase: 1
       },
     ];
 
@@ -330,16 +348,16 @@ class Database {
     mongo.maps.save(data.id, data);
   }
 
-  getBotData(ref) {
-    return this.bots[ref];
+  getBotData(botClass) {
+    return this.bots[botClass];
   }
 
   saveBotData(mapId, id) {
 
   }
 
-  getItemData(ref) {
-    return this.items[ref];
+  getItemData(itemClass) {
+    return this.items[itemClass];
   }
 }
 
