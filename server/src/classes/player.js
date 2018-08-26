@@ -8,7 +8,7 @@ export default class Player extends Actor {
 	constructor(id) {
 		let data = db.getPlayerData(id);
 
-		super(data.map, data.x, data.y, data.name, data.sprite);
+		super(data.mapId, data.x, data.y, data.name, data.sprite);
 		this.controller = 'player';
 		this.id = id;
 		this.adminAccess = data.adminAccess;
@@ -71,7 +71,7 @@ export default class Player extends Actor {
 			name: this.name,
 			sprite: this.sprite,
 			direction: this.direction,
-			map: this.map,
+			mapId: this.mapId,
 			x: this.startX,
 			y: this.startY,
 			z: this.z,
@@ -152,7 +152,7 @@ export default class Player extends Actor {
 			break;
 			case 'serverChat': game.sendServerMessage(`${this.name} yells, "${data.message}"`);
 			break;
-			case 'mapChat': game.sendMapMessage(this.map, `${this.name} says, "${data.message}"`);
+			case 'mapChat': game.sendMapMessage(this.mapId, `${this.name} says, "${data.message}"`);
 			break;
 			case 'playerChat':
 				let target = this.playerList[data.targetId];
@@ -179,6 +179,22 @@ export default class Player extends Actor {
 					game.sendPlayerMessage(this.id, `You don't have access to that command.`);
 				}
 			break;
+		}
+	}
+
+	pickUp() {
+		for (let item of game.mapList[this.mapId].items) {
+			if (item && item.x === this.x && item.y === this.y) {
+				let slot = this.getMapItem(item.mapId, item.id);
+				if (slot != null) {
+					item.moveToPlayer(this.id, slot);
+				}
+				else {
+					// Inventory full
+					game.sendPlayerMessage(this.id, "Your inventory is full.");
+					break;
+				}
+			}
 		}
 	}
 }

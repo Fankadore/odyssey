@@ -8,9 +8,9 @@ import Actor from './actor.js';
 
 export default class Bot extends Actor {
 	constructor(data) {
-		if (data.botClass == null || data.map == null || data.x == null || data.y == null) return;
+		if (data.botClass == null || data.mapId == null || data.x == null || data.y == null) return;
 
-		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.map].bots);
+		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
 		
 		let classData = db.getBotData(data.botClass);
 		if (!data.name) data.name = classData.name;
@@ -22,7 +22,7 @@ export default class Bot extends Actor {
 		if (data.energyMaxBase == null) data.energyMaxBase = classData.energyMaxBase;
 		if (data.rangeBase == null) data.rangeBase = classData.rangeBase;
 
-		super(data.map, data.x, data.y, data.name, data.sprite);
+		super(data.mapId, data.x, data.y, data.name, data.sprite);
 		this.id = data.id;
 		this.botClass = data.botClass;
 		this.hostile = data.hostile;
@@ -36,7 +36,7 @@ export default class Bot extends Actor {
 		this.setTask('wandering');
 		this.moveTimer = 0;
 
-		game.mapList[this.map].bots[this.id] = this;
+		game.mapList[this.mapId].bots[this.id] = this;
 	}
 	
 	getMapItem(mapId, id) {
@@ -44,7 +44,7 @@ export default class Bot extends Actor {
 		if (slot == null) return;
 		
 		let item = game.mapList[mapId].items[id];
-		item.moveToBot(this.map, this.id, slot);
+		item.moveToBot(this.mapId, this.id, slot);
 	}
 
 	getItem(data) {
@@ -52,7 +52,7 @@ export default class Bot extends Actor {
 		if (slot == null) return;
 
 		data.owner = 'bot';
-		data.mapId = this.map;
+		data.mapId = this.mapId;
 		data.id = this.id;
 		data.slot = slot;
 		new Item(data);
@@ -102,7 +102,7 @@ export default class Bot extends Actor {
 			name: this.name,
 			sprite: this.sprite,
 			direction: this.direction,
-			map: this.map,
+			mapId: this.mapId,
 			x: this.startX,
 			y: this.startY,
 			z: this.z,
@@ -117,7 +117,7 @@ export default class Bot extends Actor {
 	}
 
 	remove() {
-		delete game.mapList[this.map].bots[this.id];
+		delete game.mapList[this.mapId].bots[this.id];
 	}
 	
 	move(direction) {
@@ -144,7 +144,18 @@ export default class Bot extends Actor {
 	}
 	
 	pickUp() {
-		super.pickUp();
+		for (let item of game.mapList[this.mapId].items) {
+			if (item && item.x === this.x && item.y === this.y) {
+				let slot = this.getMapItem(item.mapId, item.id);
+				if (slot != null) {
+					item.moveToBot(this.mapId, this.id, slot);
+				}
+				else {
+					// Inventory full
+					break;
+				}
+			}
+		}
 		this.checkBestEquipment();
 	}
 	
