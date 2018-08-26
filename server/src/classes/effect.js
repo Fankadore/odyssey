@@ -3,21 +3,18 @@ import config from '../config.js';
 import util from '../util.js';
 
 export default class Effect {
-	constructor(map, x, y, sprite, speed, loop = 1, maxFrames = 7, startFrame = 0) {
-		this.sprite = clamp(sprite, 1, config.MAX_EFFECTS);
-		this.maxFrames = clamp(maxFrames, 1, 7);
-		this.startFrame = clamp(startFrame, 0, this.maxFrames);
+	constructor(mapId, x, y, sprite, speed, loop = 1, maxFrames = 7, startFrame = 0) {
+		this.sprite = util.clamp(sprite, 1, config.MAX_EFFECTS);
+		this.maxFrames = util.clamp(maxFrames, 1, 7);
+		this.startFrame = util.clamp(startFrame, 0, this.maxFrames);
 		this.frame = this.startFrame;
-
-		this.x *= config.TILE_SIZE;
-		this.y *= config.TILE_SIZE;
 		
 		this.speed = speed;
 		this.loop = loop;
 		this.timer = 0;
 		
-		this.id = util.firstEmptyIndex(game.mapList[this.map].effects);
-		game.mapList[this.map].effects[this.id] = this;
+		this.id = util.firstEmptyIndex(game.mapList[this.mapId].effects);
+		game.mapList[this.mapId].effects[this.id] = this;
 	}
 	
 	update(delta) {
@@ -49,7 +46,7 @@ export default class Effect {
 	getPack() {
 		return {
 			id: this.id,
-			map: this.map,
+			mapId: this.mapId,
 			x: this.x,
 			y: this.y,
 			sprite: this.sprite,
@@ -58,6 +55,6 @@ export default class Effect {
 	}
 	
 	remove() {
-		delete game.mapList[this.map].effects[this.id];
+		delete game.mapList[this.mapId].effects[this.id];
 	}	
 }
