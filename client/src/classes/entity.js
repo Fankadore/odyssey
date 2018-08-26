@@ -3,7 +3,7 @@
 import config from '../config.js';
 import Phaser from '../lib/phaser.js';
 
-class Entity extends Phaser.GameObjects.Sprite {
+export default class Entity extends Phaser.GameObjects.Sprite {
   constructor(scene, id, name, x, y, sprite, spritesheet) {
     super(scene, x * config.TILESIZE, y * config.TILESIZE, spritesheet);
     this.id = id;
@@ -18,5 +18,3 @@ class Entity extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
   }
 }
-
-export default Entity;

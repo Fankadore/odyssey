@@ -71,8 +71,8 @@ export default class GameScene extends Scene {
 				this.list.players[playerData.id] = new Actor(this, playerData);
 			});
 			removePlayers.forEach((player) => {
-				player.destroy();
 				delete this.list.players[player.id];
+				player.destroy();
 			});
 			updatePlayers.forEach((player) => {
 				player.update(data.players[player.id]);
@@ -98,8 +98,8 @@ export default class GameScene extends Scene {
 				this.list.bots[botData.id] = new Actor(this, botData);
 			});
 			removeBots.forEach((bot) => {
-				bot.destroy();
 				delete this.list.bots[bot.id];
+				bot.destroy();
 			});
 			updateBots.forEach((bot) => {
 				bot.update(bots[bot.id]);
@@ -126,8 +126,8 @@ export default class GameScene extends Scene {
 				this.list.items[itemData.id] = new MapItem(this, itemData);
 			});
 			removeItems.forEach((item) => {
-				item.destroy();
 				delete this.list.items[item.id];
+				item.destroy();
 			});
 			updateItems.forEach((item) => {
 				item.update(items[item.id]);
@@ -138,12 +138,15 @@ export default class GameScene extends Scene {
 		let texts = data.map.texts;
 		if (texts) {
 			let addTexts = texts.filter((textData) => {	// filter text on new list but not old
+				if (!textData) return false;
 				return (this.list.texts[textData.id] == null);
 			});
 			let removeTexts = this.list.texts.filter((text) => {	// filter texts on old list but not new
+				if (!text) return false;
 				return (texts[text.id] == null);
 			});
 			let updateTexts = this.list.texts.filter((text) => {	// filter texts on both lists
+				if (!text) return false;
 				return (texts[text.id] != null);
 			});
 			
@@ -151,8 +154,8 @@ export default class GameScene extends Scene {
 				this.list.texts[textData.id] = new Text(this, textData);
 			});
 			removeTexts.forEach((text) => {
-				text.destroy();
 				delete this.list.texts[text.id];
+				text.destroy();
 			});
 			updateTexts.forEach((text) => {
 				text.update(texts[text.id]);

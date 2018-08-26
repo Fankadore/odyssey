@@ -9,6 +9,7 @@ class Config {
 
 		// Client Config
 		this.TILESIZE = 32;
+		this.FONT_SIZE = 12;
 		this.MAP_WIDTH = this.MAP_COLUMNS * this.TILESIZE;
 		this.MAP_HEIGHT = this.MAP_ROWS * this.TILESIZE;
 

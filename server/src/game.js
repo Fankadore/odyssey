@@ -7,6 +7,8 @@ import Map from './classes/map.js';
 import Player from './classes/player.js';
 import Bot from './classes/bot.js';
 import Item from './classes/item.js';
+import Text from './classes/text.js';
+import Message from './classes/message.js';
 
 class Game {
 	constructor() {
@@ -24,7 +26,8 @@ class Game {
 	update(delta) {
 		let pack = {
 			players: [],
-			maps: []
+			maps: [],
+			messages: this.messageQueue
 		};
 		
 		this.playerList.forEach((player) => {
@@ -34,7 +37,8 @@ class Game {
 		this.mapList.forEach((map) => {
 			pack.maps[map.id] = map.update(delta);
 		});
-		
+
+		this.messageQueue = [];
 		return pack;
 	}
 
@@ -57,15 +61,15 @@ class Game {
 
 	// Messages
 	sendServerMessage(message) {
-		this.messageQueue.push({message});
+		this.messageQueue.push(new Message(message, null, null));
 	}
 
 	sendMapMessage(mapId, message) {
-		this.messageQueue.push({message, mapId});
+		this.messageQueue.push(new Message(message, mapId, null));
 	}
 
 	sendPlayerMessage(id, message) {
-		this.messageQueue.push({message, id});
+		this.messageQueue.push(new Message(message, null, id));
 	}
 
 	// Map
@@ -87,7 +91,7 @@ class Game {
 		
 		// Check for Players
 		let players = this.playerList.filter((player) => {
-			if (player.map === map.id && player.x === x && player.y === y && !player.isDead) return true;
+			if (player.mapId === map.id && player.x === x && player.y === y && !player.isDead) return true;
 		});
 		if (players.length > 0) return false;
 
@@ -111,7 +115,7 @@ class Game {
 	}
 
 	spawnDamageText(mapId, x, y, damage) {
-		new Text(mapId, x, y, damage, '#FF0000', 0, -1);
+		new Text(mapId, x, y - 0.5, damage, '#ff0000', 1.25, 0, -1);
 	}
 }
 
