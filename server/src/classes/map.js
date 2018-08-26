@@ -37,7 +37,7 @@ export default class Map {
 			}
 		}
 		game.playerList.forEach((player) => {
-			if (player.map === this.id) {
+			if (player.mapId === this.id) {
 				player.loadMap();
 			}
 		});

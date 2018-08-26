@@ -201,7 +201,7 @@ class Database {
         name: "Fankadore",
         sprite: 1,
         adminAccess: 0,
-        map: 1,
+        mapId: 1,
         x: 5,
         y: 5,
         damageBase: 10,
@@ -214,7 +214,7 @@ class Database {
         name: "Obbitt",
         sprite: 3,
         adminAccess: 0,
-        map: 1,
+        mapId: 1,
         x: 4,
         y: 4,
         damageBase: 10,
@@ -227,7 +227,7 @@ class Database {
         name: "Frolik",
         sprite: 5,
         adminAccess: 0,
-        map: 1,
+        mapId: 1,
         x: 5,
         y: 5,
         damageBase: 10,
@@ -290,7 +290,7 @@ class Database {
       playerData.sprite = config.START_SPRITE;
       playerData.adminAccess = 0;
       
-      playerData.map = config.START_MAP;
+      playerData.mapId = config.START_MAP;
       playerData.x = config.START_X;
       playerData.y = config.START_Y;
       

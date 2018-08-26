@@ -3,8 +3,8 @@ import config from '../config.js';
 // An Entity is any object which can appear on the map
 
 export default class Entity {
-	constructor(map, x, y, sprite = 0) {
-		this.map = map;
+	constructor(mapId, x, y, sprite = 0) {
+		this.mapId = mapId;
 		this.x = x;
 		this.y = y;
 		if (sprite < 0) sprite = 0;

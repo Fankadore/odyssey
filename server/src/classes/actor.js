@@ -7,10 +7,10 @@ import Entity from './entity.js';
 // An Actor is an Entity which can move, attack and interact with items
 
 export default class Actor extends Entity {
-	constructor(map, x, y, name, sprite) {
+	constructor(mapId, x, y, name, sprite) {
 		sprite = util.clamp(sprite, 1, config.MAX_SPRITES);
 
-		super(map, x, y, sprite);
+		super(mapId, x, y, sprite);
 		this.controller = 'bot';
 		this.name = name;
 
@@ -42,7 +42,7 @@ export default class Actor extends Entity {
 		this.isDead = false;
 		this.respawnTimer = 0;
 		this.respawnSpeed = 10;
-		this.respawnMap = map;
+		this.respawnMap = mapId;
 		this.respawnX = x;
 		this.respawnY = y;
 	}
@@ -174,19 +174,19 @@ export default class Actor extends Entity {
 		}
 
 		if (direction === 'left') {
-			if (!game.isVacant(this.map, this.x - 1, this.y)) return;
+			if (!game.isVacant(this.mapId, this.x - 1, this.y)) return;
 			this.destinationX--;
 		}
 		else if (direction === 'right') {
-			if (!game.isVacant(this.map, this.x + 1, this.y)) return;
+			if (!game.isVacant(this.mapId, this.x + 1, this.y)) return;
 			this.destinationX++;
 		}
 		else if (direction === 'up') {
-			if (!game.isVacant(this.map, this.x, this.y - 1)) return;
+			if (!game.isVacant(this.mapId, this.x, this.y - 1)) return;
 			this.destinationY--;
 		}
 		else if (direction === 'down') {
-			if (!game.isVacant(this.map, this.x, this.y + 1)) return;
+			if (!game.isVacant(this.mapId, this.x, this.y + 1)) return;
 			this.destinationY++;
 		}
 		else {
@@ -337,7 +337,7 @@ export default class Actor extends Entity {
 	
 	// Combat
 	checkInRange(direction, target, range) {
-		if (target.map !== this.map) return false;
+		if (target.mapId !== this.mapId) return false;
 		if (target.x === this.x && target.y === this.y) return false;	// Stacked does not count as in range
 		
 		if (target.y === this.y) {
@@ -384,9 +384,10 @@ export default class Actor extends Entity {
 		if (this.isAttacking || this.attackTimer > 0) return;
 
 		this.isAttacking = true;
-		game.spawnMapItem(this.map, this.x, this.y, 1);
+		// game.spawnMapItem(this.mapId, this.x, this.y, 1);
+		// game.spawnDamageText(this.mapId, this.x, this.y, this.damage); //test
 		
-		let actorList = game.playerList.concat(game.mapList[this.map].bots);
+		let actorList = game.playerList.concat(game.mapList[this.mapId].bots);
 		let targetList = actorList.filter((actor) => {
 			if (actor === this || actor.isDead) return false;
 			if (this.checkInRange(direction, actor, this.range)) return true;
@@ -411,17 +412,19 @@ export default class Actor extends Entity {
 		else {
 			this.health -= damage;
 			if (this.health <= 0) {
-				this.setDead(source);
+				this.setDead(source.controller, source.name);
+				source.kills++;
+				if (source.target === this) source.target = null;
 			}
 			console.log(`${source.name} hits ${this.name} for ${damage} damage.`);
 		}
-		game.spawnDamageText(this.map, this.x, this.y, damage);
+		game.spawnDamageText(this.mapId, this.x, this.y, damage);
 	}
 	
 	respawn() {
 		game.sendServerMessage(this.name + " is back from the dead.");
 
-		this.map = this.respawnMap;
+		this.mapId = this.respawnMap;
 		this.x = this.respawnX;
 		this.y = this.respawnY;
 		this.startX = this.respawnX;
@@ -439,8 +442,8 @@ export default class Actor extends Entity {
 		this.respawnTimer = 0;
 	}
 	
-	setDead(source) {
-		let map = game.mapList[this.map];
+	setDead(killerController, killerName) {
+		let map = game.mapList[this.mapId];
 
 		// Inventory Item Drop Chance
 		let dropChance = util.clamp(map.dropChance, 0, 100);
@@ -477,16 +480,12 @@ export default class Actor extends Entity {
 		this.energy = 0;
 		this.deaths++;
 		
-		if (source) {
-			if (source.controller = 'player') {
-				game.sendServerMessage(source.name + " has murdered " + this.name + " in cold blood!");
-				source.kills++;
-				if (source.target === this) {
-					source.target = null;
-				}
+		if (killerController && killerName) {
+			if (killerController = 'player') {
+				game.sendServerMessage(killerName + " has murdered " + this.name + " in cold blood!");
 			}
 			else {
-				game.sendServerMessage(this.name + " has been killed by " + source.name + "!");
+				game.sendServerMessage(this.name + " has been killed by " + killerName + "!");
 			}
 		}
 		else {
@@ -496,18 +495,7 @@ export default class Actor extends Entity {
 	
 	// Inventory
 	pickUp() {
-		for (let item of game.mapList[this.map].items) {
-			if (item && item.x === this.x && item.y === this.y) {
-				let slot = this.getMapItem(item.map, item.id);
-				if (slot != null) {
-					item.moveToPlayer(this.id, slot);
-				}
-				else {
-					// Inventory full
-					break;
-				}
-			}
-		}
+		// See Player and Bot classes
 	}
 	
 	getMapItem(mapId, id) {
@@ -550,7 +538,7 @@ export default class Actor extends Entity {
 			return;
 		}
 
-		item.moveToMap(this.map, this.x, this.y);
+		item.moveToMap(this.mapId, this.x, this.y);
 	}
 	
 	useItem(slot) {

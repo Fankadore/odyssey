@@ -54,13 +54,13 @@ export default class Item extends Entity {
 		this.clickTime = 0;
 
 		if (data.owner === 'map') {
-			game.mapList[this.map].items[this.id] = this;
+			game.mapList[this.mapId].items[this.id] = this;
 		}
 		else if (data.owner === 'player') {
 			game.playerList[this.id].inventory[this.slot] = this;
 		}
 		else if (data.owner === 'bot') {
-			game.mapList[this.map].bots[this.id].inventory[this.slot] = this;
+			game.mapList[this.mapId].bots[this.id].inventory[this.slot] = this;
 		}
 	}
 	
@@ -71,7 +71,7 @@ export default class Item extends Entity {
 	getPack() {
 		return {
 			id: this.id,
-			map: this.map,
+			mapId: this.mapId,
 			x: this.x,
 			y: this.y,
 			slot: this.slot,
@@ -95,10 +95,10 @@ export default class Item extends Entity {
 			delete game.playerList[this.id].inventory[this.slot];
 		}
 		else if (this.owner === 'map') {
-			delete game.mapList[this.map].items[this.id];
+			delete game.mapList[this.mapId].items[this.id];
 		}
 		else if (this.owner === 'bot') {
-			delete game.mapList[this.map].bots[this.id].inventory[this.slot];
+			delete game.mapList[this.mapId].bots[this.id].inventory[this.slot];
 		}
 	}
 	
@@ -138,7 +138,7 @@ export default class Item extends Entity {
 		this.owner = 'player';
 		this.id = id;
 		this.slot = slot;
-		game.playerList[id].inventory[slot] = this;
+		game.playerList[this.id].inventory[this.slot] = this;
 	}
 
 	moveToMap(mapId, x, y) {
@@ -146,11 +146,11 @@ export default class Item extends Entity {
 
 		this.remove();
 		this.owner = 'map';
-		this.map = mapId;
-		this.id = util.firstEmptyIndex(game.mapList[mapId].items);
+		this.mapId = mapId;
+		this.id = util.firstEmptyIndex(game.mapList[this.mapId].items);
 		this.x = x;
 		this.y = y;
-		game.mapList[mapId].items[id] = this;
+		game.mapList[this.mapId].items[this.id] = this;
 	}
 
 	moveToBot(mapId, id, slot) {
@@ -158,9 +158,9 @@ export default class Item extends Entity {
 
 		this.remove();
 		this.owner = 'bot';
-		this.map = mapId;
+		this.mapId = mapId;
 		this.id = id;
 		this.slot = slot;
-		game.mapList[mapId].bots[id].inventory[slot] = this;
+		game.mapList[this.mapId].bots[this.id].inventory[this.slot] = this;
 	}
 }
