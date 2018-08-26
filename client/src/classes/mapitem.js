@@ -1,4 +1,3 @@
-import config from '../config.js';
 import Entity from './entity.js';
 
 export default class MapItem extends Entity {
