@@ -60,11 +60,18 @@ class Server {
 	sendUpdatePack(updatePack) {
 		game.playerList.forEach((player) => {
 			let pack = {};
+			
 			pack.private = player.getPrivatePack();
+			
 			pack.players = updatePack.players.filter((playerData) => {
-				return (playerData.map === player.map);
+				return (playerData.mapId === player.mapId);
 			});
-			pack.map = updatePack.maps[player.map];
+
+			pack.map = updatePack.maps[player.mapId];
+
+			pack.messages = updatePack.messages.filter((message) => {
+				return ((message.mapId === null && message.id === null) || player.mapId === message.mapId || player.id === message.id);
+			});
 			
 			let socket = this.socketList[player.id];
 			socket.emit('update', pack);
@@ -73,7 +80,7 @@ class Server {
 	
 	sendMapData(mapId) {
 		game.playerList.forEach((player) => {
-			if (player.map === mapId) {
+			if (player.mapId === mapId) {
 				let socket = this.socketList[player.id];
 				socket.emit('loadMap', db.map[mapId]);
 			}
