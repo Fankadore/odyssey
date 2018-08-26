@@ -2,8 +2,7 @@ const config = {};
 
 config.PORT = 2000;
 config.FRAMERATE = 1000 / 60;
-config.TILE_SIZE = 32;
-config.SLOT_SIZE = config.TILE_SIZE + 6;
+config.BACKUP_TIME = 5;
 
 config.MAP_LAYERS = 6;
 config.MAP_COLUMNS = 12;
@@ -31,7 +30,5 @@ config.START_DAMAGE = 2;
 config.START_DEFENCE = 0;
 config.START_HEALTH_MAX = 20;
 config.START_ENERGY_MAX = 10;
-
-config.BACKUP_TIME = 5;
 
 export default config;
