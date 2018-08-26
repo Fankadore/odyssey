@@ -165,7 +165,7 @@ export default class GameScene extends Scene {
 
 	// Create Game
 	createTilemap() {
-		// this.tilemap = this.make.tilemap({tileWidth: config.TILESIZE, tileHeight: config.TILESIZE, width: 10, height: 10});
+		// this.tilemap = this.make.tilemap({tileWidth: config.TILE_SIZE, tileHeight: config.TILE_SIZE, width: 10, height: 10});
 		this.add.image(0, 0, 'map').setOrigin(0, 0);
 	}
 

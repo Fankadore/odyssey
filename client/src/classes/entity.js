@@ -5,7 +5,7 @@ import Phaser from '../lib/phaser.js';
 
 export default class Entity extends Phaser.GameObjects.Sprite {
   constructor(scene, id, name, x, y, sprite, spritesheet) {
-    super(scene, x * config.TILESIZE, y * config.TILESIZE, spritesheet);
+    super(scene, x * config.TILE_SIZE, y * config.TILE_SIZE, spritesheet);
     this.id = id;
     this.name = name;
     this.grid = {
