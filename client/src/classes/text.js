@@ -1,5 +1,3 @@
-"use strict";
-
 import Phaser from '../lib/phaser.js';
 import config from '../config.js';
 

@@ -18,7 +18,6 @@ export default class Text {
 
 		this.id = util.firstEmptyIndex(game.mapList[this.mapId].texts);
 		game.mapList[this.mapId].texts[this.id] = this;
-		console.log(this.id);
 	}
 	
 	update(delta) {

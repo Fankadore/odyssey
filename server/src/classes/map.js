@@ -72,17 +72,17 @@ export default class Map {
 		let mapPack = {
 			name: this.name,
 			tiles: this.getTilePack(),
-			items: [],
 			bots: [],
+			items: [],
 			effects: [],
 			texts: []
 		};
 
-		this.items.forEach((item) => {
-			mapPack.items[item.id] = item.getPack();
-		});
 		this.bots.forEach((bot) => {
 			mapPack.bots[bot.id] = bot.getPack();
+		});
+		this.items.forEach((item) => {
+			mapPack.items[item.id] = item.getPack();
 		});
 		this.effects.forEach((effect) => {
 			mapPack.effects[effect.id] = effect.getPack();

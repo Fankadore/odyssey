@@ -2,7 +2,7 @@ import Entity from './entity.js';
 
 export default class MapItem extends Entity {
 	constructor(scene, data) {
-		super(scene, data.id, data.name, data.x, data.y, data.sprite, 'potions');
+		super(scene, data.id, data.x, data.y, data.sprite, 'potions');
 		this.update(data);
 	}
 	
@@ -12,7 +12,7 @@ export default class MapItem extends Entity {
 		if (data.sprite != null) this.sprite = data.sprite;
 		if (data.x != null) this.grid.x = data.x;
 		if (data.y != null) this.grid.y = data.y;
-		// if (data.z != null && this.depth !== data.z) this.setDepth(data.z);
+		if (data.z != null && this.depth !== data.z) this.setDepth(data.z);
 		if (data.isVisible != null) this.isVisible = data.isVisible;
 
 		if (data.itemClass != null) this.itemClass = data.itemClass;

@@ -29,7 +29,8 @@ class Game {
 			maps: [],
 			messages: this.messageQueue
 		};
-		
+		this.messageQueue = [];
+
 		this.playerList.forEach((player) => {
 			pack.players[player.id] = player.update(delta);
 		});
@@ -38,7 +39,6 @@ class Game {
 			pack.maps[map.id] = map.update(delta);
 		});
 
-		this.messageQueue = [];
 		return pack;
 	}
 
@@ -46,7 +46,7 @@ class Game {
 	playerLogin(id) {
 		let player = new Player(id);
 		this.playerList[id] = player;
-		this.sendServerMessage(`${player.name} has logged in.`);
+		this.sendGameInfoGlobal(`${player.name} has logged in.`);
 		return player;
 	}
 	
@@ -54,22 +54,31 @@ class Game {
 		let player = this.playerList[id];
 		if (player) {
 			db.savePlayerData(player.getPack);
-			this.sendServerMessage(`${player.name} has logged out.`);
+			this.sendGameInfoGlobal(`${player.name} has logged out.`);
 			delete this.playerList[id];
 		}
 	}
 
-	// Messages
-	sendServerMessage(message) {
-		this.messageQueue.push(new Message(message, null, null));
+	// Game Info
+	sendGameInfoGlobal(message) {
+		this.messageQueue.push(new Message(null, message, 'gameInfo'));
 	}
-
-	sendMapMessage(mapId, message) {
-		this.messageQueue.push(new Message(message, mapId, null));
+	sendGameInfoMap(mapId, message) {
+		this.messageQueue.push(new Message(null, message, 'gameInfo', mapId));
 	}
-
-	sendPlayerMessage(id, message) {
-		this.messageQueue.push(new Message(message, null, id));
+	sendGameInfoPlayer(id, message) {
+		this.messageQueue.push(new Message(null, message, 'gameInfo', null, id));
+	}
+	
+	// Chat Messages
+	sendMessageGlobal(senderId, message) {
+		this.messageQueue.push(new Message(senderId, message, 'messageGlobal'));
+	}
+	sendMessageMap(senderId, mapId, message) {
+		this.messageQueue.push(new Message(senderId, message, 'messageMap', mapId));
+	}
+	sendMessagePlayer(senderId, id, message) {
+		this.messageQueue.push(new Message(senderId, message, 'messagePlayer', null, id));
 	}
 
 	// Map
@@ -99,7 +108,12 @@ class Game {
 	}
 
 	spawnBot(mapId, x, y, botClass) {
-		new Bot(mapId, x, y, botClass);
+		new Bot({
+			mapId,
+			x,
+			y,
+			botClass
+		});
 	}
 	
 	spawnMapItem(mapId, x, y, itemClass, stack = 0) {

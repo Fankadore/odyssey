@@ -20,6 +20,7 @@ export default class Item extends Entity {
 		if (data.mapId === undefined) data.mapId = null;
 		if (data.x === undefined) data.x = null;
 		if (data.y === undefined) data.y = null;
+		if (data.z === undefined) data.z = -10;
 		if (data.slot === undefined) data.slot = null;
 
 		let classData = db.getItemData(data.itemClass);
@@ -40,6 +41,7 @@ export default class Item extends Entity {
 		this.itemClass = data.itemClass;
 		this.stack = data.stack;
 		this.slot = data.slot;
+		this.z = data.z;
 		
 		this.name = data.name;
 		this.type = data.type;
@@ -49,9 +51,6 @@ export default class Item extends Entity {
 		this.healthMaxBonus = data.healthMaxBonus;
 		this.energyMaxBonus = data.energyMaxBonus;
 		this.rangeBonus = data.rangeBonus;
-		
-		this.clicked = false;
-		this.clickTime = 0;
 
 		if (data.owner === 'map') {
 			game.mapList[this.mapId].items[this.id] = this;
@@ -74,6 +73,7 @@ export default class Item extends Entity {
 			mapId: this.mapId,
 			x: this.x,
 			y: this.y,
+			z: this.z,
 			slot: this.slot,
 			itemClass: this.itemClass,
 			stack: this.stack,

@@ -61,18 +61,16 @@ class Server {
 		game.playerList.forEach((player) => {
 			let pack = {};
 			
-			pack.private = player.getPrivatePack();
-			
-			pack.players = updatePack.players.filter((playerData) => {
-				return (playerData.mapId === player.mapId);
+			pack.game = updatePack.maps[player.mapId];
+			pack.game.players = updatePack.players.filter((playerData) => {
+				return (playerData.mapId === player.mapId && (playerData.isVisible || playerData.id === player.id));
 			});
 
-			pack.map = updatePack.maps[player.mapId];
-
-			pack.messages = updatePack.messages.filter((message) => {
-				return ((message.mapId === null && message.id === null) || player.mapId === message.mapId || player.id === message.id);
+			pack.ui = player.getPrivatePack();
+			pack.ui.messages = updatePack.messages.filter((message) => {
+				return ((message.mapId == null && message.id == null) || player.mapId === message.mapId || player.id === message.id);
 			});
-			
+
 			let socket = this.socketList[player.id];
 			socket.emit('update', pack);
 		});

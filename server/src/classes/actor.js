@@ -384,6 +384,8 @@ export default class Actor extends Entity {
 		if (this.isAttacking || this.attackTimer > 0) return;
 
 		this.isAttacking = true;
+		// game.sendGameInfoGlobal("TESTING");
+		// game.spawnBot(this.mapId, this.x, this.y, 1);
 		// game.spawnMapItem(this.mapId, this.x, this.y, 1);
 		// game.spawnDamageText(this.mapId, this.x, this.y, this.damage); //test
 		
@@ -416,14 +418,11 @@ export default class Actor extends Entity {
 				source.kills++;
 				if (source.target === this) source.target = null;
 			}
-			console.log(`${source.name} hits ${this.name} for ${damage} damage.`);
 		}
 		game.spawnDamageText(this.mapId, this.x, this.y, damage);
 	}
 	
 	respawn() {
-		game.sendServerMessage(this.name + " is back from the dead.");
-
 		this.mapId = this.respawnMap;
 		this.x = this.respawnX;
 		this.y = this.respawnY;
@@ -449,11 +448,13 @@ export default class Actor extends Entity {
 		let dropChance = util.clamp(map.dropChance, 0, 100);
 		if (dropChance > 0) {
 			let items = this.inventory.filter((item) => {
+				if (!item) return false;
 				if (item.slot < config.INVENTORY_SIZE) return true;
 				return false;
 			});
 
 			items.forEach((item) => {
+				if (!item) return;
 				if (Math.floor(Math.random() * 101) <= dropChance) {
 					this.dropItem(item.slot);
 				}
@@ -482,14 +483,14 @@ export default class Actor extends Entity {
 		
 		if (killerController && killerName) {
 			if (killerController = 'player') {
-				game.sendServerMessage(killerName + " has murdered " + this.name + " in cold blood!");
+				game.sendGameInfoGlobal(killerName + " has murdered " + this.name + " in cold blood!");
 			}
 			else {
-				game.sendServerMessage(this.name + " has been killed by " + killerName + "!");
+				game.sendGameInfoGlobal(this.name + " has been killed by " + killerName + "!");
 			}
 		}
 		else {
-			game.sendServerMessage(this.name + " has died!");
+			game.sendGameInfoGlobal(this.name + " has died!");
 		}
 	}
 	
@@ -546,7 +547,7 @@ export default class Actor extends Entity {
 		if (!item) return;
 
 		// if (!db.items[item.id].use.call(this, slot)) return;	// Run 'use' script
-		
+
 		if (item.isEquipment()) {	// Equipment Items
 			if (slot < config.INVENTORY_SIZE) {	// Check if item is equipped
 				this.equipItem(slot);
@@ -601,16 +602,17 @@ export default class Actor extends Entity {
 		let newItem = this.inventory[newSlot];
 		if (!item) return;
 
+		let self = this;
 		function swapSlots() {
 			item.slot = newSlot;
 			if (newItem) newItem.slot = slot;
-			util.swap(this.inventory, slot, newSlot);
-			this.calcBonusStats();
+			util.swap(self.inventory, slot, newSlot);
+			self.calcBonusStats();
 		}
 		
 		if (newSlot >= config.INVENTORY_SIZE) {	// Target slot is for equipment
 			if (!item.canEquip(newSlot)) {
-				game.sendPlayerMessage(this.id, "That cannot be equipped there.");
+				game.sendGameInfoPlayer(this.id, "That cannot be equipped there.");
 				return;
 			}
 		}
@@ -642,7 +644,7 @@ export default class Actor extends Entity {
 		// Old item is equipped, new item in inventory, different types
 		newSlot = this.findFirstEmptySlot();
 		if (newSlot == null) {
-			game.sendPlayerMessage(this.id, "Your inventory is full.");
+			game.sendGameInfoPlayer(this.id, "Your inventory is full.");
 			return;
 		}
 
@@ -668,7 +670,7 @@ export default class Actor extends Entity {
 		
 		let newSlot = this.findFirstEmptySlot();
 		if (newSlot == null) {
-			game.sendPlayerMessage(this.id, "Your inventory is full.");
+			game.sendGameInfoPlayer(this.id, "Your inventory is full.");
 			return;
 		}
 
@@ -686,6 +688,7 @@ export default class Actor extends Entity {
 	update(delta) {
 		// Inventory Item Update
 		this.inventory.forEach((item) => {
+			if (!item) return;
 			item.update();
 		});
 
@@ -725,9 +728,10 @@ export default class Actor extends Entity {
 		let inventoryPack = [];
 		
 		this.inventory.forEach((item) => {
+			if (!item) return;
 			inventoryPack[item.slot] = item.getPack();
 		});
-		
+
 		return inventoryPack;
 	}
 }

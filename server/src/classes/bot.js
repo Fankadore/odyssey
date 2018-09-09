@@ -8,9 +8,6 @@ import Actor from './actor.js';
 
 export default class Bot extends Actor {
 	constructor(data) {
-		if (data.botClass == null || data.mapId == null || data.x == null || data.y == null) return;
-
-		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
 		
 		let classData = db.getBotData(data.botClass);
 		if (!data.name) data.name = classData.name;
@@ -21,8 +18,9 @@ export default class Bot extends Actor {
 		if (data.healthMaxBase == null) data.healthMaxBase = classData.healthMaxBase;
 		if (data.energyMaxBase == null) data.energyMaxBase = classData.energyMaxBase;
 		if (data.rangeBase == null) data.rangeBase = classData.rangeBase;
-
+		
 		super(data.mapId, data.x, data.y, data.name, data.sprite);
+		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
 		this.id = data.id;
 		this.botClass = data.botClass;
 		this.hostile = data.hostile;
@@ -144,7 +142,8 @@ export default class Bot extends Actor {
 	}
 	
 	pickUp() {
-		for (let item of game.mapList[this.mapId].items) {
+		for (let i = 0; i < game.mapList[this.mapId].items.length; i++) {
+			let item = game.mapList[this.mapId].items[i];
 			if (item && item.x === this.x && item.y === this.y) {
 				let slot = this.getMapItem(item.mapId, item.id);
 				if (slot != null) {

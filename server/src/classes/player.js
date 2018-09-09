@@ -119,46 +119,38 @@ export default class Player extends Actor {
 			break;
 			case 'attack':
 				this.input.attack = data.state;
-				this.attack(1, this.direction);
+				if (!this.isDead) this.attack(1, this.direction);
 			break;
 			case 'doubleClickItem':
 				if (this.inventory[data.slot]) {
-					if (!this.isDead) {
-						this.useItem(data.slot);
-					}
+					if (!this.isDead) this.useItem(data.slot);
 				}
 			break;
 			case 'rightClickItem':
 				if (this.inventory[data.slot]) {
-					if (!this.isDead) {
-						this.dropItem(data.slot);
-					}
+					if (!this.isDead) this.dropItem(data.slot);
 				}
 			break;
 			case 'dragStopGame':
 				if (this.inventory[data.slot]) {
-					if (!this.isDead) {
-						this.dropItem(data.slot);
-					}
+					if (!this.isDead) this.dropItem(data.slot);
 				}
 			break;
 			case 'dragStopInventory':
 			case 'dragStopEquipment':
 				if (this.inventory[data.slot]) {
-					if (!this.isDead) {
-						this.moveItemToSlot(data.slot, data.newSlot);
-					}
+					if (!this.isDead) this.moveItemToSlot(data.slot, data.newSlot);
 				}
 			break;
-			case 'serverChat': game.sendServerMessage(`${this.name} yells, "${data.message}"`);
+			case 'serverChat': game.sendMessageGlobal(this.id, `${this.name} yells, "${data.message}"`);
 			break;
-			case 'mapChat': game.sendMapMessage(this.mapId, `${this.name} says, "${data.message}"`);
+			case 'mapChat': game.sendMessageMap(this.id, this.mapId, `${this.name} says, "${data.message}"`);
 			break;
 			case 'playerChat':
 				let target = this.playerList[data.targetId];
 				if (target) {
-					game.sendPlayerMessage(target.id, `${this.name} whispers, "${data.message}"`);
-					game.sendPlayerMessage(this.id, `You whisper to ${target.name}, "${data.message}"`);
+					game.sendMessagePlayer(this.id, target.id, `${this.name} whispers, "${data.message}"`);
+					game.sendMessagePlayer(this.id, this.id, `You whisper to ${target.name}, "${data.message}"`);
 				}
 			break;
 
@@ -168,7 +160,7 @@ export default class Player extends Actor {
 					game.spawnMapItem(data.mapId, data.x, data.y, data.type, data.stack);
 				}
 				else {
-					game.sendPlayerMessage(this.id, `You don't have access to that command.`);
+					game.sendGameInfoPlayer(this.id, `You don't have access to that command.`);
 				}
 			break;
 			case 'uploadMap':
@@ -176,14 +168,15 @@ export default class Player extends Actor {
 					game.mapList[data.mapId].upload();
 				}
 				else {
-					game.sendPlayerMessage(this.id, `You don't have access to that command.`);
+					game.sendGameInfoPlayer(this.id, `You don't have access to that command.`);
 				}
 			break;
 		}
 	}
 
 	pickUp() {
-		for (let item of game.mapList[this.mapId].items) {
+		for (let i = 0; i < game.mapList[this.mapId].items.length; i++) {
+			let item = game.mapList[this.mapId].items[i];
 			if (item && item.x === this.x && item.y === this.y) {
 				let slot = this.getMapItem(item.mapId, item.id);
 				if (slot != null) {
@@ -191,10 +184,15 @@ export default class Player extends Actor {
 				}
 				else {
 					// Inventory full
-					game.sendPlayerMessage(this.id, "Your inventory is full.");
+					game.sendGameInfoPlayer(this.id, "Your inventory is full.");
 					break;
 				}
 			}
 		}
+	}
+
+	respawn() {
+		super.respawn();
+		game.sendGameInfoPlayer(this.id, "The Angel of Mercy has saved your soul.");
 	}
 }

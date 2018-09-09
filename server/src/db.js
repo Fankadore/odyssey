@@ -251,7 +251,7 @@ class Database {
       },
       {	//id 1
         name: "Snake",
-        sprite: 1,
+        sprite: 2,
         hostile: true,
         damageBase: 2,
         defenceBase: 0,
