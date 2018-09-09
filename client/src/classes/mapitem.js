@@ -9,7 +9,10 @@ export default class MapItem extends Entity {
 	update(data) {
 		if (!data) return;
 		if (data.name != null) this.name = data.name;
-		if (data.sprite != null) this.sprite = data.sprite;
+		if (data.sprite != null && data.sprite !== this.sprite) {
+			this.sprite = data.sprite;
+			this.setFrame(this.sprite);
+		}
 		if (data.x != null) this.grid.x = data.x;
 		if (data.y != null) this.grid.y = data.y;
 		if (data.z != null && this.depth !== data.z) this.setDepth(data.z);
