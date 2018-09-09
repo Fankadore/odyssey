@@ -1,53 +1,52 @@
 import { Scene } from './lib/phaser.js';
+import Map from './classes/map.js';
+import UI from './classes/ui.js';
 import Actor from './classes/actor.js';
-import MapItem from './classes/mapitem.js';
-import Text from './classes/text.js';
 import config from './config.js';
+import util from './util.js';
 
-export default class GameScene extends Scene {
+export default class Game extends Scene {
 	constructor() {
 		super({key: 'game'});
 	}
 
 	preload() {
-		this.load.image('map', 'client/assets/gfx/map.png');
+		this.load.setPath('client/assets/');
+		this.load.image('map', 'gfx/map.png');
+		this.load.image('slot', 'gfx/slot.png');
 		
-    this.load.spritesheet('sprites', 'client/assets/gfx/sprites.png', {frameWidth: 32, frameHeight: 32});
-    this.load.spritesheet('effects', 'client/assets/gfx/effects.png', {frameWidth: 32, frameHeight: 32});
-    this.load.spritesheet('floor', 'client/assets/gfx/floor.png', {frameWidth: 32, frameHeight: 32});
-    this.load.spritesheet('potions', 'client/assets/gfx/potions.png', {frameWidth: 32, frameHeight: 32});
+    this.load.spritesheet('sprites', 'gfx/sprites.png', {frameWidth: 32, frameHeight: 32});
+    this.load.spritesheet('effects', 'gfx/effects.png', {frameWidth: 32, frameHeight: 32});
+    this.load.spritesheet('floor', 'gfx/floor.png', {frameWidth: 32, frameHeight: 32});
+    this.load.spritesheet('potions', 'gfx/potions.png', {frameWidth: 32, frameHeight: 32});
 	}
 	
 	create() {
 		this.socket = null;
-
+		
 		this.keyLeft = null;
 		this.keyRight = null;
 		this.keyUp = null;
 		this.keyDown = null;
 
-		this.list = {
-			players: [],
-			bots: [],
-			items: [],
-			texts: []
-		};
+		this.players = [];
 
 		this.updateData = {
 			players: [],
-			bots: [],
-			items: [],
-			ui: {
-				health: 0,
-				inventory: []
-			}
+			ui: {},
+			map: {},
+			messages: []
 		};
 
 		this.createClient();
 
-		this.createTilemap();
-		this.createUI();
-		this.createInputs();
+		this.map = new Map();
+		this.add.image(0, 0, 'map').setOrigin(0, 0);
+
+		this.ui = new UI(this);
+
+		this.createKeyboardInputs();
+		this.createMouseInputs();
 		this.createAnims();
 		this.loadMap();
 	}
@@ -58,20 +57,20 @@ export default class GameScene extends Scene {
 		// Update Players
 		if (data.players) {
 			let addPlayers = data.players.filter((playerData) => {	// filter players on new list but not old
-				return (this.list.players[playerData.id] === null || this.list.players[playerData.id] === undefined);
+				return (this.players[playerData.id] === null || this.players[playerData.id] === undefined);
 			});
-			let removePlayers = this.list.players.filter((player) => {	// filter players on old list but not new
+			let removePlayers = this.players.filter((player) => {	// filter players on old list but not new
 				return (data.players[player.id] === null || data.players[player.id] === undefined);
 			});
-			let updatePlayers = this.list.players.filter((player) => {	// filter players on both lists
+			let updatePlayers = this.players.filter((player) => {	// filter players on both lists
 				return (data.players[player.id] !== null && data.players[player.id] !== undefined);
 			});
 
 			addPlayers.forEach((playerData) => {
-				this.list.players[playerData.id] = new Actor(this, playerData);
+				this.players[playerData.id] = new Actor(this, playerData);
 			});
 			removePlayers.forEach((player) => {
-				delete this.list.players[player.id];
+				delete this.players[player.id];
 				player.destroy();
 			});
 			updatePlayers.forEach((player) => {
@@ -79,103 +78,13 @@ export default class GameScene extends Scene {
 			});
 		}
 
-		if (!data.map) return;
-
-		// Update Bots
-		let bots = data.map.bots;
-		if (bots) {
-			let addBots = bots.filter((botData) => {	// filter bots on new list but not old
-				return (this.list.bots[botData.id] === null || this.list.bots[botData.id] === undefined);
-			});
-			let removeBots = this.list.bots.filter((bot) => {	// filter bots on old list but not new
-				return (bots[bot.id] === null || bots[bot.id] === undefined);
-			});
-			let updateBots = this.list.bots.filter((bot) => {	// filter bots on both lists
-				return (bots[bot.id] !== null && bots[bot.id] !== undefined);
-			});
-			
-			addBots.forEach((botData) => {
-				this.list.bots[botData.id] = new Actor(this, botData);
-			});
-			removeBots.forEach((bot) => {
-				delete this.list.bots[bot.id];
-				bot.destroy();
-			});
-			updateBots.forEach((bot) => {
-				bot.update(bots[bot.id]);
-			});
+		if (data.map) {
+			this.map.update(this, data.map, delta);
 		}
 
-		// Update Map Items
-		let items = data.map.items;
-		if (items) {
-			let addItems = items.filter((itemData) => {	// filter item on new list but not old
-				if (!itemData) return false;
-				return (this.list.items[itemData.id] == null);
-			});
-			let removeItems = this.list.items.filter((item) => {	// filter items on old list but not new
-				if (!item) return false;
-				return (items[item.id] == null);
-			});
-			let updateItems = this.list.items.filter((item) => {	// filter items on both lists
-				if (!item) return false;
-				return (items[item.id] != null);
-			});
-
-			addItems.forEach((itemData) => {
-				this.list.items[itemData.id] = new MapItem(this, itemData);
-			});
-			removeItems.forEach((item) => {
-				delete this.list.items[item.id];
-				item.destroy();
-			});
-			updateItems.forEach((item) => {
-				item.update(items[item.id]);
-			});
+		if (data.ui) {
+			this.ui.update(this, data.ui, delta);
 		}
-		
-		// Update Text
-		let texts = data.map.texts;
-		if (texts) {
-			let addTexts = texts.filter((textData) => {	// filter text on new list but not old
-				if (!textData) return false;
-				return (this.list.texts[textData.id] == null);
-			});
-			let removeTexts = this.list.texts.filter((text) => {	// filter texts on old list but not new
-				if (!text) return false;
-				return (texts[text.id] == null);
-			});
-			let updateTexts = this.list.texts.filter((text) => {	// filter texts on both lists
-				if (!text) return false;
-				return (texts[text.id] != null);
-			});
-			
-			addTexts.forEach((textData) => {
-				this.list.texts[textData.id] = new Text(this, textData);
-			});
-			removeTexts.forEach((text) => {
-				delete this.list.texts[text.id];
-				text.destroy();
-			});
-			updateTexts.forEach((text) => {
-				text.update(texts[text.id]);
-			});
-		}
-	}
-
-	// Create Game
-	createTilemap() {
-		// this.tilemap = this.make.tilemap({tileWidth: config.TILE_SIZE, tileHeight: config.TILE_SIZE, width: 10, height: 10});
-		this.add.image(0, 0, 'map').setOrigin(0, 0);
-	}
-
-	createUI() {
-		this.ui = {
-			id: 0,
-			name : "Some Random",
-			health: 0,
-			inventory: []
-		};
 	}
 
 	emitInputMove(direction) {
@@ -185,7 +94,7 @@ export default class GameScene extends Scene {
 		});
 	}
 
-	createInputs() {
+	createKeyboardInputs() {
 		this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 		this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 		this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -317,6 +226,64 @@ export default class GameScene extends Scene {
 		}, this);
 	}
 	
+	createMouseInputs() {
+		this.input.mouse.disableContextMenu();
+
+		this.input.on('pointerdown', function(pointer) {
+			let x = pointer.x;
+			let y = pointer.y;
+			if (this.ui.isWithinMapBounds(x, y)) {
+				// Click on Map
+				let tileX = ((x - config.MAP_LEFT) - (x % config.TILE_SIZE)) / config.TILE_SIZE;
+				let tileY = ((y - config.MAP_TOP) - (y % config.TILE_SIZE)) / config.TILE_SIZE;
+			}
+			else if (this.ui.isWithinInventoryBounds(x, y)) {
+				// Click on Inventory
+				let slotX = this.ui.getSlotXFromX(x, config.INVENTORY_LEFT);
+				let slotY = this.ui.getSlotYFromY(y, config.INVENTORY_TOP);
+				let slot = util.getIndexFromXY(slotX, slotY, config.INVENTORY_COLUMNS);
+				if (pointer.leftButtonDown()) {
+					if (this.ui.clickSlot(slot)) {
+						this.socket.emit('input', {
+							input: 'doubleClickItem',
+							slot: slot
+						});
+					}
+				}
+				else if (pointer.rightButtonDown()) {
+					if (this.ui.rightClickSlot(slot)) {
+						this.socket.emit('input', {
+							input: 'rightClickItem',
+							slot: slot
+						});
+					}
+				}
+			}
+			else if (this.ui.isWithinEquipmentBounds(x, y)) {
+				// Click on Equipment
+				let slotX = this.ui.getSlotXFromX(x, config.EQUIPMENT_LEFT);
+				let slotY = this.ui.getSlotYFromY(y, config.EQUIPMENT_TOP);
+				let slot = config.INVENTORY_SIZE + util.getIndexFromXY(slotX, slotY, config.EQUIPMENT_COLUMNS);
+				if (pointer.leftButtonDown()) {
+					if (this.ui.clickSlot(slot)) {
+						this.socket.emit('input', {
+							input: 'doubleClickItem',
+							slot: slot
+						});
+					}
+				}
+				else if (pointer.rightButtonDown()) {
+					if (this.ui.rightClickSlot(slot)) {
+						this.socket.emit('input', {
+							input: 'rightClickItem',
+							slot: slot
+						});
+					}
+				}
+			}
+		}, this);
+	}
+
 	createAnims() {
 		for (let sprite = 0; sprite < config.SPRITE_COUNT; sprite++) {
 			let frame = sprite * 13;

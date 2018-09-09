@@ -44,8 +44,19 @@ function clamp(value, minimum, maximum) {
 }
 
 function randomInt(minimum, maximum) {
-  maximum++;
-  return Math.floor((Math.random() * maximum) + minimum);
+  return Math.floor((Math.random() * (maximum + 1)) + minimum);
+}
+
+function getXFromIndex(index, columns) {
+  return index % columns;
+}
+
+function getYFromIndex(index, columns) {
+  return (index - (index % columns)) / columns;
+}
+
+function getIndexFromXY(x, y, columns) {
+  return (y * columns) + x;
 }
 
 export default {
@@ -54,5 +65,8 @@ export default {
   firstEmptyIndex,
   lerp,
   clamp,
-  randomInt
+  randomInt,
+  getXFromIndex,
+  getYFromIndex,
+  getIndexFromXY
 };

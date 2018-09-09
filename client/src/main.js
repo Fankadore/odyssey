@@ -1,7 +1,9 @@
 /*** Entry Point ***/
 
 import Phaser from './lib/phaser.js';
-import GameScene from './scene.js';
+import ClientScene from './scenes/clientscene.js';
+import UIScene from './scenes/uiscene.js';
+import GameScene from './scenes/gamescene.js';
 import config from './config.js';
 
 const phaserConfig = {
@@ -9,7 +11,7 @@ const phaserConfig = {
 	width: config.WIDTH,
 	height: config.HEIGHT,
 	parent: 'game-window',
-	scene: [GameScene]
+	scene: [GameScene, ClientScene, UIScene]
 };
 
 const game = new Phaser.Game(phaserConfig);
