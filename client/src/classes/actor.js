@@ -1,23 +1,22 @@
-"use strict";
-
 import config from '../config.js';
 import Entity from './entity.js';
 
 export default class Actor extends Entity {
 	constructor(scene, data) {
-		super(scene, data.id, data.name, data.x, data.y, data.sprite, 'sprites');
-		this.setOrigin(0, 0.5);
-		this.anims.setCurrentFrame(this.anims.animationManager.anims.entries[data.sprite + 'walk_' + data.direction].frames[0]);
+		super(scene, data.id, data.x, data.y, data.sprite, 'sprites').setOrigin(0, 0.5);
 		
+		this.name = data.name;
 		this.direction = data.direction;
 		this.grid.destinationX = data.destinationX;
 		this.grid.destinationY = data.destinationY;
 		this.grid.lerp = data.lerp;
 		this.z = data.z;
-
 		this.isRunning = data.isRunning;
 		this.isAttacking = data.isAttacking;
 		this.isDead = data.isDead;
+		
+		this.setDepth(this.z);
+		this.setFrame();
 	}
 
 	setDead(isDead) {
@@ -51,11 +50,16 @@ export default class Actor extends Entity {
 
 		// Death Status
 		if (this.isDead) {
-			this.anims.setCurrentFrame(this.anims.animationManager.anims.entries[this.sprite + 'dead'].frames[0]);
+			this.anims.stop();
+			this.setFrame();
 			return;
 		}
 
-		// Update position
+		this.updatePosition();
+		this.updateAnimation();
+	}
+
+	updatePosition() {
 		/* this.grid.lerp is a float between 0 and 1, showing the distance between tiles.
 		** 0 = on starting tile, 1 = on destination tile, 0.5 = half way, etc. */
 
@@ -83,8 +87,24 @@ export default class Actor extends Entity {
 			this.x = x;
 			this.y = y;
 		}
+	}
+
+	updateAnimation() {
+		// Attacking animations
+		if (this.isAttacking) {
+			this.anims.stop();
+			this.setFrame();
+			return;
+		}
+
+		// Idle animations
+		if (this.grid.x === this.grid.destinationX && this.grid.y === this.grid.destinationY) {
+			this.anims.stop();
+			this.setFrame();
+			return;
+		}
 		
-		// Animations
+		// Walking Animations
 		if (this.isRunning) {
 			this.anims.setTimeScale(1.89);
 		}
@@ -92,20 +112,27 @@ export default class Actor extends Entity {
 			this.anims.setTimeScale(1);
 		}
 		
-		if (this.isAttacking) {	// Attacking animations
-			this.anims.setCurrentFrame(this.anims.animationManager.anims.entries[this.sprite + 'attack_' + this.direction].frames[0]);
+		let animKey = this.sprite + 'walk_' + this.direction;
+		if (!this.anims.isPlaying || this.anims.currentAnim.key !== animKey) {
+			this.play(animKey);
 		}
-		else {	// Walking animations
-			let animKey = this.sprite + 'walk_' + this.direction;
+	}
+
+	setFrame() {
+		let frame = this.sprite * config.SPRITE_COUNT;
+		
+		if (this.isDead) {
+			frame += 12;
+		}
+		else {
+			if (this.direction === 'left') frame += 6;
+			else if (this.direction === 'right') frame += 9;
+			else if (this.direction === 'up') frame += 3;
+			else if (this.direction === 'down') frame += 0;
 			
-			if (this.grid.x === this.grid.destinationX && this.grid.y === this.grid.destinationY) {
-				this.anims.setCurrentFrame(this.anims.animationManager.anims.entries[animKey].frames[0]);
-			}
-			else {
-				if (!this.anims.isPlaying || this.anims.currentAnim.key !== animKey) {
-					this.play(animKey);
-				}
-			}
+			if (this.isAttacking) frame += 2;
 		}
+
+		if (!this.frame || this.frame.name !== frame) super.setFrame(frame);
 	}
 }
