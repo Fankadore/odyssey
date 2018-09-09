@@ -119,7 +119,7 @@ export default class Actor extends Entity {
 	}
 
 	setFrame() {
-		let frame = this.sprite * config.SPRITE_COUNT;
+		let frame = this.sprite * config.SPRITE_FRAMES;
 		
 		if (this.isDead) {
 			frame += 12;

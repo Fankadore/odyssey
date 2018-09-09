@@ -7,6 +7,7 @@ import Map from './classes/map.js';
 import Player from './classes/player.js';
 import Bot from './classes/bot.js';
 import Item from './classes/item.js';
+import Effect from './classes/effect.js';
 import Text from './classes/text.js';
 import Message from './classes/message.js';
 
@@ -130,6 +131,9 @@ class Game {
 
 	spawnDamageText(mapId, x, y, damage) {
 		new Text(mapId, x, y - 0.5, damage, '#ff0000', 1.25, 0, -1);
+	}
+	spawnEffect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame) {
+		new Effect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame);
 	}
 }
 

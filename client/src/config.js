@@ -12,8 +12,11 @@ class Config {
 		this.EQUIPMENT_ROWS = 1;
 		this.EQUIPMENT_SIZE = this.EQUIPMENT_COLUMNS * this.EQUIPMENT_ROWS;
 		
+		this.SPRITE_FRAMES = 13;
 		this.SPRITE_COUNT = 13;
 
+		this.EFFECT_FRAMES = 8;
+		
 		this.CHATBOX_LINES = 10;
 
 		this.TILE_SIZE = 32;

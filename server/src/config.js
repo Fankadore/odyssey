@@ -11,7 +11,7 @@ config.MAP_ROWS = 12;
 config.MAX_MAPS = 10;
 config.MAX_USERS = 100;
 config.MAX_SPRITES = 13;
-config.MAX_EFFECTS = 70;
+config.MAX_EFFECTS = 71;
 
 config.MAX_HEALTH_BASE = 200;
 config.MAX_HEALTH_BONUS = 55;

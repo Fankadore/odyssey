@@ -1,16 +1,17 @@
+import Entity from './entity.js';
 import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
 
-export default class Effect {
-	constructor(mapId, x, y, sprite, speed, loop = 1, maxFrames = 7, startFrame = 0) {
-		this.sprite = util.clamp(sprite, 1, config.MAX_EFFECTS);
-		this.maxFrames = util.clamp(maxFrames, 1, 7);
-		this.startFrame = util.clamp(startFrame, 0, this.maxFrames);
-		this.frame = this.startFrame;
+export default class Effect extends Entity {
+	constructor(mapId, x, y, sprite = 0, loop = 0, speed = 12, maxFrame = 7, startFrame = 0) {
+		super(mapId, x, y, util.clamp(sprite, 0, config.MAX_EFFECTS - 1));
+		this.maxFrame = util.clamp(maxFrame, 0, 7);
+		this.startFrame = util.clamp(startFrame, 0, this.maxFrame);
+		this.currentFrame = this.startFrame;
 		
-		this.speed = speed;
 		this.loop = loop;
+		this.speed = speed;
 		this.timer = 0;
 		
 		this.id = util.firstEmptyIndex(game.mapList[this.mapId].effects);
@@ -20,23 +21,22 @@ export default class Effect {
 	update(delta) {
 		this.timer += delta;
 		
-		if (this.timer >= this.speed) {
+		if (this.timer >= 1 / this.speed) {
 			this.timer = 0;
+			this.currentFrame++;
 
-			if (this.frame > this.maxFrames) {
+			if (this.currentFrame > this.maxFrame) {
 				if (this.loop < 0) {
-					this.frame = this.startFrame;
+					this.currentFrame = this.startFrame;
 				}
-				else if (this.loop >= 1) {
-					this.frame = this.startFrame;
+				else if (this.loop > 0) {
+					this.currentFrame = this.startFrame;
 					this.loop--;
 				}
 				else {
+					this.currentFrame = this.maxFrame;
 					this.remove();
 				}
-			}
-			else {
-				this.frame++;
 			}
 		}
 
@@ -50,7 +50,7 @@ export default class Effect {
 			x: this.x,
 			y: this.y,
 			sprite: this.sprite,
-			frame: this.frame
+			currentFrame: this.currentFrame
 		};
 	}
 	

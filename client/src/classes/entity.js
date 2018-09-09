@@ -13,4 +13,8 @@ export default class Entity extends Phaser.GameObjects.Sprite {
     this.setOrigin(0, 0);
     scene.add.existing(this);
   }
+
+  setFrame(frame) {
+    super.setFrame(frame);
+  }
 }
