@@ -386,7 +386,8 @@ export default class Actor extends Entity {
 		this.isAttacking = true;
 		// game.sendGameInfoGlobal("TESTING");
 		// game.spawnBot(this.mapId, this.x, this.y, 1);
-		// game.spawnMapItem(this.mapId, this.x, this.y, 1);
+		game.spawnMapItem(this.mapId, this.x, this.y, 0);
+		game.spawnMapItem(this.mapId, this.x, this.y, 1);
 		// game.spawnDamageText(this.mapId, this.x, this.y, this.damage); //test
 		
 		let actorList = game.playerList.concat(game.mapList[this.mapId].bots);
@@ -602,53 +603,37 @@ export default class Actor extends Entity {
 		let newItem = this.inventory[newSlot];
 		if (!item) return;
 
-		let self = this;
-		function swapSlots() {
-			item.slot = newSlot;
-			if (newItem) newItem.slot = slot;
-			util.swap(self.inventory, slot, newSlot);
-			self.calcBonusStats();
-		}
-		
-		if (newSlot >= config.INVENTORY_SIZE) {	// Target slot is for equipment
+		// Target slot is for equipment - check type matches
+		if (newSlot >= config.INVENTORY_SIZE) {
 			if (!item.canEquip(newSlot)) {
 				game.sendGameInfoPlayer(this.id, "That cannot be equipped there.");
 				return;
 			}
 		}
 
-		// No new item in new slot
-		if (!newItem) {
+		const swapSlots = () => {
+			item.slot = newSlot;
+			if (newItem) newItem.slot = slot;
+			util.swap(this.inventory, slot, newSlot);
+			this.calcBonusStats();
+		};
+
+		// IF No new item in new slot
+		// OR New item in new slot, old item in inventory
+		// OR New item in new slot, old item is equipped, new item can be equipped in old slot
+		if (!newItem || slot < config.INVENTORY_SIZE || newItem.canEquip(slot)) {
 			swapSlots();
-			return;
 		}
-
-		// New item in new slot, old item in inventory
-		if (slot < config.INVENTORY_SIZE) {
-			swapSlots();
-			return;
+		else {
+			// Old item is equipped, new item cannot be equipped in old slot
+			newSlot = this.findFirstEmptySlot();
+			if (newSlot != null) {
+				swapSlots();
+			}
+			else {
+				game.sendGameInfoPlayer(this.id, "Your inventory is full.");
+			}
 		}
-
-		// Old item is equipped, new item is equipped
-		if (newSlot >= config.INVENTORY_SIZE) {
-			swapSlots();
-			return
-		}
-
-		// Old item is equipped, new item in inventory, same item type
-		if (newItem.type === item.type) {
-			swapSlots();
-			return;
-		}
-
-		// Old item is equipped, new item in inventory, different types
-		newSlot = this.findFirstEmptySlot();
-		if (newSlot == null) {
-			game.sendGameInfoPlayer(this.id, "Your inventory is full.");
-			return;
-		}
-
-		swapSlots();
 	}
 
 	equipItem(slot) {
