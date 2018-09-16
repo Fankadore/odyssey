@@ -37,14 +37,6 @@ export default class Actor extends Entity {
 		this.attackTimer = 0;	
 		this.target = null;
 		this.kills = 0;
-		this.deaths = 0;
-
-		this.isDead = false;
-		this.respawnTimer = 0;
-		this.respawnSpeed = 10;
-		this.respawnMap = mapId;
-		this.respawnX = x;
-		this.respawnY = y;
 	}
 	
 	// Character Stats
@@ -422,28 +414,9 @@ export default class Actor extends Entity {
 			}
 		}
 		game.spawnDamageText(this.mapId, this.x, this.y, damage);
-	}
-	
-	respawn() {
-		this.mapId = this.respawnMap;
-		this.x = this.respawnX;
-		this.y = this.respawnY;
-		this.startX = this.respawnX;
-		this.startY = this.respawnY;
-		this.destinationX = this.respawnX;
-		this.destinationY = this.respawnY;
-		
-		this.calcBonusStats();
-		this.restore();
-		
-		this.isWalking = false;
-		this.isRunning = false;
-		this.isAttacking = false;
-		this.isDead = false;
-		this.respawnTimer = 0;
-	}
-	
-	setDead(killerController, killerName) {
+	}	
+
+	setDead() {
 		let map = game.mapList[this.mapId];
 
 		// Inventory Item Drop Chance
@@ -476,23 +449,6 @@ export default class Actor extends Entity {
 			equipment.forEach((item) => {
 				this.dropItem(equipment.slot);
 			});
-		}
-		
-		this.isDead = true;
-		this.health = 0;
-		this.energy = 0;
-		this.deaths++;
-		
-		if (killerController && killerName) {
-			if (killerController = 'player') {
-				game.sendGameInfoGlobal(killerName + " has murdered " + this.name + " in cold blood!");
-			}
-			else {
-				game.sendGameInfoGlobal(this.name + " has been killed by " + killerName + "!");
-			}
-		}
-		else {
-			game.sendGameInfoGlobal(this.name + " has died!");
 		}
 	}
 	
@@ -678,12 +634,7 @@ export default class Actor extends Entity {
 			item.update();
 		});
 
-		// Respawning
-		if (this.isDead) {
-			this.respawnTimer += delta;
-			if (this.respawnTimer >= this.respawnSpeed) this.respawn();
-			return;
-		}
+		if (this.isDead) return;
 		
 		// Attacking
 		if (this.isAttacking || this.attackTimer > 0) {

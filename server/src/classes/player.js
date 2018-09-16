@@ -1,8 +1,9 @@
 import db from '../db.js';
 import game from '../game.js';
 import Actor from './actor.js';
+import Text from './text.js';
 
-// A Player is an Actor which takes input from a client
+// A Player is an immortal Actor which takes input from a client
 
 export default class Player extends Actor {
 	constructor(id) {
@@ -20,6 +21,14 @@ export default class Player extends Actor {
 		this.calcStats();
 		this.restore();
 
+		this.isDead = false;
+		this.deaths = 0;
+		this.respawnTimer = 0;
+		this.respawnSpeed = 10;
+		this.respawnMap = data.mapId;
+		this.respawnX = data.x;
+		this.respawnY = data.y;
+
 		this.selected = null;
 		this.input = {
 			direction: null,
@@ -35,24 +44,21 @@ export default class Player extends Actor {
 
 	update(delta) {
 		super.update(delta);		// Default Actor Update
-		
-		if (!this.isDead) {
+		if (this.isDead) {
+			// Respawning
+			this.respawnTimer += delta;
+			if (this.respawnTimer >= this.respawnSpeed) this.respawn();
+		}
+		else {
 			// Check for Atack Input
-			if (this.input.attack && this.attackTimer === 0) {
-				this.attack();
-			}
+			if (this.input.attack && this.attackTimer === 0) this.attack();
 			
 			// Check for Movement Input
 			if (!this.isMoving) {
 				if (this.input.direction) {
 					// Check for Run Input
 					if (this.input.run) {
-						if (this.energy > 0) {
-							this.isRunning = true;
-						}
-						else {
-							this.isRunning = false;
-						}
+						(this.energy > 0) ? this.isRunning = true : this.isRunning = false;
 					}
 					else {
 						this.isRunning = false;
@@ -191,8 +197,43 @@ export default class Player extends Actor {
 		}
 	}
 
+	setDead(killerController, killerName) {
+		super.setDead();
+		this.isDead = true;
+		this.health = 0;
+		this.energy = 0;
+		this.deaths++;
+		
+		if (killerController && killerName) {
+			if (killerController = 'player') {
+				game.sendGameInfoGlobal(killerName + " has murdered " + this.name + " in cold blood!");
+			}
+			else {
+				game.sendGameInfoGlobal(this.name + " has been killed by " + killerName + "!");
+			}
+		}
+		else {
+			game.sendGameInfoGlobal(this.name + " has died!");
+		}
+	}
+
 	respawn() {
-		super.respawn();
+		this.mapId = this.respawnMap;
+		this.x = this.respawnX;
+		this.y = this.respawnY;
+		this.startX = this.respawnX;
+		this.startY = this.respawnY;
+		this.destinationX = this.respawnX;
+		this.destinationY = this.respawnY;
+		
+		this.calcBonusStats();
+		this.restore();
+		
+		this.isWalking = false;
+		this.isRunning = false;
+		this.isAttacking = false;
+		this.isDead = false;
+		this.respawnTimer = 0;
 		game.sendGameInfoPlayer(this.id, "The Angel of Mercy has saved your soul.");
 	}
 }

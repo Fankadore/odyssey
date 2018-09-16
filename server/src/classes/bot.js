@@ -109,7 +109,7 @@ export default class Bot extends Actor {
 			lerp: this.lerp,
 			isRunning: this.isRunning,
 			isAttacking: this.isAttacking,
-			isDead: this.isDead,
+			isDead: false,
 			isVisible: this.isVisible
 		};
 	}
@@ -130,15 +130,8 @@ export default class Bot extends Actor {
 	}
 	
 	takeDamage(damage, source) {
-		if (source instanceof Actor) {
-			this.setTask('attacking', source);
-		}
+		if (source instanceof Actor) this.setTask('attacking', source);
 		super.takeDamage(damage, source);
-	}
-	
-	respawn() {
-		super.respawn();
-		this.setTask('wandering');
 	}
 	
 	pickUp() {
@@ -156,6 +149,11 @@ export default class Bot extends Actor {
 			}
 		}
 		this.checkBestEquipment();
+	}
+
+	setDead() {
+		super.setDead();
+		delete game.mapData[this.mapId].bots[this.id];
 	}
 	
 	setTask(task, target) {
