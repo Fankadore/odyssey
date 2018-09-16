@@ -56,6 +56,7 @@ class Game {
 		if (player) {
 			db.savePlayerData(player.getPack);
 			this.sendGameInfoGlobal(`${player.name} has logged out.`);
+			delete this.mapList[player.mapId].texts[player.displayNameId];
 			delete this.playerList[id];
 		}
 	}
@@ -130,7 +131,7 @@ class Game {
 	}
 
 	spawnDamageText(mapId, x, y, damage) {
-		new Text(mapId, x, y - 0.5, damage, '#ff0000', 1.25, 0, -1);
+		new Text(mapId, x, y + 0.5, damage, '#ff0000', 1.25, 0, -1);
 	}
 	spawnEffect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame) {
 		new Effect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame);

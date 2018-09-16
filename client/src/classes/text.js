@@ -1,13 +1,14 @@
 import Phaser from '../lib/phaser.js';
 import config from '../config.js';
 
-let offsetX = 0.4;
-let offsetY = 0.25;
+let offsetX = 0.5;
+let offsetY = -0.75;
 
 export default class Text extends Phaser.GameObjects.Text {
 	constructor(scene, data) {
 		super(scene, (data.x + data.lerpX + offsetX) * config.TILE_SIZE, (data.y + data.lerpY + offsetY) * config.TILE_SIZE, data.message, { fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour });
 		this.id = data.id;
+		this.setOrigin(0.5, 0.5);
 		this.setAlign('center');
 		this.update(data);
 		scene.add.existing(this);

@@ -1,5 +1,6 @@
 import config from '../config.js';
 import Entity from './entity.js';
+import Text from './text.js';
 
 export default class Actor extends Entity {
 	constructor(scene, data) {
@@ -17,6 +18,28 @@ export default class Actor extends Entity {
 		
 		this.setDepth(this.z);
 		this.setFrame();
+		let lerpX = 0;
+		let lerpY = 0;
+		if (this.direction === 'left') {
+			lerpX -= this.grid.lerp;
+		}
+		else if (this.direction === 'right') {
+			lerpX += this.grid.lerp;
+		}
+		else if (this.direction === 'up') {
+			lerpY -= this.grid.lerp;
+		}
+		else if (this.direction === 'down') {
+			lerpY += this.grid.lerp;
+		}
+		this.displayName = new Text(scene, {
+			message: this.name,
+			colour: '#ff9000',
+			x: this.grid.x,
+			y: this.grid.y,
+			lerpX,
+			lerpY
+		});
 	}
 
 	setDead(isDead) {
@@ -57,6 +80,7 @@ export default class Actor extends Entity {
 
 		this.updatePosition();
 		this.updateAnimation();
+		this.updateDisplayName();
 	}
 
 	updatePosition() {
@@ -116,6 +140,31 @@ export default class Actor extends Entity {
 		if (!this.anims.isPlaying || this.anims.currentAnim.key !== animKey) {
 			this.play(animKey);
 		}
+	}
+
+	updateDisplayName() {
+		let lerpX = 0;
+		let lerpY = 0;
+		if (this.direction === 'left') {
+			lerpX -= this.grid.lerp;
+		}
+		else if (this.direction === 'right') {
+			lerpX += this.grid.lerp;
+		}
+		else if (this.direction === 'up') {
+			lerpY -= this.grid.lerp;
+		}
+		else if (this.direction === 'down') {
+			lerpY += this.grid.lerp;
+		}
+		this.displayName.update({
+			message: this.name,
+			colour: '#ff9000',
+			x: this.grid.x,
+			y: this.grid.y,
+			lerpX,
+			lerpY
+		});
 	}
 
 	setFrame() {
