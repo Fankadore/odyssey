@@ -14,6 +14,7 @@ export default class ClientScene extends Scene {
 	create() {
 		this.socket = io.connect();
 		this.socket.on('update', (data) => this.onUpdate(data));
+		this.socket.on('loadMap', (data) => this.onLoadMap(data));
 		this.socket.emit('login');
 	}
 
@@ -32,6 +33,13 @@ export default class ClientScene extends Scene {
 		}
 	}
 	
+	onLoadMap(data) {
+		if (data) {
+			const game = this.scene.get('gameScene');
+			game.loadMap(data);
+		}
+	}
+
 	emitInput(input, state) {
 		this.socket.emit('input', {
 			input,
