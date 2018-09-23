@@ -136,7 +136,7 @@ export default class Actor extends Entity {
 			this.anims.setTimeScale(1);
 		}
 		
-		let animKey = this.sprite + 'walk_' + this.direction;
+		let animKey = this.sprite + 'walk' + this.direction;
 		if (!this.anims.isPlaying || this.anims.currentAnim.key !== animKey) {
 			this.play(animKey);
 		}
