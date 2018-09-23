@@ -10,11 +10,6 @@ export default class UIScene extends Scene {
   }
 
 	init() {
-    this.keyLeft = null;
-		this.keyRight = null;
-		this.keyUp = null;
-		this.keyDown = null;
-		
 		this.pressingLeft = false;
 		this.pressingRight = false;
 		this.pressingUp = false;
@@ -39,7 +34,7 @@ export default class UIScene extends Scene {
 		this.showPlayerMessages = true;
 
 		this.menuView = 'inventory';
-    this.selected = null;
+		this.selected = null;
 	}
 
   preload() {
@@ -49,47 +44,27 @@ export default class UIScene extends Scene {
 
   create() {
 		// Create Inputs
-    const client = this.scene.get('clientScene');
-    this.createKeyboardInputs(client);
-    this.createMouseInputs(client);
-
-		// Create Inventory
-		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
-			this.add.image(this.getXFromSlot(slot), this.getYFromSlot(slot), 'slot').setOrigin(0, 0);
-		}
-
-		// Create Chatbox
+		const client = this.scene.get('clientScene');
 		
-	}
-	
-
-	createKeyboardInputs(client) {
-		this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-		this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-		this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-		this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-		this.keyShift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
-		this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-		this.keyCtrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
-
-		this.input.keyboard.on('keydown_LEFT', function() {
+		// Create Keyboard Inputs
+		this.input.keyboard.on('keydown_LEFT', () => {
 			this.pressingLeft = true;
 			client.emitInputMove('left');
-		}, this);
-		this.input.keyboard.on('keydown_RIGHT', function() {
+		});
+		this.input.keyboard.on('keydown_RIGHT', () => {
 			this.pressingRight = true;
 			client.emitInputMove('right');
-		}, this);
-		this.input.keyboard.on('keydown_UP', function() {
+		});
+		this.input.keyboard.on('keydown_UP', () => {
 			this.pressingUp = true;
 			client.emitInputMove('up');
-		}, this);
-		this.input.keyboard.on('keydown_DOWN', function() {
-      this.pressingDown = true;
+		});
+		this.input.keyboard.on('keydown_DOWN', () => {
+			this.pressingDown = true;
 			client.emitInputMove('down');
-		}, this);
+		});
 		
-		this.input.keyboard.on('keyup_LEFT', function() {
+		this.input.keyboard.on('keyup_LEFT', () => {
 			this.pressingLeft = false;
 			if (this.pressingRight) {
 				client.emitInputMove('right');
@@ -103,8 +78,8 @@ export default class UIScene extends Scene {
 			else {
 				client.emitInputMove(null);
 			}
-		}, this);
-		this.input.keyboard.on('keyup_RIGHT', function() {
+		});
+		this.input.keyboard.on('keyup_RIGHT', () => {
 			this.pressingRight = false;
 			if (this.pressingLeft) {
 				client.emitInputMove('left');
@@ -118,8 +93,8 @@ export default class UIScene extends Scene {
 			else {
 				client.emitInputMove(null);
 			}
-		}, this);
-		this.input.keyboard.on('keyup_UP', function() {
+		});
+		this.input.keyboard.on('keyup_UP', () => {
 			this.pressingUp = false;
 			if (this.pressingLeft) {
 				client.emitInputMove('left');
@@ -128,13 +103,13 @@ export default class UIScene extends Scene {
 				client.emitInputMove('right');
 			}
 			else if (this.pressingDown) {
-			  client.emitInputMove('down');
+				client.emitInputMove('down');
 			}
 			else {
 				client.emitInputMove(null);
 			}
-		}, this);
-		this.input.keyboard.on('keyup_DOWN', function() {
+		});
+		this.input.keyboard.on('keyup_DOWN', () => {
 			this.pressingDown = false;
 			if (this.pressingLeft) {
 				client.emitInputMove('left');
@@ -148,7 +123,7 @@ export default class UIScene extends Scene {
 			else {
 				client.emitInputMove(null);
 			}
-		}, this);
+		});
 		
 		this.input.keyboard.on('keydown_SHIFT', () => client.emitInput('run', true));
 		this.input.keyboard.on('keyup_SHIFT', () => client.emitInput('run', false));
@@ -158,12 +133,11 @@ export default class UIScene extends Scene {
 
 		this.input.keyboard.on('keydown_CTRL', () => client.emitInput('attack', true));
 		this.input.keyboard.on('keyup_CTRL', () => client.emitInput('attack', false));
-  }
-  
-  createMouseInputs(client) {
+		
+		// Create Mouse Inputs
 		this.input.mouse.disableContextMenu();
 
-		this.input.on('pointerdown', function(pointer) {
+		this.input.on('pointerdown', (pointer) => {
 			let x = pointer.x;
 			let y = pointer.y;
 			if (this.isWithinMapBounds(x, y)) {
@@ -178,12 +152,12 @@ export default class UIScene extends Scene {
 				let slot = util.getIndexFromXY(slotX, slotY, config.INVENTORY_COLUMNS);
 				if (pointer.leftButtonDown()) {
 					if (this.clickSlot(slot)) {
-            client.emitInputClick('doubleClickItem', slot);
+						client.emitInputClick('doubleClickItem', slot);
 					}
 				}
 				else if (pointer.rightButtonDown()) {
 					if (this.rightClickSlot(slot)) {
-            client.emitInputClick('rightClickItem', slot);
+						client.emitInputClick('rightClickItem', slot);
 					}
 				}
 			}
@@ -194,27 +168,27 @@ export default class UIScene extends Scene {
 				let slot = config.INVENTORY_SIZE + util.getIndexFromXY(slotX, slotY, config.EQUIPMENT_COLUMNS);
 				if (pointer.leftButtonDown()) {
 					if (this.clickSlot(slot)) {
-            client.emitInputClick('doubleClickItem', slot);
+						client.emitInputClick('doubleClickItem', slot);
 					}
 				}
 				else if (pointer.rightButtonDown()) {
 					if (this.rightClickSlot(slot)) {
-            client.emitInputClick('rightClickItem', slot);
+						client.emitInputClick('rightClickItem', slot);
 					}
 				}
 			}
-		}, this);
+		});
 
-		this.input.on('dragstart', function(pointer, item) {
+		this.input.on('dragstart', (pointer, item) => {
 			item.dragged = true;
-		}, this);
+		});
 
-		this.input.on('drag', function(pointer, item, dragX, dragY) {
+		this.input.on('drag', (pointer, item, dragX, dragY) => {
 			item.x = dragX;
 			item.y = dragY;
-		}, this);
+		});
 
-		this.input.on('dragend', function(pointer, item) {
+		this.input.on('dragend', (pointer, item) => {
 			setTimeout(() => item.dragged = false, 50);
 
 			if (this.isWithinMapBounds(pointer.x, pointer.y)) {
@@ -232,10 +206,18 @@ export default class UIScene extends Scene {
 				let newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT_COLUMNS);
 				client.emitInputDrag('dragStopEquipment', item.slot, newSlot);
 			}
-		}, this);
-  }
+		});
 
-  onUpdate(data, delta) {
+		// Create Inventory
+		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
+			this.add.image(this.getXFromSlot(slot), this.getYFromSlot(slot), 'slot').setOrigin(0, 0);
+		}
+
+		// Create Chatbox
+
+	}
+
+  onUpdate(data) {
 		if (data.health != null) this.health = data.health;
 		if (data.healthMax != null) this.healthMax = data.healthMax;
 		if (data.energy != null) this.energy = data.energy;
@@ -272,7 +254,7 @@ export default class UIScene extends Scene {
 				let itemData = data.inventory[item.slot];
 				itemData.x = this.getXFromSlot(itemData.slot);
 				itemData.y = this.getYFromSlot(itemData.slot);
-				item.update(itemData, delta);
+				item.onUpdate(itemData);
 			});
 		}
 		
@@ -285,6 +267,10 @@ export default class UIScene extends Scene {
 		}
   }
 	
+	onLoadMap(mapName) {
+		this.mapName = mapName;
+	}
+
   displayInventory() {
 		this.menuView = 'inventory';
 	}
