@@ -16,7 +16,10 @@ export default class GameScene extends Scene {
 		this.items = [];
 		this.texts = [];
     this.effects = [];
-    this.tiles = [];
+		this.tiles = [];
+		this.mapData = null;
+		this.tilemap = null;
+		this.layer = [];
 	}
 
   preload() {
@@ -90,7 +93,14 @@ export default class GameScene extends Scene {
   }
 	
 	createTilemap() {
+		const data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
 		this.add.image(0, 0, 'map').setOrigin(0, 0).setDepth(-101);
+		this.tilemap = this.make.tilemap({ width: 12, height: 12, tileWidth: 32, tileHeight: 32 });
+		const tiles = this.tilemap.addTilesetImage('floor');
+		this.layer = [];
+		for (let i = 0; i < 6; i++) {
+			this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles);
+		}
 	}
 
   onUpdate(data, delta) {
@@ -228,6 +238,15 @@ export default class GameScene extends Scene {
 	}
 	
   loadMap(data) {
-    // Update Tiles
+		// Update Tiles
+		if (!this.layer) return;
+
+		for (let i = 0; i < 6; i++) {
+			for (let y = 0; y < config.MAP_ROWS; y++) {
+				for (let x = 0; x < config.MAP_COLUMNS; x++) {
+					this.layer[i].putTileAt(data.tiles.layer[i][y][x], x, y);
+				}
+			}
+		}
   }
 }
