@@ -156,6 +156,7 @@ export default class Bot extends Actor {
 		delete game.mapData[this.mapId].bots[this.id];
 	}
 	
+	// Inputs
 	setTask(task, target) {
 		switch (task) {
 			case 'wandering':
