@@ -3,15 +3,15 @@ import Phaser from '../lib/phaser.js';
 export default class InventoryItem extends Phaser.GameObjects.Sprite {
 	constructor(scene, data) {
 		super(scene, data.x, data.y, 'potions', data.sprite).setOrigin(0, 0).setInteractive();
-		this.update(data);
+		this.onUpdate(data);
 		this.clicked = false;
-		this.clickTime = 0;
+		this.clickedTime = 0;
 		this.dragged = false;
 		scene.add.existing(this);
 		scene.input.setDraggable(this);
 	}
 
-	update(data, delta) {
+	onUpdate(data) {
 		if (data.slot != null) this.slot = data.slot;
 		if (data.x != null && !this.dragged) this.x = data.x;
 		if (data.y != null && !this.dragged) this.y = data.y;
@@ -30,12 +30,15 @@ export default class InventoryItem extends Phaser.GameObjects.Sprite {
 		if (data.energyMaxBonus != null) this.energyMaxBonus = data.energyMaxBonus;
 		if (data.rangeBonus != null) this.rangeBonus = data.rangeBonus;
 
+		const now = new Date().getTime();
 		if (this.clicked) {
-			this.clickTime += delta;
-			if (this.clickTime > 250) {
+			if (now - this.clickedTime > 250) {
 				this.clicked = false;
-				this.clickTime = 0;
+				this.clickedTime = now;
 			}
+		}
+		else {
+			this.clickedTime = now;
 		}
 	}
 }
