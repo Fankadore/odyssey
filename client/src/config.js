@@ -3,7 +3,12 @@ class Config {
 		// Client Config
 		this.MAP_COLUMNS = 12;
 		this.MAP_ROWS = 12;
+		this.MAP_LAYERS = 6;
 		
+		this.TILE_SIZE = 32;
+		this.SLOT_SIZE = this.TILE_SIZE + 6;
+		this.FONT_SIZE = 12;
+
 		this.INVENTORY_COLUMNS = 5;
 		this.INVENTORY_ROWS = 4;
 		this.INVENTORY_SIZE = this.INVENTORY_COLUMNS * this.INVENTORY_ROWS;
@@ -18,10 +23,6 @@ class Config {
 		this.EFFECT_FRAMES = 8;
 		
 		this.CHATBOX_LINES = 10;
-
-		this.TILE_SIZE = 32;
-		this.SLOT_SIZE = this.TILE_SIZE + 6;
-		this.FONT_SIZE = 12;
 
 		this.MAP_LEFT = 0;
 		this.MAP_TOP = 0;
