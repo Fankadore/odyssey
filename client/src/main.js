@@ -11,7 +11,7 @@ const phaserConfig = {
 	width: config.WIDTH,
 	height: config.HEIGHT,
 	parent: 'game-window',
-	scene: [GameScene, ClientScene, UIScene]
+	scene: [GameScene, UIScene, ClientScene]
 };
 
 const game = new Phaser.Game(phaserConfig);
