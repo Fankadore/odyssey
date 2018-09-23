@@ -378,7 +378,7 @@ export default class Actor extends Entity {
 		this.isAttacking = true;
 		// game.sendGameInfoGlobal("TESTING");
 		// game.spawnBot(this.mapId, this.x, this.y, 1);
-		game.spawnEffect(this.mapId, this.x, this.y, 0);
+		// game.spawnEffect(this.mapId, this.x, this.y, 0);
 		// game.spawnMapItem(this.mapId, this.x, this.y, 0);
 		// game.spawnMapItem(this.mapId, this.x, this.y, 1);
 		// game.spawnDamageText(this.mapId, this.x, this.y, this.damage); //test
