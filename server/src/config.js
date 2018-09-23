@@ -2,7 +2,7 @@ const config = {};
 
 config.PORT = 2000;
 config.FRAMERATE = 1000 / 60;
-config.BACKUP_TIME = 5;
+config.BACKUP_TIME = 120;
 
 config.MAP_LAYERS = 6;
 config.MAP_COLUMNS = 12;
