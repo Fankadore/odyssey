@@ -1,0 +1,1 @@
+[{"name":"Rat","sprite":0,"hostile":false,"damageBase":1,"defenceBase":0,"healthMaxBase":5,"energyMaxBase":10,"rangeBase":1},{"name":"Snake","sprite":2,"hostile":true,"damageBase":2,"defenceBase":0,"healthMaxBase":5,"energyMaxBase":5,"rangeBase":1}]

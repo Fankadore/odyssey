@@ -29,6 +29,7 @@ class GameLoop {
       if (this.timer.backup >= config.BACKUP_TIME) {
         this.timer.backup -= config.BACKUP_TIME;
         // SAVE STATE
+        db.backup();
       }
     }, config.FRAMERATE);
   }

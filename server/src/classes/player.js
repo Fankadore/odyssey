@@ -38,10 +38,6 @@ export default class Player extends Actor {
 		}
 	}
 
-	loadMap() {
-		
-	}
-
 	update(delta) {
 		super.update(delta);		// Default Actor Update
 		if (this.isDead) {
@@ -103,81 +99,6 @@ export default class Player extends Actor {
 			attackTimer: this.attackTimer,
 			inventory: this.getInventoryPack()
 		};
-	}
-	
-	checkAdmin(access = 1) {
-		if (access < 1) access = 1;
-		return (this.adminAccess >= access);
-	}
-
-	onInput(data) {
-		switch (data.input) {
-			case null:
-			case 'move': this.input.direction = data.direction;
-			break;
-			case 'run': this.input.run = data.state;
-			break;
-			case 'pickup':
-				if (!this.input.pickup && data.state) {
-					this.pickUp();
-				}
-				this.input.pickup = data.state;
-			break;
-			case 'attack':
-				this.input.attack = data.state;
-				if (!this.isDead) this.attack(1, this.direction);
-			break;
-			case 'doubleClickItem':
-				if (this.inventory[data.slot]) {
-					if (!this.isDead) this.useItem(data.slot);
-				}
-			break;
-			case 'rightClickItem':
-				if (this.inventory[data.slot]) {
-					if (!this.isDead) this.dropItem(data.slot);
-				}
-			break;
-			case 'dragStopGame':
-				if (this.inventory[data.slot]) {
-					if (!this.isDead) this.dropItem(data.slot);
-				}
-			break;
-			case 'dragStopInventory':
-			case 'dragStopEquipment':
-				if (this.inventory[data.slot]) {
-					if (!this.isDead) this.moveItemToSlot(data.slot, data.newSlot);
-				}
-			break;
-			case 'serverChat': game.sendMessageGlobal(this.id, `${this.name} yells, "${data.message}"`);
-			break;
-			case 'mapChat': game.sendMessageMap(this.id, this.mapId, `${this.name} says, "${data.message}"`);
-			break;
-			case 'playerChat':
-				let target = this.playerList[data.targetId];
-				if (target) {
-					game.sendMessagePlayer(this.id, target.id, `${this.name} whispers, "${data.message}"`);
-					game.sendMessagePlayer(this.id, this.id, `You whisper to ${target.name}, "${data.message}"`);
-				}
-			break;
-
-			// God Inputs
-			case 'spawnItem':
-				if (this.checkAdmin(2)) {
-					game.spawnMapItem(data.mapId, data.x, data.y, data.type, data.stack);
-				}
-				else {
-					game.sendGameInfoPlayer(this.id, `You don't have access to that command.`);
-				}
-			break;
-			case 'uploadMap':
-				if (this.checkAdmin(2)) {
-					game.mapList[data.mapId].upload();
-				}
-				else {
-					game.sendGameInfoPlayer(this.id, `You don't have access to that command.`);
-				}
-			break;
-		}
 	}
 
 	pickUp() {

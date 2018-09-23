@@ -18,7 +18,7 @@ class Game {
 		this.messageQueue = [];
 
 		// Create Maps
-		this.mapData = JSON.parse(fs.readFileSync('./server/data/map.json', 'utf8'));
+		this.mapData = JSON.parse(fs.readFileSync('./server/data/maps.json', 'utf8'));
 		for (let id = 0; id < config.MAX_MAPS; id++) {
 			this.mapList[id] = new Map(id, this.mapData[id]);
 		}
@@ -92,7 +92,7 @@ class Game {
 		let map = this.mapList[mapId];
 		
 		// Check for Wall Tiles
-		if (map.tiles[y][x].wall === true) return false;
+		if (map.tiles.wall[y][x] === true) return false;
 		
 		// Check for Bots
 		let bots = map.bots.filter((bot) => {
@@ -133,6 +133,7 @@ class Game {
 	spawnDamageText(mapId, x, y, damage) {
 		new Text(mapId, x, y + 0.5, damage, '#ff0000', 1.25, 0, -1);
 	}
+
 	spawnEffect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame) {
 		new Effect(mapId, x, y, sprite, loop, speed, maxFrame, startFrame);
 	}

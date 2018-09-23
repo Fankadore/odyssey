@@ -18,7 +18,7 @@ class Server {
 		
 		app.get('/', (req, res) => res.sendFile(publicPath + '/index.html'));
 		app.use('/client', express.static(publicPath));
-		server.listen(port, () => db.log(`Server started. Listening on ${server.address().port}`));
+		server.listen(port, () => db.log(`Server started. Listening on port ${server.address().port}...`));
 
 		this.socketList = [];
 		io.sockets.on('connection', (socket) => this.onConnect(socket));
@@ -49,13 +49,92 @@ class Server {
 		
 		// Receive Inputs
 		let socket = this.socketList[id];
-		socket.on('input', (data) => player.onInput(data));
+		socket.on('input', (data) => this.onInput(player, data));
+
+		// Send Map Data
+		this.sendMapData(player.id, player.mapId);
 	}
 	
 	onLogout(id) {
 		game.playerLogout(id);
 	}
 	
+	async onInput(player, data) {
+		switch (data.input) {
+			case null:
+			case 'move': player.input.direction = data.direction;
+			break;
+			case 'run': player.input.run = data.state;
+			break;
+			case 'pickup':
+				if (!player.input.pickup && data.state) {
+					player.pickUp();
+				}
+				player.input.pickup = data.state;
+			break;
+			case 'attack':
+			player.input.attack = data.state;
+				if (!player.isDead) player.attack(1, player.direction);
+			break;
+			case 'doubleClickItem':
+				if (player.inventory[data.slot]) {
+					if (!player.isDead) player.useItem(data.slot);
+				}
+			break;
+			case 'rightClickItem':
+				if (player.inventory[data.slot]) {
+					if (!player.isDead) player.dropItem(data.slot);
+				}
+			break;
+			case 'dragStopGame':
+				if (player.inventory[data.slot]) {
+					if (!player.isDead) player.dropItem(data.slot);
+				}
+			break;
+			case 'dragStopInventory':
+			case 'dragStopEquipment':
+				if (player.inventory[data.slot]) {
+					if (!player.isDead) player.moveItemToSlot(data.slot, data.newSlot);
+				}
+			break;
+			case 'serverChat': game.sendMessageGlobal(player.id, `${player.name} yells, "${data.message}"`);
+			break;
+			case 'mapChat': game.sendMessageMap(player.id, player.mapId, `${player.name} says, "${data.message}"`);
+			break;
+			case 'playerChat':
+				let target = player.playerList[data.targetId];
+				if (target) {
+					game.sendMessagePlayer(player.id, target.id, `${player.name} whispers, "${data.message}"`);
+					game.sendMessagePlayer(player.id, player.id, `You whisper to ${target.name}, "${data.message}"`);
+				}
+			break;
+
+			// God Inputs
+			case 'spawnItem':
+				if (player.adminAccess >= 2) {
+					game.spawnMapItem(data.mapId, data.x, data.y, data.type, data.stack);
+				}
+				else {
+					game.sendGameInfoPlayer(player.id, `You don't have access to that command.`);
+				}
+			break;
+			case 'uploadMap':
+				if (player.adminAccess >= 2) {
+					await db.saveMapData(data);
+		
+					game.playerList.forEach((player) => {
+						if (player.mapId === data.id) {
+							this.sendMapData(player.id, player.mapId);
+						}
+					});
+				}
+				else {
+					game.sendGameInfoPlayer(player.id, `You don't have access to that command.`);
+				}
+			break;
+		}
+	}
+
 	// Send data to clients
 	sendUpdatePack(updatePack) {
 		game.playerList.forEach((player) => {
@@ -76,13 +155,9 @@ class Server {
 		});
 	}
 	
-	sendMapData(mapId) {
-		game.playerList.forEach((player) => {
-			if (player.mapId === mapId) {
-				let socket = this.socketList[player.id];
-				socket.emit('loadMap', db.map[mapId]);
-			}
-		});
+	sendMapData(id, mapId) {
+		let socket = this.socketList[id];
+		socket.emit('loadMap', db.getMapData(mapId));
 	}
 
 }
