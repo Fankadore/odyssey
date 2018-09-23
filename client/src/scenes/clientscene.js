@@ -7,37 +7,24 @@ export default class ClientScene extends Scene {
 
 	init() {
 		this.socket = null;
-		this.gameData = {};
-		this.uiData = {};
 	}
 
 	create() {
-		this.socket = io.connect();
-		this.socket.on('update', (data) => this.onUpdate(data));
-		this.socket.on('loadMap', (data) => this.onLoadMap(data));
-		this.socket.emit('login');
-	}
-
-	update(time, delta) {
 		const game = this.scene.get('gameScene');
 		const ui = this.scene.get('uiScene');
-		game.onUpdate(this.gameData, delta);
-		ui.onUpdate(this.uiData, delta);
-		this.uiData.messages = [];
-	}
 
-	onUpdate(data) {
-		if (data) {
-			this.gameData = data.game;
-			this.uiData = data.ui;
-		}
-	}
-	
-	onLoadMap(data) {
-		if (data) {
-			const game = this.scene.get('gameScene');
-			game.loadMap(data);
-		}
+		this.socket = io.connect();
+		
+		this.socket.on('update', (data) => {
+			game.onUpdate(data.game);
+			ui.onUpdate(data.ui);
+		});
+		this.socket.on('loadMap', (data) => {
+			game.onLoadMap(data.tiles);
+			ui.onLoadMap(data.name);
+		});
+
+		this.socket.emit('login');
 	}
 
 	emitInput(input, state) {
