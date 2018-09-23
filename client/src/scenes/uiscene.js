@@ -325,17 +325,15 @@ export default class UIScene extends Scene {
 		this.selected = slot;
 		let item = this.inventory[slot];
 		if (item != null) {
-			if (item.clicked) {
-				// Double Click
-				item.clicked = false;
-				item.clickTime = 0;
-				return true;
+			if (item.clickedTime > 0) {
+				item.clickedTime = 0;
+				return true;	// Double Click
 			}
 			else {
-				item.clicked = true;
+				item.clickedTime = new Date().getTime();
 			}
 		}
-		return false;
+		return false;	// Single Click
 	}
 
 	rightClickSlot(slot) {

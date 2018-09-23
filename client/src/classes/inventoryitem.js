@@ -4,7 +4,6 @@ export default class InventoryItem extends Phaser.GameObjects.Sprite {
 	constructor(scene, data) {
 		super(scene, data.x, data.y, 'potions', data.sprite).setOrigin(0, 0).setInteractive();
 		this.onUpdate(data);
-		this.clicked = false;
 		this.clickedTime = 0;
 		this.dragged = false;
 		scene.add.existing(this);
@@ -30,15 +29,11 @@ export default class InventoryItem extends Phaser.GameObjects.Sprite {
 		if (data.energyMaxBonus != null) this.energyMaxBonus = data.energyMaxBonus;
 		if (data.rangeBonus != null) this.rangeBonus = data.rangeBonus;
 
-		const now = new Date().getTime();
-		if (this.clicked) {
+		if (this.clickedTime > 0) {
+			const now = new Date().getTime();
 			if (now - this.clickedTime > 250) {
-				this.clicked = false;
-				this.clickedTime = now;
+				this.clickedTime = 0;
 			}
-		}
-		else {
-			this.clickedTime = now;
 		}
 	}
 }
