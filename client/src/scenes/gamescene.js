@@ -16,8 +16,6 @@ export default class GameScene extends Scene {
 		this.items = [];
 		this.texts = [];
     this.effects = [];
-		this.tiles = [];
-		this.mapData = null;
 		this.tilemap = null;
 		this.layer = [];
 	}
@@ -33,77 +31,46 @@ export default class GameScene extends Scene {
   }
 
   create() {
-    this.createAnims();
-		this.createTilemap();
-		this.scene.sendToBack();
-	}
-	
-	createAnims() {
+		// Create Anims
 		for (let sprite = 0; sprite < config.SPRITE_COUNT; sprite++) {
-			let frame = sprite * 13;
+			let frame = sprite * config.SPRITE_FRAMES;
 
 			this.anims.create({
-				key: sprite + 'walk_left',
+				key: sprite + 'walkleft',
 				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 6, frame + 7, frame + 6] }),
 				frameRate: 5
 			});
 			this.anims.create({
-				key: sprite + 'walk_right',
+				key: sprite + 'walkright',
 				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 9, frame + 10, frame + 9] }),
 				frameRate: 5
 			});
 			this.anims.create({
-				key: sprite + 'walk_up',
+				key: sprite + 'walkup',
 				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 3, frame + 4, frame + 3] }),
 				frameRate: 5
 			});
 			this.anims.create({
-				key: sprite + 'walk_down',
+				key: sprite + 'walkdown',
 				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 0, frame + 1, frame + 0] }),
 				frameRate: 5
 			});
-
-			this.anims.create({
-				key: sprite + 'attack_left',
-				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 8] }),
-				frameRate: 1
-			});
-			this.anims.create({
-				key: sprite + 'attack_right',
-				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 11] }),
-				frameRate: 1
-			});
-			this.anims.create({
-				key: sprite + 'attack_up',
-				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 5] }),
-				frameRate: 1
-			});
-			this.anims.create({
-				key: sprite + 'attack_down',
-				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 2] }),
-				frameRate: 1
-			});
-
-			this.anims.create({
-				key: sprite + 'dead',
-				frames: this.anims.generateFrameNumbers('sprites', { frames: [frame + 12] }),
-				frameRate: 1
-			});
 		}
-  }
-	
-	createTilemap() {
-		const data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
+
+		// Create Tilemap
 		this.add.image(0, 0, 'map').setOrigin(0, 0).setDepth(-101);
 		this.tilemap = this.make.tilemap({ width: 12, height: 12, tileWidth: 32, tileHeight: 32 });
 		const tiles = this.tilemap.addTilesetImage('floor');
 		this.layer = [];
-		for (let i = 0; i < 6; i++) {
+		for (let i = 0; i < config.MAP_LAYERS; i++) {
 			this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles);
 		}
+
+		// Make sure the UI is above the Map
+		this.scene.sendToBack();
 	}
 
-  onUpdate(data, delta) {
+  onUpdate(data) {
     // Update Players
     if (data.players) {
 			let addPlayers = data.players.filter((playerData) => {	// filter players on new list but not old
@@ -237,16 +204,10 @@ export default class GameScene extends Scene {
 		}
 	}
 	
-  loadMap(data) {
+  onLoadMap(tiles) {
 		// Update Tiles
-		if (!this.layer) return;
-
-		for (let i = 0; i < 6; i++) {
-			for (let y = 0; y < config.MAP_ROWS; y++) {
-				for (let x = 0; x < config.MAP_COLUMNS; x++) {
-					this.layer[i].putTileAt(data.tiles.layer[i][y][x], x, y);
-				}
-			}
+		for (let i = 0; i < config.MAP_LAYERS; i++) {
+			this.layer[i].putTilesAt(tiles.layer[i], 0, 0);
 		}
   }
 }
