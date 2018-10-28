@@ -22,7 +22,7 @@ class Config {
 
 		this.EFFECT_FRAMES = 8;
 		
-		this.CHATBOX_LINES = 10;
+		this.CHATBOX_LINES = 9;
 
 		this.MAP_LEFT = 0;
 		this.MAP_TOP = 0;
@@ -38,15 +38,15 @@ class Config {
 		this.MENU_RIGHT = this.MENU_LEFT + this.MENU_WIDTH;
 		this.MENU_BOTTOM = this.MENU_TOP + this.MENU_HEIGHT;
 		
-		this.STATBOX_LEFT = this.MAP_RIGHT;
-		this.STATBOX_TOP = this.MENU_TOP + this.TILE_SIZE;
-		this.STATBOX_WIDTH = this.MENU_WIDTH;
-		this.STATBOX_HEIGHT = this.TILE_SIZE * 2.5;
+		this.STATBOX_LEFT = this.MAP_RIGHT + this.SLOT_SIZE;
+		this.STATBOX_TOP = this.MENU_TOP + this.SLOT_SIZE;
+		this.STATBOX_WIDTH = this.MENU_WIDTH - (this.SLOT_SIZE * 2);
+		this.STATBOX_HEIGHT = this.SLOT_SIZE * 1.5;
 		this.STATBOX_RIGHT = this.STATBOX_LEFT + this.STATBOX_WIDTH;
 		this.STATBOX_BOTTOM = this.STATBOX_TOP + this.STATBOX_HEIGHT;
 
 		this.INVENTORY_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
-		this.INVENTORY_TOP = this.STATBOX_BOTTOM;
+		this.INVENTORY_TOP = this.STATBOX_BOTTOM + (this.SLOT_SIZE / 4);
 		this.INVENTORY_WIDTH = this.INVENTORY_COLUMNS * this.SLOT_SIZE;
 		this.INVENTORY_HEIGHT = this.INVENTORY_ROWS * this.SLOT_SIZE;
 		this.INVENTORY_RIGHT = this.INVENTORY_LEFT + this.INVENTORY_WIDTH;
