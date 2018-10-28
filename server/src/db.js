@@ -1,6 +1,7 @@
 import fs from 'fs';
 import mongojs from "mongojs";
 import config from "./config.js";
+import util from "./util.js";
 
 const mongo = mongojs('localhost:27017/odyssey', ['accounts', 'players', 'maps', 'items', 'bots']);
 
@@ -14,17 +15,28 @@ class Database {
 	}
 
 	backup() {
-		const promise1 = fs.promises.writeFile('./server/data/players.json', JSON.stringify(this.players), 'utf8');
-		const promise2 = fs.promises.writeFile('./server/data/maps.json', JSON.stringify(this.maps), 'utf8');
-
-		Promise.all([promise1, promise2])
+		const serverLog = this.getServerLog();
+		this.serverLog = [];
+		
+		const promiseLog = fs.promises.writeFile('./server/data/serverlog.json', JSON.stringify(serverLog), 'utf8');
+		const promisePlayers = fs.promises.writeFile('./server/data/players.json', JSON.stringify(this.players), 'utf8');
+		const promiseMaps = fs.promises.writeFile('./server/data/maps.json', JSON.stringify(this.maps), 'utf8');
+		Promise.all([promiseLog, promisePlayers, promiseMaps])
 		.then(this.log("Game saved to disk."))
-		.catch((err) => this.log(err));
+		.catch((err) => this.log(err.message));
 	}
 
 	log(message) {
-		console.log(message);
-		this.serverLog.push(message);
+		const date = new Date();
+		console.log(util.timestamp(date) + " - " + message);
+		this.serverLog.push({
+			message,
+			date
+		});
+	}
+
+	getServerLog() {
+		return JSON.parse(fs.readFileSync('./server/data/serverlog.json', 'utf8')).concat(this.serverLog);
 	}
 
 	find(username) {
@@ -43,18 +55,19 @@ class Database {
 		let playerData = this.players[id];
 
 		if (!playerData) {  // First Login
-			playerData.name = config.START_NAME;
-			playerData.sprite = config.START_SPRITE;
-			playerData.adminAccess = 0;
-			
-			playerData.mapId = config.START_MAP;
-			playerData.x = config.START_X;
-			playerData.y = config.START_Y;
-			
-			playerData.damageBase = config.START_DAMAGE;
-			playerData.defenceBase = config.START_DEFENCE;
-			playerData.healthMaxBase = config.START_HEALTH_MAX;
-			playerData.energyMaxBase = config.START_ENERGY_MAX;
+			playerData = {
+				name: config.START_NAME,
+				sprite: config.START_SPRITE,
+				adminAccess: 0,
+				mapId: config.START_MAP,
+				x: config.START_X,
+				y: config.START_Y,
+				damageBase: config.START_DAMAGE,
+				defenceBase: config.START_DEFENCE,
+				healthMaxBase: config.START_HEALTH_MAX,
+				energyMaxBase: config.START_ENERGY_MAX,
+				rangeBase: config.START_RANGE
+			};
 		}
 		
 		return playerData;
@@ -123,7 +136,24 @@ class Database {
 	}
 
 	getBotData(botClass) {
-		return this.bots[botClass];
+		let botData = this.bots[botClass];
+
+		if (!botData) {  // First Login
+			botData = {
+				name: config.START_NAME,
+				sprite: config.START_SPRITE,
+				mapId: config.START_MAP,
+				x: config.START_X,
+				y: config.START_Y,
+				damageBase: config.START_DAMAGE,
+				defenceBase: config.START_DEFENCE,
+				healthMaxBase: config.START_HEALTH_MAX,
+				energyMaxBase: config.START_ENERGY_MAX,
+				rangeBase: config.START_RANGE
+			};
+		}
+		
+		return botData;
 	}
 
 	saveBotData(data) {
