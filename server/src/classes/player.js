@@ -1,5 +1,6 @@
 import db from '../db.js';
 import game from '../game.js';
+import config from '../config.js';
 import Actor from './actor.js';
 import Text from './text.js';
 
@@ -7,7 +8,7 @@ import Text from './text.js';
 
 export default class Player extends Actor {
 	constructor(id) {
-		let data = db.getPlayerData(id);
+		const data = db.getPlayerData(id);
 
 		super(data.mapId, data.x, data.y, data.name, data.sprite);
 		this.controller = 'player';
@@ -126,7 +127,7 @@ export default class Player extends Actor {
 		this.deaths++;
 		
 		if (killerController && killerName) {
-			if (killerController = 'player') {
+			if (killerController === 'player') {
 				game.sendGameInfoGlobal(killerName + " has murdered " + this.name + " in cold blood!");
 			}
 			else {
@@ -155,6 +156,16 @@ export default class Player extends Actor {
 		this.isAttacking = false;
 		this.isDead = false;
 		this.respawnTimer = 0;
-		game.sendGameInfoPlayer(this.id, "The Angel of Mercy has saved your soul.");
+		game.sendGameInfoPlayer(this.id, "The Angel of Mercy refuses to let you die.");
+	}
+
+	calcBaseStats() {	// Class and Level
+		//TODO: check db for class stats: base and increase per level
+		// this.damageBase = playerClass.damageBase + (playerClass.increasePerLevel.damage * this.level);
+		this.damageBase = config.START_DAMAGE;
+		this.defenceBase = config.START_DEFENCE;
+		this.healthMaxBase = config.START_HEALTH_MAX;
+		this.energyMaxBase = config.START_ENERGY_MAX;
+		this.rangeBase = config.START_RANGE;
 	}
 }

@@ -8,28 +8,24 @@ import Actor from './actor.js';
 
 export default class Bot extends Actor {
 	constructor(data) {
-		
+		if (data.mapId == null || data.x == null || data.y == null || data.botClass == null) {
+			db.log("Bot requires parameters: mapId, x, y, botClass");
+			return;
+		}
+
 		let classData = db.getBotData(data.botClass);
 		if (!data.name) data.name = classData.name;
 		if (data.sprite == null) data.sprite = classData.sprite;
 		if (data.hostile == null) data.hostile = classData.hostile;
-		if (data.damageBase == null) data.damageBase = classData.damageBase;
-		if (data.defenceBase == null) data.defenceBase = classData.defenceBase;
-		if (data.healthMaxBase == null) data.healthMaxBase = classData.healthMaxBase;
-		if (data.energyMaxBase == null) data.energyMaxBase = classData.energyMaxBase;
-		if (data.rangeBase == null) data.rangeBase = classData.rangeBase;
 		
 		super(data.mapId, data.x, data.y, data.name, data.sprite);
 		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
 		this.id = data.id;
 		this.botClass = data.botClass;
 		this.hostile = data.hostile;
-		this.damageBase = data.damageBase;
-		this.defenceBase = data.defenceBase;
-		this.healthMaxBase = data.healthMaxBase;
-		this.energyMaxBase = data.energyMaxBase;
-		this.rangeBase = data.rangeBase;
-		
+		this.calcBaseStats();
+		this.restore();
+
 		this.target = null;
 		this.setTask('wandering');
 		this.moveTimer = 0;
@@ -155,7 +151,18 @@ export default class Bot extends Actor {
 		super.setDead();
 		delete game.mapData[this.mapId].bots[this.id];
 	}
-	
+
+	calcBaseStats() {
+		if (this.botClass == null) return;
+		
+		let classData = db.getBotData(this.botClass);
+		this.damageBase = classData.damageBase;
+		this.defenceBase = classData.defenceBase;
+		this.healthMaxBase = classData.healthMaxBase;
+		this.energyMaxBase = classData.energyMaxBase;
+		this.rangeBase = classData.rangeBase;
+	}
+
 	// Inputs
 	setTask(task, target) {
 		switch (task) {
@@ -202,7 +209,7 @@ export default class Bot extends Actor {
 			switch (item.type) {
 				case 'weapon':
 					if (this.inventory[config.INVENTORY_SIZE]) {
-						if (item.damageBonus > this.inventory[config.INVENTORY_SIZE].damageBonus) {
+						if (item.damage > this.inventory[config.INVENTORY_SIZE].damage) {
 							this.equipItem(slot);
 							continue;
 						}
@@ -213,7 +220,7 @@ export default class Bot extends Actor {
 				break;
 				case 'shield':
 					if (this.inventory[config.INVENTORY_SIZE + 1]) {
-						if (item.defenceBonus > this.inventory[config.INVENTORY_SIZE + 1].defenceBonus) {
+						if (item.defence > this.inventory[config.INVENTORY_SIZE + 1].defence) {
 							this.equipItem(slot);
 							continue;
 						}
@@ -224,7 +231,7 @@ export default class Bot extends Actor {
 				break;
 				case 'armour':
 					if (this.inventory[config.INVENTORY_SIZE + 2]) {
-						if (item.defenceBonus > this.inventory[config.INVENTORY_SIZE + 2].defenceBonus) {
+						if (item.defence > this.inventory[config.INVENTORY_SIZE + 2].defence) {
 							this.equipItem(slot);
 							continue;
 						}
@@ -235,7 +242,7 @@ export default class Bot extends Actor {
 				break;
 				case 'helmet':
 					if (this.inventory[config.INVENTORY_SIZE + 3]) {
-						if (item.defenceBonus > this.inventory[config.INVENTORY_SIZE + 3].defenceBonus) {
+						if (item.defence > this.inventory[config.INVENTORY_SIZE + 3].defence) {
 							this.equipItem(slot);
 							continue;
 						}
@@ -246,7 +253,7 @@ export default class Bot extends Actor {
 				break;
 				case 'ring':
 					if (this.inventory[config.INVENTORY_SIZE + 4]) {
-						if (item.damageBonus > this.inventory[config.INVENTORY_SIZE + 4].damageBonus) {
+						if (item.damage > this.inventory[config.INVENTORY_SIZE + 4].damage) {
 							this.equipItem(slot);
 							continue;
 						}

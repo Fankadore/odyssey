@@ -41,54 +41,28 @@ export default class Actor extends Entity {
 	
 	// Character Stats
 	get damage() {
-		if (this.damageBase + this.damageBonus < 0) {
-			return 0;
-		}
-		else {
-			return this.damageBase + this.damageBonus;
-		}
+		let damageTotal = this.damageBase + this.damageBonus;
+		return (damageTotal < 0) ? 0 : damageTotal;
 	}
 	get defence() {
-		if (this.defenceBase + this.defenceBonus < 0) {
-			return 0;
-		}
-		else {
-			return this.defenceBase + this.defenceBonus;
-		}
+		let defenceTotal = this.defenceBase + this.defenceBonus;
+		return (defenceTotal < 0) ? 0 : defenceTotal;
 	}
 	get healthMax() {
-		if (this.healthMaxBase + this.healthMaxBonus < 1) {
-			return 1;
-		}
-		else {
-			return this.healthMaxBase + this.healthMaxBonus;
-		}
+		let healthMaxTotal = this.healthMaxBase + this.healthMaxBonus
+		return (healthMaxTotal < 1) ? 1 : healthMaxTotal;
 	}
 	get energyMax() {
-		if (this.energyMaxBase + this.energyMaxBonus < 0) {
-			return 0;
-		}
-		else {
-			return this.energyMaxBase + this.energyMaxBonus;
-		}
+		let energyMaxTotal = this.energyMaxBase + this.energyMaxBonus;
+		return (energyMaxTotal < 0) ? 0 : energyMaxTotal;
 	}
 	get range() {
-		if (this.rangeBase + this.rangeBonus < 1) {
-			return 1;
-		}
-		else {
-			return this.rangeBase + this.rangeBonus;
-		}
+		let rangeTotal = this.rangeBase + this.rangeBonus;
+		return (rangeTotal < 1) ? 1 : rangeTotal;
 	}
 
-	calcBaseStats() {	// Class and Level
-		//TODO: check db for class stats: base and increase per level
-		// this.damageBase = playerClass.damageBase + (playerClass.increasePerLevel.damage * this.level);
-		this.damageBase = 5;
-		this.defenceBase = 0;
-		this.healthMaxBase = 10;
-		this.energyMaxBase = 40;
-		this.rangeBase = 1;
+	calcBaseStats() {
+		// See Player and Bot classes
 	}
 
 	calcItemBonus() {
@@ -99,11 +73,11 @@ export default class Actor extends Entity {
 			energyMax: 0,
 			range: 0
 		};
-
+		
 		// For each item in inventory check for bonuses
 		for (let i = 0; i < (config.INVENTORY_SIZE + config.EQUIPMENT_SIZE); i++) {
 			let item = this.inventory[i];
-			if (item && !item.remove) {
+			if (item) {
 				itemBonus.damage += item.passiveDamage;
 				itemBonus.defence += item.passiveDefence;
 				itemBonus.healthMax += item.passiveHealthMax;
@@ -376,12 +350,6 @@ export default class Actor extends Entity {
 		if (this.isAttacking || this.attackTimer > 0) return;
 
 		this.isAttacking = true;
-		// game.sendGameInfoGlobal("TESTING");
-		// game.spawnBot(this.mapId, this.x, this.y, 1);
-		// game.spawnEffect(this.mapId, this.x, this.y, 0);
-		// game.spawnMapItem(this.mapId, this.x, this.y, 0);
-		// game.spawnMapItem(this.mapId, this.x, this.y, 1);
-		// game.spawnDamageText(this.mapId, this.x, this.y, this.damage); //test
 		
 		let actorList = game.playerList.concat(game.mapList[this.mapId].bots);
 		let targetList = actorList.filter((actor) => {
@@ -401,6 +369,7 @@ export default class Actor extends Entity {
 	}
 	
 	takeDamage(damage, source) {
+		console.log(`${this.health}/${this.healthMax}`);
 		damage -= this.defence;
 		if (damage < 0) {
 			damage = 0;
@@ -440,7 +409,7 @@ export default class Actor extends Entity {
 		let dropAmountEQ = util.clamp(map.dropAmountEQ, 0, config.EQUIPMENT_SIZE);
 		if (dropAmountEQ > 0) {
 			let equipment = this.inventory.filter((item) => {
-				if (item.slot >= config.INVENTORY_SIZE) return true;
+				if (item && item.slot >= config.INVENTORY_SIZE) return true;
 				return false;
 			});
 
@@ -595,8 +564,8 @@ export default class Actor extends Entity {
 
 	equipItem(slot) {
 		let newSlot = null;
-		for (let i = config.INVENTORY_SIZE; i < config.EQUIPMENT_SIZE; i++) {
-			if (item.canEquip(i)) {
+		for (let i = config.INVENTORY_SIZE; i < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; i++) {
+			if (this.inventory[slot].canEquip(i)) {
 				newSlot = i;
 				if (!this.inventory[i]) break;
 			}
@@ -630,8 +599,7 @@ export default class Actor extends Entity {
 	update(delta) {
 		// Inventory Item Update
 		this.inventory.forEach((item) => {
-			if (!item) return;
-			item.update();
+			if (item) item.update();
 		});
 
 		if (this.isDead) return;

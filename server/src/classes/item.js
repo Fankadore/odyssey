@@ -1,5 +1,6 @@
 import db from '../db.js';
 import game from '../game.js';
+import config from '../config.js';
 import util from '../util.js';
 import Entity from './entity.js';
 
@@ -28,12 +29,19 @@ export default class Item extends Entity {
 		if (data.type == null) data.type = classData.type;
 		if (data.sprite == null) data.sprite = classData.sprite;
 		if (data.reusable == null) data.reusable = classData.reusable;
-		if (data.damageBonus == null) data.damageBonus = classData.damageBonus;
-		if (data.defenceBonus == null) data.defenceBonus = classData.defenceBonus;
-		if (data.healthMaxBonus == null) data.healthMaxBonus = classData.healthMaxBonus;
-		if (data.energyMaxBonus == null) data.energyMaxBonus = classData.energyMaxBonus;
-		if (data.rangeBonus == null) data.rangeBonus = classData.rangeBonus;
 		if (data.stack == null) data.stack = classData.stack;
+
+		if (data.passiveDamage == null) data.passiveDamage = classData.passiveDamage;
+		if (data.passiveDefence == null) data.passiveDefence = classData.passiveDefence;
+		if (data.passiveHealthMax == null) data.passiveHealthMax = classData.passiveHealthMax;
+		if (data.passiveEnergyMax == null) data.passiveEnergyMax = classData.passiveEnergyMax;
+		if (data.passiveRange == null) data.passiveRange = classData.passiveRange;
+
+		if (data.equipDamage == null) data.equipDamage = classData.equipDamage;
+		if (data.equipDefence == null) data.equipDefence = classData.equipDefence;
+		if (data.equipHealthMax == null) data.equipHealthMax = classData.equipHealthMax;
+		if (data.equipEnergyMax == null) data.equipEnergyMax = classData.equipEnergyMax;
+		if (data.equipRange == null) data.equipRange = classData.equipRange;
 
 		super(data.mapId, data.x, data.y, data.sprite);
 		this.owner = data.owner;
@@ -46,11 +54,17 @@ export default class Item extends Entity {
 		this.name = data.name;
 		this.type = data.type;
 		this.reusable = data.reusable;
-		this.damageBonus = data.damageBonus;
-		this.defenceBonus = data.defenceBonus;
-		this.healthMaxBonus = data.healthMaxBonus;
-		this.energyMaxBonus = data.energyMaxBonus;
-		this.rangeBonus = data.rangeBonus;
+
+		this.passiveDamage = data.passiveDamage;
+		this.passiveDefence = data.passiveDefence;
+		this.passiveHealthMax = data.passiveHealthMax;
+		this.passiveEnergyMax = data.passiveEnergyMax;
+		this.passiveRange = data.passiveRange;
+		this.equipDamage = data.equipDamage;
+		this.equipDefence = data.equipDefence;
+		this.equipHealthMax = data.equipHealthMax;
+		this.equipEnergyMax = data.equipEnergyMax;
+		this.equipRange = data.equipRange;
 
 		if (data.owner === 'map') {
 			game.mapList[this.mapId].items[this.id] = this;
@@ -63,6 +77,27 @@ export default class Item extends Entity {
 		}
 	}
 	
+	get damage() {
+		let damageTotal = this.passiveDamage + this.equipDamage;
+		return (damageTotal < 0) ? 0 : damageTotal;
+	}
+	get defence() {
+		let defenceTotal = this.passiveDefence + this.equipDefence;
+		return (defenceTotal < 0) ? 0 : defenceTotal;
+	}
+	get healthMax() {
+		let healthMaxTotal = this.passiveHealthMax + this.equipHealthMax;
+		return (healthMaxTotal < 0) ? 0 : healthMaxTotal;
+	}
+	get energyMax() {
+		let energyMaxTotal = this.passiveEnergyMax + this.equipEnergyMax;
+		return (energyMaxTotal < 0) ? 0 : energyMaxTotal;
+	}
+	get range() {
+		let rangeTotal = this.passiveRange + this.equipRange;
+		return (rangeTotal < 0) ? 0 : rangeTotal;
+	}
+
 	update(delta) {
 		return this.getPack();
 	}
@@ -103,12 +138,8 @@ export default class Item extends Entity {
 	}
 	
 	isEquipment() {
-		if (this.type === 'weapon' || this.type === 'shield' || this.type === 'armour' || this.type === 'helmet' || this.type === 'ring') {
-			return true;
-		}
-		else {
-			return false;
-		}
+		const itemTypes = ['weapon', 'shield', 'armour', 'helmet', 'ring'];
+		return (itemTypes.includes(this.type));
 	}
 
 	canEquip(slot) {
