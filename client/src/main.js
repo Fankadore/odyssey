@@ -1,9 +1,9 @@
 /*** Entry Point ***/
 
 import Phaser from './lib/phaser.js';
-import ClientScene from './scenes/clientscene.js';
-import UIScene from './scenes/uiscene.js';
-import GameScene from './scenes/gamescene.js';
+import ClientScene from './client/clientscene.js';
+import UIScene from './ui/uiscene.js';
+import GameScene from './game/gamescene.js';
 import config from './config.js';
 
 const phaserConfig = {

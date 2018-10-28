@@ -1,9 +1,10 @@
 import { Scene } from '../lib/phaser.js';
-import Actor from '../classes/actor.js';
-import MapItem from '../classes/mapitem.js';
-import Text from '../classes/text.js';
-import Effect from '../classes/effect.js';
+import Actor from './actor.js';
+import MapItem from './mapitem.js';
+import Text from './text.js';
+import Effect from './effect.js';
 import config from '../config.js';
+import util from '../util.js';
 
 export default class GameScene extends Scene {
   constructor() {
@@ -207,7 +208,34 @@ export default class GameScene extends Scene {
   onLoadMap(tiles) {
 		// Update Tiles
 		for (let i = 0; i < config.MAP_LAYERS; i++) {
-			this.layer[i].putTilesAt(tiles.layer[i], 0, 0);
+			if (this.layer[i]) {
+				this.layer[i].putTilesAt(tiles.layer[i], 0, 0);
+			}
 		}
-  }
+	}
+	
+	clickMap(x, y) {
+		this.items.forEach((item) => {
+			if (item.grid.x === x && item.grid.y === y) {
+				if (item.stack > 1) {
+					console.log(`You see ${item.stack} ${util.plural(item.name)}!`);
+				}
+				else {
+					console.log(`You see ${util.indefiniteArticle(item.name)}!`);
+				}
+			}
+		});
+		
+		this.players.forEach((player) => {
+			if (player.grid.x === x && player.grid.y == y) {
+				console.log(`You see ${player.name}!`);
+			}
+		});
+
+		this.bots.forEach((bot) => {
+			if (bot.grid.x === x && bot.grid.y == y) {
+				console.log(`You see ${bot.name}!`);
+			}
+		});
+	}
 }

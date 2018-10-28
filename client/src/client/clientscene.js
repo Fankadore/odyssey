@@ -55,4 +55,11 @@ export default class ClientScene extends Scene {
 			newSlot
 		});
 	}
+	
+	emitCommand(command, ...args) {
+		this.socket.emit('input', {
+			input: command,
+			args: args
+		});
+	}
 }

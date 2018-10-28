@@ -184,4 +184,9 @@ export default class Actor extends Entity {
 
 		if (!this.frame || this.frame.name !== frame) super.setFrame(frame);
 	}
+
+	destroy() {
+		this.displayName.destroy();
+		super.destroy();
+	}
 }
