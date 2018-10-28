@@ -11,14 +11,14 @@ import util from './util.js';
 class Server {
 	constructor() {
 		const app = express();
-		const server = http.Server(app);
-		const io = socketIO(server);
+		const httpServer = http.Server(app);
+		const io = socketIO(httpServer);
 		const port = process.env.PORT || config.PORT;
 		const publicPath = path.resolve(__dirname, '../client');
 		
 		app.get('/', (req, res) => res.sendFile(publicPath + '/index.html'));
 		app.use('/client', express.static(publicPath));
-		server.listen(port, () => db.log(`Server started. Listening on port ${server.address().port}...`));
+		httpServer.listen(port, () => db.log(`Server started. Listening on port ${httpServer.address().port}...`));
 
 		this.socketList = [];
 		io.sockets.on('connection', (socket) => this.onConnect(socket));
@@ -43,7 +43,7 @@ class Server {
 		db.log(`Disconnected: Id ${id}`);
 	}
 
-	onLogin(id) {		
+	onLogin(id) {
 		// Create Player
 		let player = game.playerLogin(id);
 		
@@ -110,9 +110,17 @@ class Server {
 			break;
 
 			// God Inputs
-			case 'spawnItem':
+			case 'spawnMapItem':
 				if (player.adminAccess >= 2) {
-					game.spawnMapItem(data.mapId, data.x, data.y, data.type, data.stack);
+					game.spawnMapItem(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]);
+				}
+				else {
+					game.sendGameInfoPlayer(player.id, `You don't have access to that command.`);
+				}
+			break;
+			case 'spawnBot':
+				if (player.adminAccess >= 2) {
+					game.spawnBot(data.args[0], data.args[1], data.args[2], data.args[3]);
 				}
 				else {
 					game.sendGameInfoPlayer(player.id, `You don't have access to that command.`);
