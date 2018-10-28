@@ -44,8 +44,66 @@ function clamp(value, minimum, maximum) {
 }
 
 function randomInt(minimum, maximum) {
-  maximum++;
-  return Math.floor((Math.random() * maximum) + minimum);
+  return Math.floor((Math.random() * (maximum + 1)) + minimum);
+}
+
+function getXFromIndex(index, columns) {
+  return index % columns;
+}
+
+function getYFromIndex(index, columns) {
+  return (index - (index % columns)) / columns;
+}
+
+function getIndexFromXY(x, y, columns) {
+  return (y * columns) + x;
+}
+
+function timestamp(date) {
+  if (!(date instanceof Date)) return "Invalid date";
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let second = date.getSeconds();
+  if (month < 10) month = "0" + month;
+  if (day < 10) day = "0" + day;
+  if (hour < 10) hour = "0" + hour;
+  if (minute < 10) minute = "0" + minute;
+  if (second < 10) second = "0" + second;
+  return `${date.getFullYear()}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+function indefiniteArticle(word) {
+	let regex = /trousers$|jeans$|glasses$/i;
+	if (word.match(regex)) return "a pair of " + word;
+
+	regex = /^[aeiou]/i;
+	if (word.match(regex)) return "an " + word;
+
+	return "a " + word;
+}
+
+function plural(word) {
+	let regex = /sheep$|deer$|fish$/i;
+	if (word.match(regex)) return word;
+
+	regex = /trousers$|jeans$|glasses$/i;
+	if (word.match(regex)) return "pairs of " + word;
+	
+	regex = /stomach$|epoch$|/i;
+	if (word.match(regex)) return word + "s";
+	
+	regex = /f$|fe$/i;
+	if (word.match(regex)) return word.replace(regex, "ves");
+
+	regex = /[sxz]$|ch$|sh$|ato$/i;
+	if (word.match(regex)) return word + "es";
+	
+	regex = /y$/i;
+	if (word.match(regex)) return word.replace(regex, "ies");
+	
+	return word + "s";
 }
 
 export default {
@@ -54,5 +112,11 @@ export default {
   firstEmptyIndex,
   lerp,
   clamp,
-  randomInt
+  randomInt,
+  getXFromIndex,
+  getYFromIndex,
+  getIndexFromXY,
+  timestamp,
+  indefiniteArticle,
+  plural
 };
