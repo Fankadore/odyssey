@@ -1,10 +1,11 @@
 import { Scene } from '../lib/phaser.js';
+import util from '../lib/util.js';
+import config from '../config.js';
+
 import Actor from './actor.js';
 import MapItem from './mapitem.js';
 import Text from './text.js';
 import Effect from './effect.js';
-import config from '../config.js';
-import util from '../util.js';
 
 export default class GameScene extends Scene {
   constructor() {

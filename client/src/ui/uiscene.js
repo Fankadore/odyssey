@@ -1,9 +1,9 @@
 import { Scene } from '../lib/phaser.js';
+import util from '../lib/util.js';
+import config from '../config.js';
 import InventoryItem from './inventoryitem.js';
 import Chatbox from './chatbox.js';
 import Message from './message.js';
-import config from '../config.js';
-import util from '../util.js';
 
 export default class UIScene extends Scene {
   constructor() {

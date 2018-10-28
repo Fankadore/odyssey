@@ -1,5 +1,5 @@
-import Entity from './entity.js';
 import config from '../config.js';
+import Entity from './entity.js';
 
 export default class Effect extends Entity {
   constructor(scene, data) {

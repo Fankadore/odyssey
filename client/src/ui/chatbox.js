@@ -1,5 +1,5 @@
-import Cursor from './cursor.js';
 import config from '../config.js';
+import Cursor from './cursor.js';
 
 export default class Chatbox {
 	constructor(scene) {
