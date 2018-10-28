@@ -9,30 +9,37 @@ import server from './server.js';
 import config from './config.js';
 
 class GameLoop {
-  constructor() {
-    this.id = null;
-    this.timer = {
-      backup: 0
-    };
-    this.start();
-  }
-  start() {
-    this.id = NodeGameLoop.setGameLoop((delta) => {
-      // Update the game state
-      let updatePack = game.update(delta);
-      
-      // Send updated state to clients
-      server.sendUpdatePack(updatePack);
-      
-      // Periodic backup to database
-      this.timer.backup += delta;
-      if (this.timer.backup >= config.BACKUP_TIME) {
-        this.timer.backup -= config.BACKUP_TIME;
-        // SAVE STATE
-        db.backup();
-      }
-    }, config.FRAMERATE);
-  }
+	constructor() {
+		this.timer = {
+			backup: 0,
+			minute: 0
+		};
+
+		this.id = NodeGameLoop.setGameLoop((delta) => this.update(delta), config.FRAMERATE);
+	}
+
+	update(delta) {
+		// Increase Timers
+		this.timer.backup += delta;
+		this.timer.minute += delta;
+
+		// Update the game state
+		let updatePack = game.update(delta);
+		// Send updated state to clients
+		server.sendUpdatePack(updatePack);
+		
+		// Minute timer script
+		if (this.timer.minute >= 60) {
+			this.timer.minute -= 60;
+			// TODO: run minute timer script
+		}
+
+		// Periodic backup to database
+		if (this.timer.backup >= config.BACKUP_TIME) {
+			this.timer.backup -= config.BACKUP_TIME;
+			db.backup();
+		}
+	}
 }
 
 const gameLoop = new GameLoop();
