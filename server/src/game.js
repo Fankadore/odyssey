@@ -45,7 +45,7 @@ class Game {
 
 	// Players
 	playerLogin(id) {
-		let player = new Player(id);
+		const player = new Player(id);
 		this.playerList[id] = player;
 		this.sendGameInfoGlobal(`${player.name} has logged in.`);
 		return player;
