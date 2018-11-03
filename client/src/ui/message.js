@@ -21,7 +21,8 @@ export default class Message extends Phaser.GameObjects.Text {
 			}
 		}
 
-		super(scene, config.CHATBOX_LEFT + (config.TILE_SIZE / 2), config.CHATBOX_BOTTOM - (config.FONT_SIZE * 2), data.message, {fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour});
+		const style = {fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour};
+		super(scene, config.CHATBOX_LEFT + (config.TILE_SIZE / 2), config.CHATBOX_BOTTOM - (config.FONT_SIZE * 2), data.message, style);
 		this.senderId = data.senderId;
 		this.message = data.message;
 		this.type = data.type;
