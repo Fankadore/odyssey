@@ -17,6 +17,7 @@ export default class InventoryItem extends Phaser.GameObjects.Sprite {
 		if (data.itemClass != null) this.itemClass = data.itemClass;
 		if (data.stack != null) this.stack = data.stack;
 		if (data.name != null) this.name = data.name;
+		if (data.description != null) this.description = data.description;
 		if (data.sprite != null && data.sprite !== this.sprite) {
 			this.sprite = data.sprite;
 			this.setFrame(this.sprite);
