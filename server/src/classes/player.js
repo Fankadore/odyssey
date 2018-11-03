@@ -72,6 +72,7 @@ export default class Player extends Actor {
 		return {
 			id: this.id,
 			name: this.name,
+			description: this.description,
 			sprite: this.sprite,
 			direction: this.direction,
 			mapId: this.mapId,

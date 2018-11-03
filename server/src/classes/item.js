@@ -26,6 +26,7 @@ export default class Item extends Entity {
 
 		let classData = db.getItemData(data.itemClass);
 		if (data.name == null) data.name = classData.name;
+		if (data.description == null) data.description = classData.description;
 		if (data.type == null) data.type = classData.type;
 		if (data.sprite == null) data.sprite = classData.sprite;
 		if (data.reusable == null) data.reusable = classData.reusable;
@@ -52,6 +53,7 @@ export default class Item extends Entity {
 		this.z = data.z;
 		
 		this.name = data.name;
+		this.description = data.description;
 		this.type = data.type;
 		this.reusable = data.reusable;
 
@@ -113,6 +115,7 @@ export default class Item extends Entity {
 			itemClass: this.itemClass,
 			stack: this.stack,
 			name: this.name,
+			description: this.description,
 			sprite: this.sprite,
 			type: this.type,
 			reusable: this.reusable,

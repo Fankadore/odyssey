@@ -57,6 +57,7 @@ class Database {
 		if (!playerData) {  // First Login
 			playerData = {
 				name: config.START_NAME,
+				description: "",
 				sprite: config.START_SPRITE,
 				adminAccess: 0,
 				mapId: config.START_MAP,
@@ -141,6 +142,7 @@ class Database {
 		if (!botData) {  // First Login
 			botData = {
 				name: config.START_NAME,
+				description: "",
 				sprite: config.START_SPRITE,
 				mapId: config.START_MAP,
 				x: config.START_X,

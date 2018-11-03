@@ -11,9 +11,9 @@ export default class Actor extends Entity {
 		sprite = util.clamp(sprite, 1, config.MAX_SPRITES);
 
 		super(mapId, x, y, sprite);
-		this.controller = 'bot';
+		this.controller = null;
 		this.name = name;
-
+		this.description = "";
 		this.inventory = [];
 
 		this.calcStats();
