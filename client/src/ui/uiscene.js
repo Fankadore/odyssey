@@ -1,9 +1,11 @@
 import { Scene } from '../lib/phaser.js';
 import util from '../lib/util.js';
 import config from '../config.js';
-import InventoryItem from './inventoryitem.js';
+import Menu from './menu.js';
+import Statbox from './statbox.js';
+import Inventory from './inventory.js';
+import Infobox from './infobox.js';
 import Chatbox from './chatbox.js';
-import Message from './message.js';
 
 export default class UIScene extends Scene {
   constructor() {
@@ -16,30 +18,25 @@ export default class UIScene extends Scene {
 		this.pressingUp = false;
 		this.pressingDown = false;
 
-    this.mapName = 'Blank Map';
-		this.health = 0;
-		this.healthMax = 0;
-		this.energy = 0;
-		this.energyMax = 0;
 		this.moveSpeed = 0;
 		this.attackSpeed = 0;
     this.attackTimer = 0;
-		
-		this.healthBar = null;
-		this.energyBar = null;
-		this.manaBar = null;
-		this.experienceBar = null;
 
-    this.inventory = [];
+		this.menu = new Menu(this);
+		this.statbox = new Statbox(this);
+		this.inventory = new Inventory(this);
+		this.infobox = new Infobox(this);
 		this.chatbox = new Chatbox(this);
-
-		this.menuView = 'inventory';
-		this.selected = null;
 	}
 
   preload() {
     this.load.setPath('client/assets/');
     this.load.image('menu', 'gfx/menu.png');
+    this.load.image('menu-panel', 'gfx/menu-panel.png');
+    this.load.image('map-name', 'gfx/map-name.png');
+    this.load.image('statbox', 'gfx/statbox.png');
+    this.load.image('infobox', 'gfx/infobox.png');
+    this.load.image('info-preview', 'gfx/info-preview.png');
     this.load.image('chatbox', 'gfx/chatbox.png');
     this.load.image('slot', 'gfx/slot.png');
     this.load.image('equipment-slot', 'gfx/equipment-slot.png');
@@ -54,6 +51,12 @@ export default class UIScene extends Scene {
   }
 
   create() {
+		this.menu.create(this);
+		this.statbox.create(this);
+		this.inventory.create(this);
+		this.infobox.create(this);
+		this.chatbox.create(this);
+
 		// Create Inputs
 		const client = this.scene.get('clientScene');
 		
@@ -151,7 +154,6 @@ export default class UIScene extends Scene {
 		
 		// Create Mouse Inputs
 		this.input.mouse.disableContextMenu();
-
 		this.input.on('pointerdown', (pointer) => {
 			const x = pointer.x;
 			const y = pointer.y;
@@ -160,237 +162,76 @@ export default class UIScene extends Scene {
 				const tileX = ((x - config.MAP_LEFT) - (x % config.TILE_SIZE)) / config.TILE_SIZE;
 				const tileY = ((y - config.MAP_TOP) - (y % config.TILE_SIZE)) / config.TILE_SIZE;
 				const game = this.scene.get('gameScene');
-				game.clickMap(tileX, tileY);
-				
+				const gameMessages = game.clickMap(tileX, tileY);
+				if (gameMessages.length > 0) {
+					gameMessages.forEach((message) => {
+						this.chatbox.clientsideMessage(message);
+					});
+				}
 			}
 			else if (this.isWithinInventoryBounds(x, y)) {
 				// Click on Inventory
-				const slotX = this.getSlotXFromX(x, config.INVENTORY_LEFT);
-				const slotY = this.getSlotYFromY(y, config.INVENTORY_TOP);
+				const slotX = this.inventory.getSlotXFromX(x, config.INVENTORY_LEFT);
+				const slotY = this.inventory.getSlotYFromY(y, config.INVENTORY_TOP);
 				const slot = util.getIndexFromXY(slotX, slotY, config.INVENTORY_COLUMNS);
-				if (pointer.leftButtonDown()) {
-					if (this.clickSlot(slot)) {
-						client.emitInputClick('doubleClickItem', slot);
-					}
-				}
-				else if (pointer.rightButtonDown()) {
-					if (this.rightClickSlot(slot)) {
-						client.emitInputClick('rightClickItem', slot);
-					}
-				}
+				this.buttonDown(client, pointer, slot);
 			}
 			else if (this.isWithinEquipmentBounds(x, y)) {
 				// Click on Equipment
-				const slotX = this.getSlotXFromX(x, config.EQUIPMENT_LEFT);
-				const slotY = this.getSlotYFromY(y, config.EQUIPMENT_TOP);
+				const slotX = this.inventory.getSlotXFromX(x, config.EQUIPMENT_LEFT);
+				const slotY = this.inventory.getSlotYFromY(y, config.EQUIPMENT_TOP);
 				const slot = config.INVENTORY_SIZE + util.getIndexFromXY(slotX, slotY, config.EQUIPMENT_COLUMNS);
-				if (pointer.leftButtonDown()) {
-					if (this.clickSlot(slot)) {
-						client.emitInputClick('doubleClickItem', slot);
-					}
-				}
-				else if (pointer.rightButtonDown()) {
-					if (this.rightClickSlot(slot)) {
-						client.emitInputClick('rightClickItem', slot);
-					}
-				}
+				this.buttonDown(client, pointer, slot);
 			}
 		});
-
 		this.input.on('dragstart', (pointer, item) => {
 			item.dragged = true;
 		});
-
 		this.input.on('drag', (pointer, item, dragX, dragY) => {
 			item.x = pointer.x - (config.TILE_SIZE / 2);
 			item.y = pointer.y - (config.TILE_SIZE / 2);
 		});
-
 		this.input.on('dragend', (pointer, item) => {
 			setTimeout(() => item.dragged = false, 50);
 
 			if (this.isWithinMapBounds(pointer.x, pointer.y)) {
 				client.emitInputDrag('dragStopGame', item.slot);
+				this.clearItemInfo();
 			}
 			else if (this.isWithinInventoryBounds(pointer.x, pointer.y)) {
-				let newSlotX = this.getSlotXFromX(pointer.x, config.INVENTORY_LEFT);
-				let newSlotY = this.getSlotYFromY(pointer.y, config.INVENTORY_TOP);
-				let newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.INVENTORY_COLUMNS);
-				if (item.slot !== newSlot) client.emitInputDrag('dragStopInventory', item.slot, newSlot);
+				const newSlotX = this.inventory.getSlotXFromX(pointer.x, config.INVENTORY_LEFT);
+				const newSlotY = this.inventory.getSlotYFromY(pointer.y, config.INVENTORY_TOP);
+				const newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.INVENTORY_COLUMNS);
+				if (item.slot !== newSlot) {
+					client.emitInputDrag('dragStopInventory', item.slot, newSlot);
+					this.inventory.setSelected(newSlot);
+				}
+				
 			}
 			else if (this.isWithinEquipmentBounds(pointer.x, pointer.y)) {
-				let newSlotX = this.getSlotXFromX(pointer.x, config.EQUIPMENT_LEFT);
-				let newSlotY = this.getSlotYFromY(pointer.y, config.EQUIPMENT_TOP);
-				let newSlot = config.INVENTORY_SIZE + util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT_COLUMNS);
+				const newSlotX = this.inventory.getSlotXFromX(pointer.x, config.EQUIPMENT_LEFT);
+				const newSlotY = this.inventory.getSlotYFromY(pointer.y, config.EQUIPMENT_TOP);
+				const newSlot = config.INVENTORY_SIZE + util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT_COLUMNS);
 				if (item.slot !== newSlot) {
 					client.emitInputDrag('dragStopEquipment', item.slot, newSlot);
+					this.inventory.setSelected(newSlot);
 				}
 			}
 		});
-
-		this.add.image(config.MENU_LEFT, config.MENU_TOP, 'menu').setOrigin(0, 0);
-		
-		// Create Statbox
-		this.graphics = this.make.graphics();		
-    this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP, config.STATBOX_WIDTH, 12);
-    this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 4), config.STATBOX_WIDTH, 12);
-    this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 2), config.STATBOX_WIDTH, 12);
-    this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + ((config.STATBOX_HEIGHT / 4) * 3), config.STATBOX_WIDTH, 12);
-    this.statBarMask = this.graphics.createGeometryMask();
-
-		this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP, 'health-bar-empty').setOrigin(0, 0);
-		this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 4), 'energy-bar-empty').setOrigin(0, 0);
-		this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 2), 'mana-bar-empty').setOrigin(0, 0);
-		this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + ((config.STATBOX_HEIGHT / 4) * 3), 'experience-bar-empty').setOrigin(0, 0);
-		
-		this.healthBar = this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP, 'health-bar').setOrigin(0, 0).setMask(this.statBarMask);
-		this.energyBar = this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 4), 'energy-bar').setOrigin(0, 0).setMask(this.statBarMask);
-		this.manaBar = this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 2), 'mana-bar').setOrigin(0, 0).setMask(this.statBarMask);
-		this.experienceBar = this.add.image(config.STATBOX_LEFT, config.STATBOX_TOP + ((config.STATBOX_HEIGHT / 4) * 3), 'experience-bar').setOrigin(0, 0).setMask(this.statBarMask);
-		
-		// Create Inventory
-		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
-			if (slot < config.INVENTORY_SIZE) {
-				this.add.image(this.getXFromSlot(slot), this.getYFromSlot(slot), 'slot').setOrigin(0, 0);
-			}
-			else {
-				this.add.image(this.getXFromSlot(slot), this.getYFromSlot(slot), 'equipment-slot').setOrigin(0, 0);
-			}
-		}
-
-		// Create Infobox
-		
-		
-		// Create Chatbox
-		this.add.image(config.CHATBOX_LEFT, config.CHATBOX_TOP, 'chatbox').setOrigin(0, 0);
-
 	}
-
+	
   onUpdate(data) {
-		if (data.health != null) this.health = data.health;
-		if (data.healthMax != null) this.healthMax = data.healthMax;
-		if (data.energy != null) this.energy = data.energy;
-		if (data.energyMax != null) this.energyMax = data.energyMax;
 		if (data.moveSpeed != null) this.moveSpeed = data.moveSpeed;
 		if (data.attackSpeed != null) this.attackSpeed = data.attackSpeed;
 		if (data.attackTimer != null) this.attackTimer = data.attackTimer;
-		
-		// Update Stat Bars
-		if (this.graphics) {
-			this.graphics.clear();
-			this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP, config.STATBOX_WIDTH * (this.health / this.healthMax), 12);
-			this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 4), config.STATBOX_WIDTH * (this.energy / this.energyMax), 12);
-			this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + (config.STATBOX_HEIGHT / 2), config.STATBOX_WIDTH * (1 / 1), 12);
-			this.graphics.fillRect(config.STATBOX_LEFT, config.STATBOX_TOP + ((config.STATBOX_HEIGHT / 4) * 3), config.STATBOX_WIDTH * (1 / 1), 12);
-		}
-		
-		// Update Inventory Items
-		if (data.inventory) {
-			let addItems = data.inventory.filter((itemData) => {	// filter text on new list but not old
-				if (!itemData) return false;
-				return (this.inventory[itemData.slot] == null);
-			});
-			let removeItems = this.inventory.filter((item) => {	// filter items on old list but not new
-				if (!item) return false;
-				return (data.inventory[item.slot] == null);
-			});
-			let updateItems = this.inventory.filter((item) => {	// filter items on both lists
-				if (!item) return false;
-				return (data.inventory[item.slot] != null);
-			});
-			
-			addItems.forEach((itemData) => {
-				itemData.x = this.getXFromSlot(itemData.slot);
-				itemData.y = this.getYFromSlot(itemData.slot);
-				this.inventory[itemData.slot] = new InventoryItem(this, itemData);
-			});
-			removeItems.forEach((item) => {
-				delete this.inventory[item.slot];
-				item.destroy();
-			});
-			updateItems.forEach((item) => {
-				let itemData = data.inventory[item.slot];
-				itemData.x = this.getXFromSlot(itemData.slot);
-				itemData.y = this.getYFromSlot(itemData.slot);
-				item.onUpdate(itemData);
-			});
-		}
-		
-		// Update Messages
-		if (data.messages) {
-			data.messages.forEach((messageData) => {
-				this.chatbox.messages.unshift(new Message(this, messageData));
-			});
-			this.chatbox.onUpdate();
-		}
 
-		// Update Cursor
-		this.chatbox.cursor.onUpdate();
+		if (this.statbox) this.statbox.onUpdate(data);
+		if (this.inventory) this.inventory.onUpdate(data.inventory);
+		if (this.chatbox) this.chatbox.onUpdate(data.messages);
   }
 	
 	onLoadMap(mapName) {
-		this.mapName = mapName;
-	}
-
-  displayInventory() {
-		this.menuView = 'inventory';
-	}
-	
-	displayMenu() {
-		this.menuView = 'menu';
-  }
-
-  clickSlot(slot) {
-		this.selected = slot;
-		let item = this.inventory[slot];
-		if (item) {
-			if (item.clickedTime > 0) {
-				item.clickedTime = 0;
-				return true;	// Double Click
-			}
-			else {
-				item.clickedTime = new Date().getTime();
-			}
-		}
-		return false;	// Single Click
-	}
-
-	rightClickSlot(slot) {
-		this.selected = null;
-		let item = this.inventory[slot];
-		return (item) ? true : false;
-  }
-  
-  getXFromSlot(slot) {	// Takes a slot number and turns it into a pixel x
-		if (slot < 0 || slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return null;
-	
-		if (slot < config.INVENTORY_SIZE) {
-			return config.INVENTORY_LEFT + (util.getXFromIndex(slot, config.INVENTORY_COLUMNS) * config.SLOT_SIZE);
-		}
-		else {
-			return config.EQUIPMENT_LEFT + (util.getXFromIndex(slot - config.INVENTORY_SIZE, config.EQUIPMENT_COLUMNS) * config.SLOT_SIZE);
-		}
-	}
-	
-	getYFromSlot(slot) {	// Takes a slot number and turns it into a pixel y
-		if (slot < 0 || slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return null;
-	
-		if (slot < config.INVENTORY_SIZE) {
-			return config.INVENTORY_TOP + (util.getYFromIndex(slot, config.INVENTORY_COLUMNS) * config.SLOT_SIZE);
-		}
-		else {
-			return config.EQUIPMENT_TOP + (util.getYFromIndex(slot - config.INVENTORY_SIZE, config.EQUIPMENT_COLUMNS) * config.SLOT_SIZE);
-		}
-	}
-
-	getSlotXFromX(x, offsetX = 0) {	// Takes a pixel x and turns it into slot x
-		x -= offsetX;
-		return (x - (x % config.SLOT_SIZE)) / config.SLOT_SIZE;
-	}
-
-	getSlotYFromY(y, offsetY = 0) {	// Takes a pixel y and turns it into slot y
-		y -= offsetY;
-		return (y - (y % config.SLOT_SIZE)) / config.SLOT_SIZE;
+		if (this.menu) this.menu.onLoadMap(mapName);
 	}
 
 	isWithinMapBounds(x, y) {
@@ -403,5 +244,23 @@ export default class UIScene extends Scene {
 	
 	isWithinEquipmentBounds(x, y) {
 		return (x >= config.EQUIPMENT_LEFT && x < config.EQUIPMENT_RIGHT && y >= config.EQUIPMENT_TOP && y < config.EQUIPMENT_BOTTOM);
+	}
+
+	buttonDown(client, pointer, slot) {
+		if (pointer.leftButtonDown()) {
+			if (this.inventory.clickSlot(slot)) client.emitInputClick('doubleClickItem', slot);
+			const item = this.inventory.setSelected(slot);
+			if (item) this.infobox.setPreview(item.sprite, item.name, item.description);
+			else this.infobox.clear();
+		}
+		else if (pointer.rightButtonDown()) {
+			if (this.inventory.hasItemInSlot(slot)) client.emitInputClick('rightClickItem', slot);
+			this.clearItemInfo();
+		}
+	}
+
+	clearItemInfo() {
+		this.inventory.setSelected(null);
+		this.infobox.clear();
 	}
 }
