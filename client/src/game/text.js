@@ -1,8 +1,8 @@
 import Phaser from '../lib/phaser.js';
 import config from '../config.js';
 
-let offsetX = 0.5;
-let offsetY = -0.75;
+const offsetX = 0.5;
+const offsetY = -0.75;
 
 export default class Text extends Phaser.GameObjects.Text {
 	constructor(scene, data) {

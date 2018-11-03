@@ -87,9 +87,9 @@ export default class Actor extends Entity {
 		/* this.grid.lerp is a float between 0 and 1, showing the distance between tiles.
 		** 0 = on starting tile, 1 = on destination tile, 0.5 = half way, etc. */
 
-		let x = this.grid.x * config.TILE_SIZE;
-		let y = this.grid.y * config.TILE_SIZE;
-		let lerp = this.grid.lerp * config.TILE_SIZE;
+		const x = this.grid.x * config.TILE_SIZE;
+		const y = this.grid.y * config.TILE_SIZE;
+		const lerp = this.grid.lerp * config.TILE_SIZE;
 
 		if (this.grid.x > this.grid.destinationX) {	// Moving Left
 			this.x = x - lerp;
@@ -136,7 +136,7 @@ export default class Actor extends Entity {
 			this.anims.setTimeScale(1);
 		}
 		
-		let animKey = this.sprite + 'walk' + this.direction;
+		const animKey = this.sprite + 'walk' + this.direction;
 		if (!this.anims.isPlaying || this.anims.currentAnim.key !== animKey) {
 			this.play(animKey);
 		}

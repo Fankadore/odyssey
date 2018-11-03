@@ -22,7 +22,7 @@ export default class Cursor extends Phaser.GameObjects.Graphics {
 
   onUpdate() {
     if (this.focus) {
-      let now = new Date().getTime();
+      const now = new Date().getTime();
       if (now - this.timer >= this.speed) {
         this.setVisible(!this.visible);
         this.timer = now;

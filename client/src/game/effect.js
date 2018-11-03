@@ -21,7 +21,7 @@ export default class Effect extends Entity {
   }
 
 	setFrame() {
-    let frame = (this.sprite * config.EFFECT_FRAMES) + this.currentFrame;
+    const frame = (this.sprite * config.EFFECT_FRAMES) + this.currentFrame;
 		if (!this.frame || this.frame.name !== frame) super.setFrame(frame);
 	}
 }
