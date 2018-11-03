@@ -19,6 +19,7 @@ export default class Bot extends Actor {
 		if (data.hostile == null) data.hostile = classData.hostile;
 		
 		super(data.mapId, data.x, data.y, data.name, data.sprite);
+		this.controller = 'bot';
 		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
 		this.id = data.id;
 		this.botClass = data.botClass;
