@@ -9,6 +9,10 @@ class Config {
 		this.SLOT_SIZE = this.TILE_SIZE + 6;
 		this.FONT_SIZE = 12;
 
+		this.SPRITE_FRAMES = 13;
+		this.SPRITE_COUNT = 13;
+		this.EFFECT_FRAMES = 8;
+
 		this.INVENTORY_COLUMNS = 5;
 		this.INVENTORY_ROWS = 4;
 		this.INVENTORY_SIZE = this.INVENTORY_COLUMNS * this.INVENTORY_ROWS;
@@ -16,11 +20,6 @@ class Config {
 		this.EQUIPMENT_COLUMNS = 5;
 		this.EQUIPMENT_ROWS = 1;
 		this.EQUIPMENT_SIZE = this.EQUIPMENT_COLUMNS * this.EQUIPMENT_ROWS;
-		
-		this.SPRITE_FRAMES = 13;
-		this.SPRITE_COUNT = 13;
-
-		this.EFFECT_FRAMES = 8;
 		
 		this.CHATBOX_LINES = 9;
 
@@ -38,15 +37,26 @@ class Config {
 		this.MENU_RIGHT = this.MENU_LEFT + this.MENU_WIDTH;
 		this.MENU_BOTTOM = this.MENU_TOP + this.MENU_HEIGHT;
 		
-		this.STATBOX_LEFT = this.MAP_RIGHT + this.SLOT_SIZE;
+		this.MAPNAME_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
+		this.MAPNAME_TOP = this.MENU_TOP + 8;
+		this.MAPNAME_WIDTH = this.MENU_WIDTH - this.SLOT_SIZE;
+		this.MAPNAME_HEIGHT = this.FONT_SIZE * 2;
+
+		this.STATBAR_WIDTH = this.SLOT_SIZE * 4;
+		this.STATBAR_HEIGHT = 12;
+
+		this.STATBOX_LEFT = this.MAP_RIGHT + (this.SLOT_SIZE / 2);
 		this.STATBOX_TOP = this.MENU_TOP + this.SLOT_SIZE;
-		this.STATBOX_WIDTH = this.MENU_WIDTH - (this.SLOT_SIZE * 2);
-		this.STATBOX_HEIGHT = this.SLOT_SIZE * 1.5;
+		this.STATBOX_WIDTH = this.STATBAR_WIDTH + this.SLOT_SIZE;
+		this.STATBOX_HEIGHT = ((this.STATBAR_HEIGHT + 2) * 4) + 10;
 		this.STATBOX_RIGHT = this.STATBOX_LEFT + this.STATBOX_WIDTH;
 		this.STATBOX_BOTTOM = this.STATBOX_TOP + this.STATBOX_HEIGHT;
 
+		this.STATBAR_LEFT = this.STATBOX_LEFT + (this.SLOT_SIZE / 2);
+		this.STATBAR_TOP = this.STATBOX_TOP + 6;
+
 		this.INVENTORY_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
-		this.INVENTORY_TOP = this.STATBOX_BOTTOM + (this.SLOT_SIZE / 4);
+		this.INVENTORY_TOP = this.STATBOX_BOTTOM + 9;
 		this.INVENTORY_WIDTH = this.INVENTORY_COLUMNS * this.SLOT_SIZE;
 		this.INVENTORY_HEIGHT = this.INVENTORY_ROWS * this.SLOT_SIZE;
 		this.INVENTORY_RIGHT = this.INVENTORY_LEFT + this.INVENTORY_WIDTH;
@@ -59,10 +69,23 @@ class Config {
 		this.EQUIPMENT_RIGHT = this.EQUIPMENT_LEFT + this.EQUIPMENT_WIDTH;
 		this.EQUIPMENT_BOTTOM = this.EQUIPMENT_TOP + this.EQUIPMENT_HEIGHT;
 
+		this.INFOBOX_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
+		this.INFOBOX_TOP = this.EQUIPMENT_BOTTOM + 4;
+		this.INFOBOX_WIDTH = this.EQUIPMENT_WIDTH;
+		this.INFOBOX_HEIGHT = this.SLOT_SIZE * 2;
+		this.INFOBOX_RIGHT = this.INFOBOX_LEFT + this.INFOBOX_WIDTH;
+		this.INFOBOX_BOTTOM = this.INFOBOX_TOP + this.INFOBOX_HEIGHT;
+
+		this.INFOPREVIEW_WIDTH = this.SLOT_SIZE;
+		this.INFOPREVIEW_HEIGHT = this.SLOT_SIZE;
+		this.INFOPREVIEW_LEFT = this.INFOBOX_LEFT + 6;
+		this.INFOPREVIEW_TOP = this.INFOBOX_TOP + (this.FONT_SIZE * 1.2) + 10;
+		this.INFOPREVIEW_RIGHT = this.INFOPREVIEW_LEFT + this.INFOPREVIEW_WIDTH;
+
 		this.CHATBOX_LEFT = this.MAP_LEFT;
 		this.CHATBOX_TOP = this.MAP_BOTTOM;
 		this.CHATBOX_WIDTH = this.MAP_WIDTH + this.MENU_WIDTH;
-		this.CHATBOX_HEIGHT = this.FONT_SIZE * (this.CHATBOX_LINES + 2);
+		this.CHATBOX_HEIGHT = this.FONT_SIZE * (this.CHATBOX_LINES + 3);
 		this.CHATBOX_RIGHT = this.CHATBOX_LEFT + this.CHATBOX_WIDTH;
 		this.CHATBOX_BOTTOM = this.CHATBOX_TOP + this.CHATBOX_HEIGHT;
 
