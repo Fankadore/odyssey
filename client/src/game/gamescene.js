@@ -76,24 +76,24 @@ export default class GameScene extends Scene {
     // Update Players
     if (data.players) {
 			const addPlayers = data.players.filter((playerData) => {	// filter players on new list but not old
-				return (this.players[playerData.id] == null);
+				return (playerData && this.players[playerData.gameId] == null);
 			});
 			const removePlayers = this.players.filter((player) => {	// filter players on old list but not new
-				return (data.players[player.id] == null);
+				return (data.players[player.gameId] == null);
 			});
 			const updatePlayers = this.players.filter((player) => {	// filter players on both lists
-				return (data.players[player.id] != null);
+				return (data.players[player.gameId] != null);
 			});
 
 			addPlayers.forEach((playerData) => {
-				this.players[playerData.id] = new Actor(this, playerData);
+				this.players[playerData.gameId] = new Actor(this, playerData);
 			});
 			removePlayers.forEach((player) => {
-				delete this.players[player.id];
+				delete this.players[player.gameId];
 				player.destroy();
 			});
 			updatePlayers.forEach((player) => {
-        player.update(data.players[player.id]);
+        player.update(data.players[player.gameId]);
 			});
     }
 
@@ -101,26 +101,26 @@ export default class GameScene extends Scene {
 		if (data.bots) {
 			const addBots = data.bots.filter((botData) => {	// filter bots on new list but not old
 				if (!botData) return false;
-				return (this.bots[botData.id] == null);
+				return (this.bots[botData.gameId] == null);
 			});
 			const removeBots = this.bots.filter((bot) => {	// filter bots on old list but not new
 				if (!bot) return false;
-				return (data.bots[bot.id] == null);
+				return (data.bots[bot.gameId] == null);
 			});
 			const updateBots = this.bots.filter((bot) => {	// filter bots on both lists
 				if (!bot) return false;
-				return (data.bots[bot.id] != null);
+				return (data.bots[bot.gameId] != null);
 			});
 			
 			addBots.forEach((botData) => {
-				this.bots[botData.id] = new Actor(this, botData);
+				this.bots[botData.gameId] = new Actor(this, botData);
 			});
 			removeBots.forEach((bot) => {
-				delete this.bots[bot.id];
+				delete this.bots[bot.gameId];
 				bot.destroy();
 			});
 			updateBots.forEach((bot) => {
-				bot.update(data.bots[bot.id]);
+				bot.update(data.bots[bot.gameId]);
 			});
 		}
 
@@ -128,26 +128,26 @@ export default class GameScene extends Scene {
 		if (data.items) {
 			const addItems = data.items.filter((itemData) => {	// filter item on new list but not old
 				if (!itemData) return false;
-				return (this.items[itemData.id] == null);
+				return (this.items[itemData.gameId] == null);
 			});
 			const removeItems = this.items.filter((item) => {	// filter items on old list but not new
 				if (!item) return false;
-				return (data.items[item.id] == null);
+				return (data.items[item.gameId] == null);
 			});
 			const updateItems = this.items.filter((item) => {	// filter items on both lists
 				if (!item) return false;
-				return (data.items[item.id] != null);
+				return (data.items[item.gameId] != null);
 			});
 		
 			addItems.forEach((itemData) => {
-				this.items[itemData.id] = new MapItem(this, itemData);
+				this.items[itemData.gameId] = new MapItem(this, itemData);
 			});
 			removeItems.forEach((item) => {
-				delete this.items[item.id];
+				delete this.items[item.gameId];
 				item.destroy();
 			});
 			updateItems.forEach((item) => {
-				item.update(data.items[item.id]);
+				item.update(data.items[item.gameId]);
 			});
 		}
 
@@ -155,26 +155,26 @@ export default class GameScene extends Scene {
 		if (data.texts) {
 			const addTexts = data.texts.filter((textData) => {	// filter text on new list but not old
 				if (!textData) return false;
-				return (this.texts[textData.id] == null);
+				return (this.texts[textData.gameId] == null);
 			});
 			const removeTexts = this.texts.filter((text) => {	// filter texts on old list but not new
 				if (!text) return false;
-				return (data.texts[text.id] == null);
+				return (data.texts[text.gameId] == null);
 			});
 			const updateTexts = this.texts.filter((text) => {	// filter texts on both lists
 				if (!text) return false;
-				return (data.texts[text.id] != null);
+				return (data.texts[text.gameId] != null);
 			});
 			
 			addTexts.forEach((textData) => {
-				this.texts[textData.id] = new Text(this, textData);
+				this.texts[textData.gameId] = new Text(this, textData);
 			});
 			removeTexts.forEach((text) => {
-				delete this.texts[text.id];
+				delete this.texts[text.gameId];
 				text.destroy();
 			});
 			updateTexts.forEach((text) => {
-				text.update(data.texts[text.id]);
+				text.update(data.texts[text.gameId]);
 			});
 		}
 
@@ -182,26 +182,26 @@ export default class GameScene extends Scene {
 		if (data.effects) {
 			const addEffects = data.effects.filter((effectData) => {	// filter effect on new list but not old
 				if (!effectData) return false;
-				return (this.effects[effectData.id] == null);
+				return (this.effects[effectData.gameId] == null);
 			});
 			const removeEffects = this.effects.filter((effect) => {	// filter effects on old list but not new
 				if (!effect) return false;
-				return (data.effects[effect.id] == null);
+				return (data.effects[effect.gameId] == null);
 			});
 			const updateEffects = this.effects.filter((effect) => {	// filter effects on both lists
 				if (!effect) return false;
-				return (data.effects[effect.id] != null);
+				return (data.effects[effect.gameId] != null);
 			});
 			
 			addEffects.forEach((effectData) => {
-				this.effects[effectData.id] = new Effect(this, effectData);
+				this.effects[effectData.gameId] = new Effect(this, effectData);
 			});
 			removeEffects.forEach((effect) => {
-				delete this.effects[effect.id];
+				delete this.effects[effect.gameId];
 				effect.destroy();
 			});
 			updateEffects.forEach((effect) => {
-				effect.update(data.effects[effect.id]);
+				effect.update(data.effects[effect.gameId]);
 			});
 		}
 	}
@@ -210,7 +210,7 @@ export default class GameScene extends Scene {
 		// Update Tiles
 		for (let i = 0; i < config.MAP_LAYERS; i++) {
 			if (this.layer[i]) {
-				this.layer[i].putTilesAt(tiles.layer[i], 0, 0);
+				this.layer[i].putTilesAt(tiles[i], 0, 0);
 			}
 		}
 	}

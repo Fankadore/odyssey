@@ -2,7 +2,7 @@ import Entity from './entity.js';
 
 export default class MapItem extends Entity {
 	constructor(scene, data) {
-		super(scene, data.id, data.x, data.y, data.sprite, 'potions');
+		super(scene, data.gameId, data.x, data.y, data.sprite, 'potions');
 		this.update(data);
 	}
 	

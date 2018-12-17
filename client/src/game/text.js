@@ -7,7 +7,7 @@ const offsetY = -0.75;
 export default class Text extends Phaser.GameObjects.Text {
 	constructor(scene, data) {
 		super(scene, (data.x + data.lerpX + offsetX) * config.TILE_SIZE, (data.y + data.lerpY + offsetY) * config.TILE_SIZE, data.message, { fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour });
-		this.id = data.id;
+		this.gameId = data.gameId;
 		this.setOrigin(0.5, 0.5);
 		this.setAlign('center');
 		this.update(data);

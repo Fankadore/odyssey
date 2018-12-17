@@ -4,7 +4,7 @@ import Text from './text.js';
 
 export default class Actor extends Entity {
 	constructor(scene, data) {
-		super(scene, data.id, data.x, data.y, data.sprite, 'sprites').setOrigin(0, 0.5);
+		super(scene, data.gameId, data.x, data.y, data.sprite, 'sprites').setOrigin(0, 0.5);
 		
 		this.name = data.name;
 		this.direction = data.direction;

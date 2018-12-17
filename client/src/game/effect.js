@@ -3,7 +3,7 @@ import Entity from './entity.js';
 
 export default class Effect extends Entity {
   constructor(scene, data) {
-    super(scene, data.id, data.x, data.y, data.sprite, 'effects').setOrigin(0, 0.5);
+    super(scene, data.gameId, data.x, data.y, data.sprite, 'effects').setOrigin(0, 0.5);
     this.update(data);
   }
 
