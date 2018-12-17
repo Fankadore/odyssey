@@ -1,25 +1,26 @@
-import db from '../db.js';
 import game from '../game.js';
 import config from '../config.js';
+import util from '../util.js';
 import Actor from './actor.js';
-import Text from './text.js';
 
 // A Player is an immortal Actor which takes input from a client
 
 export default class Player extends Actor {
-	constructor(id) {
-		const data = db.getPlayerData(id);
+	constructor(socketId, data) {
+		if (data.sprite == null) data.sprite = data.template.sprite;
 
-		super(data.mapId, data.x, data.y, data.name, data.sprite);
+		super(data.mapId, data.x, data.y, data.direction, data.name, data.sprite);
 		this.controller = 'player';
-		this.id = id;
+		this.id = data._id;
+		this.socketId = socketId;
+		this.accountId = data.account;
 		this.adminAccess = data.adminAccess;
 
-		this.damageBase = data.damageBase;				// minimum damage a player can have
-		this.defenceBase = data.defenceBase;			// minimum defence a player can have
-		this.healthMaxBase = data.healthMaxBase;	// max health without bonuses
-		this.energyMaxBase = data.energyMaxBase;	// max energy without bonuses
-		this.calcStats();
+		this.level = data.level;
+		this.experience = data.experience;
+		this.templateId = data.template._id;
+		this.template = data.template.name;
+		this.calcBaseStats(data.template);
 		this.restore();
 
 		this.isDead = false;
@@ -30,13 +31,15 @@ export default class Player extends Actor {
 		this.respawnX = data.x;
 		this.respawnY = data.y;
 
-		this.selected = null;
 		this.input = {
 			direction: null,
 			run: false,
 			pickup: false,
 			attack: false
-		}
+		};
+
+		this.gameId = util.firstEmptyIndex(game.players);
+		game.players[this.gameId] = this;
 	}
 
 	update(delta) {
@@ -47,7 +50,7 @@ export default class Player extends Actor {
 			if (this.respawnTimer >= this.respawnSpeed) this.respawn();
 		}
 		else {
-			// Check for Atack Input
+			// Check for Attack Input
 			if (this.input.attack && this.attackTimer === 0) this.attack();
 			
 			// Check for Movement Input
@@ -65,12 +68,12 @@ export default class Player extends Actor {
 			}
 		}
 		
-		return this.getPack();
+		return this.getGamePack();
 	}
 	
-	getPack() {
+	getGamePack() {
 		return {
-			id: this.id,
+			gameId: this.gameId,
 			name: this.name,
 			description: this.description,
 			sprite: this.sprite,
@@ -89,9 +92,10 @@ export default class Player extends Actor {
 		};
 	}
 	
-	getPrivatePack() {
+	getUIPack() {
 		return {
-			id: this.id,
+			level: this.level,
+			experience: this.experience,
 			health: this.health,
 			healthMax: this.healthMax,
 			energy: this.energy,
@@ -103,17 +107,36 @@ export default class Player extends Actor {
 		};
 	}
 
+	getDBPack() {
+		return {
+			name: this.name,
+			account: this.accountId,
+			template: this.templateId,
+			level: this.level,
+			experience: this.experience,
+			mapId: this.mapId,
+			x: this.x,
+			y: this.y,
+			direction: this.direction,
+			adminAccess: this.adminAccess,
+			sprite: this.sprite
+		}
+	}
+
 	pickUp() {
-		for (let i = 0; i < game.mapList[this.mapId].items.length; i++) {
-			let item = game.mapList[this.mapId].items[i];
+		const items = game.items.filter(item => {
+			return item.mapId === this.mapId;
+		});
+		for (let i = 0; i < items.length; i++) {
+			let item = items[i];
 			if (item && item.x === this.x && item.y === this.y) {
 				let slot = this.getMapItem(item.mapId, item.id);
 				if (slot != null) {
-					item.moveToPlayer(this.id, slot);
+					item.moveToPlayer(this.gameId, slot);
 				}
 				else {
 					// Inventory full
-					game.sendGameInfoPlayer(this.id, "Your inventory is full.");
+					game.sendGameInfoPlayer(this.gameId, "Your inventory is full.");
 					break;
 				}
 			}
@@ -157,16 +180,34 @@ export default class Player extends Actor {
 		this.isAttacking = false;
 		this.isDead = false;
 		this.respawnTimer = 0;
-		game.sendGameInfoPlayer(this.id, "The Angel of Mercy refuses to let you die.");
+		game.sendGameInfoPlayer(this.gameId, "The Angel of Mercy refuses to let you die.");
 	}
 
-	calcBaseStats() {	// Class and Level
-		//TODO: check db for class stats: base and increase per level
-		// this.damageBase = playerClass.damageBase + (playerClass.increasePerLevel.damage * this.level);
-		this.damageBase = config.START_DAMAGE;
-		this.defenceBase = config.START_DEFENCE;
-		this.healthMaxBase = config.START_HEALTH_MAX;
-		this.energyMaxBase = config.START_ENERGY_MAX;
-		this.rangeBase = config.START_RANGE;
+	gainExperience(experience) {
+		if (this.experience + experience <= 0) {
+			this.experience = 0;	
+			return;
+		}
+
+		this.experience += experience;
+		if (this.experience >= game.experienceToLevel[this.level]) {
+			this.levelUp();
+		}
+	}
+
+	levelUp() {
+		if (this.level < config.MAX_LEVEL) {
+			const rolloverExperience = this.experience - game.experienceToLevel[this.level];
+			this.experience = 0;
+			this.level++;
+			this.calcBaseStats();
+			game.sendGameInfoPlayer(this.gameId, `Level up! You are now level ${this.level}!`);
+			this.gainExperience(rolloverExperience);
+		}
+	}
+	
+	calcBaseStats(template) {
+		if (!template) template = game.playerTemplates[this.templateId];
+		super.calcBaseStats(template);
 	}
 }
