@@ -1,3 +1,28 @@
+function create2dArray(columns, rows, defaultValue) {
+  const array = [];
+  for (let y = 0; y < rows; y++) {
+    array[y] = [];
+    for (let x = 0; x < columns; x++) {
+      array[y][x] = defaultValue;
+    }
+  }
+  return array;
+}
+
+function create3dArray(columns, rows, layers, defaultValue) {
+  const array = [];
+  for (let z = 0; z < layers; z++) {
+    array[z] = []; 
+    for (let y = 0; y < rows; y++) {
+      array[z][y] = [];
+      for (let x = 0; x < columns; x++) {
+        array[z][y][x] = defaultValue;
+      }
+    }
+  }
+  return array;
+}
+
 function shuffle(array) {
   let currentIndex = array.length;
   let temp;
@@ -13,7 +38,7 @@ function shuffle(array) {
 }
 
 function swap(array, i, j) {
-  let temp = array[i];
+  const temp = array[i];
   array[i] = array[j];
   array[j] = temp;
 }
@@ -107,6 +132,8 @@ function plural(word) {
 }
 
 export default {
+  create2dArray,
+  create3dArray,
   shuffle,
   swap,
   firstEmptyIndex,
