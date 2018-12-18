@@ -7,7 +7,7 @@ import Entity from './entity.js';
 // An Actor is an Entity which can move, attack and interact with items
 
 export default class Actor extends Entity {
-	constructor(mapId, x, y, name, sprite) {
+	constructor(mapId, x, y, direction, name, sprite) {
 		sprite = util.clamp(sprite, 1, config.MAX_SPRITES);
 
 		super(mapId, x, y, sprite);
@@ -16,10 +16,7 @@ export default class Actor extends Entity {
 		this.description = "";
 		this.inventory = [];
 
-		this.calcStats();
-		this.restore();
-
-		this.direction = 'down';
+		this.direction = direction;
 		this.startX = this.x;
 		this.startY = this.y;
 		this.destinationX = this.x;
@@ -37,6 +34,8 @@ export default class Actor extends Entity {
 		this.attackTimer = 0;	
 		this.target = null;
 		this.kills = 0;
+
+		this.calcBonusStats();
 	}
 	
 	// Character Stats
@@ -61,12 +60,16 @@ export default class Actor extends Entity {
 		return (rangeTotal < 1) ? 1 : rangeTotal;
 	}
 
-	calcBaseStats() {
-		// See Player and Bot classes
+	calcBaseStats(template) {
+		this.damageBase = template.damageBase || 1;
+		this.defenceBase = template.defenceBase || 0;
+		this.healthMaxBase = template.healthMaxBase + (template.healthPerLevel * (this.level - 1)) || 1;
+		this.energyMaxBase = template.energyMaxBase + (template.energyPerLevel * (this.level - 1)) || 1;
+		this.rangeBase = template.rangeBase || 1;
 	}
 
 	calcItemBonus() {
-		let itemBonus = {
+		const itemBonus = {
 			damage: 0,
 			defence: 0,
 			healthMax: 0,
@@ -76,20 +79,20 @@ export default class Actor extends Entity {
 		
 		// For each item in inventory check for bonuses
 		for (let i = 0; i < (config.INVENTORY_SIZE + config.EQUIPMENT_SIZE); i++) {
-			let item = this.inventory[i];
+			const item = this.inventory[i];
 			if (item) {
-				itemBonus.damage += item.passiveDamage;
-				itemBonus.defence += item.passiveDefence;
-				itemBonus.healthMax += item.passiveHealthMax;
-				itemBonus.energyMax += item.passiveEnergyMax;
-				itemBonus.range += item.passiveRange;
+				itemBonus.damage += item.passive.damage;
+				itemBonus.defence += item.passive.defence;
+				itemBonus.healthMax += item.passive.healthMax;
+				itemBonus.energyMax += item.passive.energyMax;
+				itemBonus.range += item.passive.range;
 
 				if (i >= config.INVENTORY_SIZE) {
-					itemBonus.damage += item.equipDamage;
-					itemBonus.defence += item.equipDefence;
-					itemBonus.healthMax += item.equipHealthMax;
-					itemBonus.energyMax += item.equipEnergyMax;
-					itemBonus.range += item.equipRange;
+					itemBonus.damage += item.equipped.damage;
+					itemBonus.defence += item.equipped.defence;
+					itemBonus.healthMax += item.equipped.healthMax;
+					itemBonus.energyMax += item.equipped.energyMax;
+					itemBonus.range += item.equipped.range;
 				}
 			}
 		}
@@ -98,7 +101,7 @@ export default class Actor extends Entity {
 	}
 
 	calcEffectBonus() {
-		let effectBonus = {
+		const effectBonus = {
 			damage: 0,
 			defence: 0,
 			healthMax: 0,
@@ -111,8 +114,8 @@ export default class Actor extends Entity {
 	}
 	
 	calcBonusStats() {	// Items (equipped and passive) and Effects (spells and potions)
-		let itemBonus = this.calcItemBonus();
-		let effectBonus = this.calcEffectBonus();
+		const itemBonus = this.calcItemBonus();
+		const effectBonus = this.calcEffectBonus();
 
 		this.damageBonus = itemBonus.damage + effectBonus.damage;
 		this.defenceBonus = itemBonus.defence + effectBonus.defence;
@@ -351,7 +354,9 @@ export default class Actor extends Entity {
 
 		this.isAttacking = true;
 		
-		let actorList = game.playerList.concat(game.mapList[this.mapId].bots);
+		const playerList = game.players.filter(player => player.mapId === this.mapId);
+		const botList = game.bots.filter(bot => bot.mapId === this.mapId);
+		const actorList = playerList.concat(botList);
 		let targetList = actorList.filter((actor) => {
 			if (actor === this || actor.isDead) return false;
 			if (this.checkInRange(direction, actor, this.range)) return true;
@@ -386,7 +391,7 @@ export default class Actor extends Entity {
 	}	
 
 	setDead() {
-		let map = game.mapList[this.mapId];
+		let map = game.maps[this.mapId];
 
 		// Inventory Item Drop Chance
 		let dropChance = util.clamp(map.dropChance, 0, 100);
@@ -427,11 +432,11 @@ export default class Actor extends Entity {
 	}
 	
 	getMapItem(mapId, id) {
-		let item = game.mapList[mapId].items[id];
+		let item = game.maps[mapId].items[id];
 		if (!item) return null;
 
 		if (item.stack > 0) {
-			let slot = this.findItemSlot(item.itemClass);
+			let slot = this.findItemSlot(item.itemTemplate);
 			if (slot >= 0) {
 				this.inventory[slot].stack += item.stack;
 				item.remove();
@@ -444,10 +449,10 @@ export default class Actor extends Entity {
 	}
 
 	getItem(data) {
-		if (!data || data.itemClass == null) return null;
+		if (!data || data.itemTemplate == null) return null;
 
 		if (data.stack) {
-			slot = this.findItemSlot(data.itemClass);
+			slot = this.findItemSlot(data.itemTemplate);
 			if (slot >= 0) {
 				this.inventory[slot].stack += data.stack;
 				return null;
@@ -495,11 +500,11 @@ export default class Actor extends Entity {
 		item.remove();
 	}
 	
-	hasItem(itemClass) {
+	hasItem(itemTemplate) {
 		let count = 0;
 		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
 			if (this.inventory[slot]) {
-				if (this.inventory[slot].itemClass === itemClass) {
+				if (this.inventory[slot].itemTemplate === itemTemplate) {
 					count++;
 				}
 			}
@@ -507,11 +512,11 @@ export default class Actor extends Entity {
 		return count;
 	}
 
-	findItemSlot(itemClass) {
+	findItemSlot(itemTemplate) {
 		let slot = null;
 		for (let checkSlot = 0; checkSlot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; checkSlot++) {
 			if (this.inventory[checkSlot]) {
-				if (this.inventory[checkSlot].itemClass === itemClass) {
+				if (this.inventory[checkSlot].itemTemplate === itemTemplate) {
 					slot = checkSlot;
 					break;
 				}
