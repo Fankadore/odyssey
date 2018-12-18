@@ -147,10 +147,10 @@ export default class UIScene extends Scene {
 		this.input.keyboard.on('keyup_CTRL', () => client.emitInput('attack', false));
 		this.input.keyboard.on('keydown_PAGE_UP', () => this.chatbox.scrollUp());
 		this.input.keyboard.on('keydown_PAGE_DOWN', () => this.chatbox.scrollDown());
-		this.input.keyboard.on('keydown_F1', () => client.emitCommand('spawnMapItem', 1, 5, 5, 4));
-		this.input.keyboard.on('keydown_F2', () => client.emitCommand('spawnMapItem', 1, 5, 5, 5));
-		this.input.keyboard.on('keydown_F3', () => client.emitCommand('spawnBot', 1, 5, 5, 0));
-		this.input.keyboard.on('keydown_F4', () => client.emitCommand('spawnBot', 1, 5, 5, 1));
+		this.input.keyboard.on('keydown_F2', () => client.emitCommand('spawnMapItem', 1, 5, 5, 4));
+		this.input.keyboard.on('keydown_F3', () => client.emitCommand('spawnMapItem', 1, 5, 5, 5));
+		this.input.keyboard.on('keydown_F4', () => client.emitCommand('setSprite', 1));
+		this.input.keyboard.on('keydown_F5', () => client.emitCommand('spawnBot', 1, 5, 5, 0));
 		
 		// Create Mouse Inputs
 		this.input.mouse.disableContextMenu();
@@ -230,8 +230,9 @@ export default class UIScene extends Scene {
 		if (this.chatbox) this.chatbox.onUpdate(data.messages);
   }
 	
-	onLoadMap(mapName) {
-		if (this.menu) this.menu.onLoadMap(mapName);
+	onLoadMap(data) {
+		if (this.menu) this.menu.onLoadMap(data.name);
+		// player is on data.isHostile tile = show pk indicator
 	}
 
 	isWithinMapBounds(x, y) {
