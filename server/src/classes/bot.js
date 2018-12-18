@@ -7,39 +7,31 @@ import Actor from './actor.js';
 // A Bot is an Actor with conditional inputs
 
 export default class Bot extends Actor {
-	constructor(data) {
-		if (data.mapId == null || data.x == null || data.y == null || data.botClass == null) {
-			db.log("Bot requires parameters: mapId, x, y, botClass");
-			return;
-		}
-
-		let classData = db.getBotData(data.botClass);
-		if (!data.name) data.name = classData.name;
-		if (data.sprite == null) data.sprite = classData.sprite;
-		if (data.hostile == null) data.hostile = classData.hostile;
-		
-		super(data.mapId, data.x, data.y, data.name, data.sprite);
+	constructor(mapId, x, y, direction, template) {
+		super(mapId, x, y, direction, template.name, template.sprite);
 		this.controller = 'bot';
-		if (data.id == null) data.id = util.firstEmptyIndex(game.mapList[this.mapId].bots);
-		this.id = data.id;
-		this.botClass = data.botClass;
-		this.hostile = data.hostile;
-		this.calcBaseStats();
+		this.damageBase = template.damageBase;
+		this.defenceBase = template.defenceBase;
+		this.healthMaxBase = template.healthMaxBase;
+		this.energyMaxBase = template.energyMaxBase;
+		this.rangeBase = template.rangeBase;
 		this.restore();
-
+		
+		this.hostile = template.hostile;
 		this.target = null;
 		this.setTask('wandering');
 		this.moveTimer = 0;
 
-		game.mapList[this.mapId].bots[this.id] = this;
+		this.gameId = util.firstEmptyIndex(game.bots);
+		game.bots[this.gameId] = this;
 	}
 	
 	getMapItem(mapId, id) {
-		let slot = super.getMapItem(mapId, id);
+		const slot = super.getMapItem(mapId, id);
 		if (slot == null) return;
 		
-		let item = game.mapList[mapId].items[id];
-		item.moveToBot(this.mapId, this.id, slot);
+		const item = game.items[id];
+		item.moveToBot(this.mapId, this.gameId, slot);
 	}
 
 	getItem(data) {
@@ -48,7 +40,7 @@ export default class Bot extends Actor {
 
 		data.owner = 'bot';
 		data.mapId = this.mapId;
-		data.id = this.id;
+		data.gameId = this.gameId;
 		data.slot = slot;
 		new Item(data);
 	}
@@ -93,7 +85,7 @@ export default class Bot extends Actor {
 	
 	getPack() {
 		return {
-			id: this.id,
+			gameId: this.gameId,
 			name: this.name,
 			sprite: this.sprite,
 			direction: this.direction,
@@ -112,7 +104,7 @@ export default class Bot extends Actor {
 	}
 
 	remove() {
-		delete game.mapList[this.mapId].bots[this.id];
+		delete game.maps[this.mapId].bots[this.gameId];
 	}
 	
 	move(direction) {
@@ -132,12 +124,12 @@ export default class Bot extends Actor {
 	}
 	
 	pickUp() {
-		for (let i = 0; i < game.mapList[this.mapId].items.length; i++) {
-			let item = game.mapList[this.mapId].items[i];
+		for (let i = 0; i < game.maps[this.mapId].items.length; i++) {
+			let item = game.maps[this.mapId].items[i];
 			if (item && item.x === this.x && item.y === this.y) {
 				let slot = this.getMapItem(item.mapId, item.id);
 				if (slot != null) {
-					item.moveToBot(this.mapId, this.id, slot);
+					item.moveToBot(this.mapId, this.gameId, slot);
 				}
 				else {
 					// Inventory full
@@ -150,18 +142,7 @@ export default class Bot extends Actor {
 
 	setDead() {
 		super.setDead();
-		delete game.mapData[this.mapId].bots[this.id];
-	}
-
-	calcBaseStats() {
-		if (this.botClass == null) return;
-		
-		let classData = db.getBotData(this.botClass);
-		this.damageBase = classData.damageBase;
-		this.defenceBase = classData.defenceBase;
-		this.healthMaxBase = classData.healthMaxBase;
-		this.energyMaxBase = classData.energyMaxBase;
-		this.rangeBase = classData.rangeBase;
+		delete game.mapData[this.mapId].bots[this.gameId];
 	}
 
 	// Inputs
