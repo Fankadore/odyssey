@@ -428,45 +428,33 @@ export default class Actor extends Entity {
 	
 	// Inventory
 	pickUp() {
-		// See Player and Bot classes
+		const items = game.items.filter(item => {
+			return item.mapId === this.mapId && item.x === this.x && item.y === this.y;
+		});
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			if (!item) continue;
+			
+			if (item.stackable) {
+				const inventory = this.hasItem(item.templateId);
+				if (inventory.length > 0) {
+					inventory[0].stack += item.stack;
+					item.remove();
+					continue;
+				}
+			}
+
+			const slot = this.findFirstEmptySlot();
+			if (slot == null) return false;
+
+			item.moveToInventory(this.playerId, this.botId, slot);
+		}
 	}
 	
-	getMapItem(mapId, id) {
-		let item = game.maps[mapId].items[id];
-		if (!item) return null;
-
-		if (item.stack > 0) {
-			let slot = this.findItemSlot(item.itemTemplate);
-			if (slot >= 0) {
-				this.inventory[slot].stack += item.stack;
-				item.remove();
-				return null;
-			}
-		}
-
-		let slot = this.findFirstEmptySlot();
-		return slot;
-	}
-
-	getItem(data) {
-		if (!data || data.itemTemplate == null) return null;
-
-		if (data.stack) {
-			slot = this.findItemSlot(data.itemTemplate);
-			if (slot >= 0) {
-				this.inventory[slot].stack += data.stack;
-				return null;
-			}
-		}
-
-		return this.findFirstEmptySlot();
-	}
-	
-	dropItem(slot) {
-		let item = this.inventory[slot];
+	dropItem(item) {
 		if (!item) return;
 		
-		if (slot >= config.INVENTORY_SIZE) {
+		if (item.slot >= config.INVENTORY_SIZE) {
 			this.unequipItem(slot);
 			return;
 		}
@@ -500,29 +488,18 @@ export default class Actor extends Entity {
 		item.remove();
 	}
 	
-	hasItem(itemTemplate) {
-		let count = 0;
-		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
-			if (this.inventory[slot]) {
-				if (this.inventory[slot].itemTemplate === itemTemplate) {
-					count++;
-				}
-			}
-		}
-		return count;
+	hasItem(templateId) {
+		const items = game.items.filter(item => {
+			return item.templateId === templateId && (item.playerId && item.playerId === this.playerId) || (item.botId && item.botId === this.botId);
+		});
+		return items.length;
 	}
 
-	findItemSlot(itemTemplate) {
-		let slot = null;
-		for (let checkSlot = 0; checkSlot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; checkSlot++) {
-			if (this.inventory[checkSlot]) {
-				if (this.inventory[checkSlot].itemTemplate === itemTemplate) {
-					slot = checkSlot;
-					break;
-				}
-			}
-		}
-		return slot;
+	findItemSlot(templateId) {
+		const items = game.items.filter(item => {
+			return item.templateId === templateId && (item.playerId && item.playerId === this.playerId) || (item.botId && item.botId === this.botId);
+		});
+		return items[0].slot;
 	}
 	
 	moveItemToSlot(slot, newSlot) {

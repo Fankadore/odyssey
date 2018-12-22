@@ -1,4 +1,3 @@
-import db from '../db.js';
 import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
@@ -124,19 +123,7 @@ export default class Bot extends Actor {
 	}
 	
 	pickUp() {
-		for (let i = 0; i < game.maps[this.mapId].items.length; i++) {
-			let item = game.maps[this.mapId].items[i];
-			if (item && item.x === this.x && item.y === this.y) {
-				let slot = this.getMapItem(item.mapId, item.id);
-				if (slot != null) {
-					item.moveToBot(this.mapId, this.gameId, slot);
-				}
-				else {
-					// Inventory full
-					break;
-				}
-			}
-		}
+		super.pickUp();
 		this.checkBestEquipment();
 	}
 

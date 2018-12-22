@@ -75,13 +75,13 @@ export default class GameScene extends Scene {
   onUpdate(data) {
     // Update Players
     if (data.players) {
-			const addPlayers = data.players.filter((playerData) => {	// filter players on new list but not old
+			const addPlayers = data.players.filter((playerData) => {	// filter for players on new list but not old
 				return (playerData && this.players[playerData.gameId] == null);
 			});
-			const removePlayers = this.players.filter((player) => {	// filter players on old list but not new
+			const removePlayers = this.players.filter((player) => {	// filter for players on old list but not new
 				return (data.players[player.gameId] == null);
 			});
-			const updatePlayers = this.players.filter((player) => {	// filter players on both lists
+			const updatePlayers = this.players.filter((player) => {	// filter for players on both lists
 				return (data.players[player.gameId] != null);
 			});
 
@@ -99,15 +99,15 @@ export default class GameScene extends Scene {
 
 		// Update Bots
 		if (data.bots) {
-			const addBots = data.bots.filter((botData) => {	// filter bots on new list but not old
+			const addBots = data.bots.filter((botData) => {	// filter for bots on new list but not old
 				if (!botData) return false;
 				return (this.bots[botData.gameId] == null);
 			});
-			const removeBots = this.bots.filter((bot) => {	// filter bots on old list but not new
+			const removeBots = this.bots.filter((bot) => {	// filter for bots on old list but not new
 				if (!bot) return false;
 				return (data.bots[bot.gameId] == null);
 			});
-			const updateBots = this.bots.filter((bot) => {	// filter bots on both lists
+			const updateBots = this.bots.filter((bot) => {	// filter for bots on both lists
 				if (!bot) return false;
 				return (data.bots[bot.gameId] != null);
 			});
@@ -126,15 +126,15 @@ export default class GameScene extends Scene {
 
 		// Update Map Items
 		if (data.items) {
-			const addItems = data.items.filter((itemData) => {	// filter item on new list but not old
+			const addItems = data.items.filter((itemData) => {	// filter for item on new list but not old
 				if (!itemData) return false;
 				return (this.items[itemData.gameId] == null);
 			});
-			const removeItems = this.items.filter((item) => {	// filter items on old list but not new
+			const removeItems = this.items.filter((item) => {	// filter for items on old list but not new
 				if (!item) return false;
 				return (data.items[item.gameId] == null);
 			});
-			const updateItems = this.items.filter((item) => {	// filter items on both lists
+			const updateItems = this.items.filter((item) => {	// filter for items on both lists
 				if (!item) return false;
 				return (data.items[item.gameId] != null);
 			});
@@ -153,15 +153,15 @@ export default class GameScene extends Scene {
 
 		// Update Text
 		if (data.texts) {
-			const addTexts = data.texts.filter((textData) => {	// filter text on new list but not old
+			const addTexts = data.texts.filter((textData) => {	// filter for text on new list but not old
 				if (!textData) return false;
 				return (this.texts[textData.gameId] == null);
 			});
-			const removeTexts = this.texts.filter((text) => {	// filter texts on old list but not new
+			const removeTexts = this.texts.filter((text) => {	// filter for texts on old list but not new
 				if (!text) return false;
 				return (data.texts[text.gameId] == null);
 			});
-			const updateTexts = this.texts.filter((text) => {	// filter texts on both lists
+			const updateTexts = this.texts.filter((text) => {	// filter for texts on both lists
 				if (!text) return false;
 				return (data.texts[text.gameId] != null);
 			});
@@ -180,15 +180,15 @@ export default class GameScene extends Scene {
 
 		// Update Effects
 		if (data.effects) {
-			const addEffects = data.effects.filter((effectData) => {	// filter effect on new list but not old
+			const addEffects = data.effects.filter((effectData) => {	// filter for effect on new list but not old
 				if (!effectData) return false;
 				return (this.effects[effectData.gameId] == null);
 			});
-			const removeEffects = this.effects.filter((effect) => {	// filter effects on old list but not new
+			const removeEffects = this.effects.filter((effect) => {	// filter for effects on old list but not new
 				if (!effect) return false;
 				return (data.effects[effect.gameId] == null);
 			});
-			const updateEffects = this.effects.filter((effect) => {	// filter effects on both lists
+			const updateEffects = this.effects.filter((effect) => {	// filter for effects on both lists
 				if (!effect) return false;
 				return (data.effects[effect.gameId] != null);
 			});

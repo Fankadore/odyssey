@@ -124,23 +124,7 @@ export default class Player extends Actor {
 	}
 
 	pickUp() {
-		const items = game.items.filter(item => {
-			return item.mapId === this.mapId;
-		});
-		for (let i = 0; i < items.length; i++) {
-			let item = items[i];
-			if (item && item.x === this.x && item.y === this.y) {
-				let slot = this.getMapItem(item.mapId, item.id);
-				if (slot != null) {
-					item.moveToPlayer(this.gameId, slot);
-				}
-				else {
-					// Inventory full
-					game.sendGameInfoPlayer(this.gameId, "Your inventory is full.");
-					break;
-				}
-			}
-		}
+		if (super.pickUp() === false) game.sendGameInfoPlayer(this.gameId, "Your inventory is full.");
 	}
 
 	setDead(killerController, killerName) {
