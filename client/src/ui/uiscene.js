@@ -149,8 +149,8 @@ export default class UIScene extends Scene {
 		this.input.keyboard.on('keydown_PAGE_DOWN', () => this.chatbox.scrollDown());
 		this.input.keyboard.on('keydown_F2', () => client.emitCommand('spawnMapItem', 1, 5, 5, 4));
 		this.input.keyboard.on('keydown_F3', () => client.emitCommand('spawnMapItem', 1, 5, 5, 5));
-		this.input.keyboard.on('keydown_F4', () => client.emitCommand('setSprite', 1));
-		this.input.keyboard.on('keydown_F5', () => client.emitCommand('spawnBot', 1, 5, 5, 0));
+		this.input.keyboard.on('keydown_F4', () => client.emitCommand('spawnBot', 1, 5, 5, 0));
+		this.input.keyboard.on('keydown_F5', () => client.emitCommand('setSprite', 1));
 		
 		// Create Mouse Inputs
 		this.input.mouse.disableContextMenu();
