@@ -7,6 +7,8 @@ import Account from './models/account.js';
 import Player from './models/player.js';
 import PlayerTemplate from './models/playerTemplate.js';
 import BotTemplate from './models/botTemplate.js';
+import ItemType from './models/itemType.js';
+import ItemTemplate from './models/itemTemplate.js';
 import Map from './models/map.js';
 
 const fsp = fs.promises;
@@ -278,7 +280,7 @@ class Database {
 	}
 	async getPlayerTemplate(templateId) {
 		return await PlayerTemplate.findById(templateId)
-		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase healthPerLevel, energyPerLevel')
+		.select('name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase healthPerLevel, energyPerLevel')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
@@ -315,9 +317,75 @@ class Database {
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
-	async getAllBotTemplates(templateId) {
+	async getAllBotTemplates() {
 		return await BotTemplate.find({})
-		.select('name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase hostile')
+		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase hostile')
+		.exec()
+		.then(templates => templates)
+		.catch(err => console.log(err));
+	}
+
+	async addItemType(data) {
+		const type = new ItemType({
+			_id: new mongoose.Types.ObjectId,
+			name: data.name,
+			stackable: data.stackable,
+			equippedSlot: data.equippedSlot
+		});
+
+		return await type.save()
+		.then(result => true)
+		.catch(err => console.log(err));
+	}
+	async getItemType(typeId) {
+		return await ItemType.findById(typeId)
+		.select('name stackable equippedSlot')
+		.exec()
+		.then(type => type)
+		.catch(err => console.log(err));
+	}
+	async getAllItemTypes() {
+		return await ItemType.find({})
+		.select('_id name stackable equippedSlot')
+		.exec()
+		.then(types => types)
+		.catch(err => console.log(err));
+	}
+
+	async addItemTemplate(data) {
+		const template = new ItemTemplate({
+			_id: new mongoose.Types.ObjectId,
+			name: data.name,
+			sprite: data.sprite,
+			type: data.typeId,
+			passiveDamage: data.passiveDamage,
+			passiveDefence: data.passiveDefence,
+			passiveHealthMax: data.passiveHealthMax,
+			passiveEnergyMax: data.passiveEnergyMax,
+			passiveRange: data.passiveRange,
+			equippedDamage: data.equippedDamage,
+			equippedDefence: data.equippedDefence,
+			equippedHealthMax: data.equippedHealthMax,
+			equippedEnergyMax: data.equippedEnergyMax,
+			equippedRange: data.equippedRange
+		});
+
+		return await template.save()
+		.then(result => true)
+		.catch(err => console.log(err));
+	}
+	async getItemTemplate(templateId) {
+		return await ItemTemplate.findById(templateId)
+		.select('name sprite type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.populate('type')
+		.exec()
+		.then(template => template)
+		.catch(err => console.log(err));
+	}
+	async getAllItemTemplates() {
+		return await ItemTemplate.find({})
+		.select('_id name sprite type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.populate('type')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));

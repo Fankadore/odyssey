@@ -5,6 +5,7 @@ const itemSchema = new mongoose.Schema({
   template: {type: mongoose.SchemaTypes.ObjectId, ref: 'ItemTemplate', required: true},
   stack: {type: Number, default: 0},
   playerId: {type: Number, default: null},
+  botId: {type: Number, default: null},
   slot: {type: Number, default: null},
   mapId: {type: Number, default: null},
   x: {type: Number, default: null},

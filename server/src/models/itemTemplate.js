@@ -5,11 +5,16 @@ const itemTemplateSchema = new mongoose.Schema({
 	name: {type: String, required: true},
 	sprite: {type: Number, default: 1},
 	type: {type: mongoose.SchemaTypes.ObjectId, ref: 'ItemType', required: true},
-	damageBonus: {type: Number, default: 0},
-	defenceBonus: {type: Number, default: 0},
-	healthMaxBonus: {type: Number, default: 0},
-	energyMaxBonus: {type: Number, default: 0},
-	rangeBonus: {type: Number, default: 0}
+	passiveDamage: {type: Number, default: 0},
+	passiveDefence: {type: Number, default: 0},
+	passiveHealthMax: {type: Number, default: 0},
+	passiveEnergyMax: {type: Number, default: 0},
+	passiveRange: {type: Number, default: 0},
+	equippedDamage: {type: Number, default: 0},
+	equippedDefence: {type: Number, default: 0},
+	equippedHealthMax: {type: Number, default: 0},
+	equippedEnergyMax: {type: Number, default: 0},
+	equippedRange: {type: Number, default: 0}
 });
 
 export default mongoose.model('ItemTemplate', itemTemplateSchema);

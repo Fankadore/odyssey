@@ -1,4 +1,3 @@
-import db from '../db.js';
 import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
@@ -19,6 +18,7 @@ export default class Item extends Entity {
 		this.botId = position.botId;
 		this.slot = position.slot;
 		
+		this.templateId = template._id;
 		this.name = template.name;
 		this.description = template.description;
 		this.reusable = template.reusable;
@@ -28,18 +28,18 @@ export default class Item extends Entity {
 		this.equippableSlot = template.type.equippableSlot;
 		
 		this.passive = {
-			damage: template.passive.damage,
-			defence: template.passive.defence,
-			healthMax: template.passive.healthMax,
-			energyMax: template.passive.energyMax,
-			range: template.passive.range
+			damage: template.passiveDamage,
+			defence: template.passiveDefence,
+			healthMax: template.passiveHealthMax,
+			energyMax: template.passiveEnergyMax,
+			range: template.passiveRange
 		};
 		this.equipped = {
-			damage: template.equipped.damage,
-			defence: template.equipped.defence,
-			healthMax: template.equipped.healthMax,
-			energyMax: template.equipped.energyMax,
-			range: template.equipped.range
+			damage: template.equippedDamage,
+			defence: template.equippedDefence,
+			healthMax: template.equippedHealthMax,
+			energyMax: template.equippedEnergyMax,
+			range: template.equippedRange
 		};
 		
 		if (this.stackable) {
@@ -102,72 +102,30 @@ export default class Item extends Entity {
 	}
 	
 	remove() {
-		if (this.owner === 'player') {
-			delete game.players[this.id].inventory[this.slot];
-		}
-		else if (this.owner === 'map') {
-			delete game.maps[this.mapId].items[this.id];
-		}
-		else if (this.owner === 'bot') {
-			delete game.maps[this.mapId].bots[this.id].inventory[this.slot];
-		}
-	}
-	
-	isEquipment() {
-		const itemTypes = ['weapon', 'shield', 'armour', 'helmet', 'ring'];
-		return (itemTypes.includes(this.type));
+		delete game.items[this.gameId];
 	}
 
-	canEquip(slot) {
-		if (slot === config.INVENTORY_SIZE) {
-			if (this.type === 'weapon') return true;
-		}
-		else if (slot === config.INVENTORY_SIZE + 1) {
-			if (this.type === 'shield') return true;
-		}
-		else if (slot === config.INVENTORY_SIZE + 2) {
-			if (this.type === 'armour') return true;
-		}
-		else if (slot === config.INVENTORY_SIZE + 3) {
-			if (this.type === 'helmet') return true;
-		}
-		else if (slot === config.INVENTORY_SIZE + 4) {
-			if (this.type === 'ring') return true;
-		}
-
-		return false;
-	}
-
-	moveToPlayer(id, slot) {
-		if (id == null || slot == null) return;
-
-		this.remove();
-		this.owner = 'player';
-		this.id = id;
+	moveToInventory(playerId, botId, slot) {
+		this.playerId = playerId;
+		this.botId = botId;
 		this.slot = slot;
-		game.players[this.id].inventory[this.slot] = this;
+		this.mapId = null;
+		this.x = null;
+		this.y = null;
+		this.z = null;
 	}
 
 	moveToMap(mapId, x, y) {
-		if (mapId == null || x == null || y == null) return;
-
-		this.remove();
-		this.owner = 'map';
 		this.mapId = mapId;
-		this.id = util.firstEmptyIndex(game.maps[this.mapId].items);
 		this.x = x;
 		this.y = y;
-		game.maps[this.mapId].items[this.id] = this;
+		this.z = this.getZPosition(mapId, x, y);
+		this.playerId = null;
+		this.botId = null;
+		this.slot = null;
 	}
-
-	moveToBot(mapId, id, slot) {
-		if (mapId == null || id == null || slot == null) return;
-
-		this.remove();
-		this.owner = 'bot';
-		this.mapId = mapId;
-		this.id = id;
-		this.slot = slot;
-		game.maps[this.mapId].bots[this.id].inventory[this.slot] = this;
+	
+	getZPosition(mapId, x, y) {
+		return -10;
 	}
 }

@@ -221,7 +221,7 @@ class Server {
 			break;
 			case 'spawnBot':
 				if (player.adminAccess >= 2) {
-					game.spawnBot(data.args[0], data.args[1], data.args[2], data.args[3]);
+					game.spawnBot(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]);
 				}
 				else {
 					game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);

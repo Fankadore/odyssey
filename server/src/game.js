@@ -22,18 +22,11 @@ class Game {
 		this.playerTemplates = {};
 		this.botTemplates = {};
 		this.itemTemplates = {};
-		this.itemTypes = {};
 
-		this.experienceToLevel = [];
-		let exp = 10
-		for (let i = 0; i < config.MAX_LEVEL; i++) {
-			exp = (exp + (exp % 2)) * 1.5;
-			this.experienceToLevel[i] = exp;
-		}
 		this.loadMaps();
 		this.loadPlayerTemplates();
 		this.loadBotTemplates();
-		// this.loadItemTemplates();
+		this.loadItemTemplates();
 	}
 
 	loadMaps() {
@@ -157,6 +150,13 @@ class Game {
 			db.savePlayer(playerData);
 		}
 	}
+	getExpToLevel(level) {
+		let exp = 10;
+		for (let i = 1; i < config.MAX_LEVEL; i++) {
+			if (i === level) return exp;
+			exp = (exp + (exp % 2)) * 1.5;
+		}
+	}
 
 	// Game Info
 	sendGameInfoGlobal(message) {
@@ -205,8 +205,8 @@ class Game {
 		return true;
 	}
 
-	spawnBot(mapId, x, y, templateId) {
-		const direction = 'down';
+	spawnBot(mapId, x, y, templateId, direction = 'down') {
+		templateId = '5c1becde28d05b077cbaa385';
 		const template = this.botTemplates[templateId];
 		if (template) {
 			new Bot(mapId, x, y, direction, template);
@@ -216,10 +216,11 @@ class Game {
 		}
 	}
 	
-	async spawnMapItem(mapId, x, y, templateId, stack = 0) {
-		let template = await db.getItemTemplate(templateId);
+	spawnMapItem(mapId, x, y, templateId, stack = 1) {
+		templateId = "5c1bfeb7d8fb6012cc966083";
+		let template = this.itemTemplates[templateId];
 		if (template) {
-			new Item(mapId, x, y, template, stack);
+			new Item({mapId, x, y}, template, stack);
 		}
 		else {
 			console.log("Item Template does not exist with that Id");
