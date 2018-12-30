@@ -2,6 +2,7 @@ import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
 import Actor from './actor.js';
+import itemTemplate from '../models/itemTemplate.js';
 
 // A Player is an immortal Actor which takes input from a client
 
@@ -10,7 +11,6 @@ export default class Player extends Actor {
 		if (data.sprite == null) data.sprite = data.template.sprite;
 
 		super(data.mapId, data.x, data.y, data.direction, data.name, data.sprite);
-		this.controller = 'player';
 		this.id = data._id;
 		this.socketId = socketId;
 		this.accountId = data.account;
@@ -123,28 +123,47 @@ export default class Player extends Actor {
 		}
 	}
 
+	inputData(data) {
+		if (this.isDead) {
+			game.sendGameInfoPlayer(this.gameId, "You are dead.");
+			return;
+		}
+
+		if (game.godCommands[data.input]) {
+			if (this.adminAccess > 0) {
+				game.godCommands[data.input](data, this);
+			}
+			else {
+				game.sendGameInfoPlayer(this.gameId, "You don't have access to that command.");
+			}
+		}
+		else {
+			if (game.commands[data.input]) {
+				game.commands[data.input](data, this);
+			}
+			else {
+				game.sendGameInfoPlayer(this.gameId, "Invalid command.");
+			}
+		}
+	}
+
 	pickUp() {
 		if (super.pickUp() === false) game.sendGameInfoPlayer(this.gameId, "Your inventory is full.");
 	}
+	
+	getInventory() {
+		const inventory = game.items.filter(item => {
+			return item.playerId === this.playerId;
+		});
+		return inventory;
+	}
 
-	setDead(killerController, killerName) {
+	setDead() {
 		super.setDead();
 		this.isDead = true;
 		this.health = 0;
 		this.energy = 0;
 		this.deaths++;
-		
-		if (killerController && killerName) {
-			if (killerController === 'player') {
-				game.sendGameInfoGlobal(killerName + " has murdered " + this.name + " in cold blood!");
-			}
-			else {
-				game.sendGameInfoGlobal(this.name + " has been killed by " + killerName + "!");
-			}
-		}
-		else {
-			game.sendGameInfoGlobal(this.name + " has died!");
-		}
 	}
 
 	respawn() {
