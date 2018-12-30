@@ -8,7 +8,6 @@ import Actor from './actor.js';
 export default class Bot extends Actor {
 	constructor(mapId, x, y, direction, template) {
 		super(mapId, x, y, direction, template.name, template.sprite);
-		this.controller = 'bot';
 		this.damageBase = template.damageBase;
 		this.defenceBase = template.defenceBase;
 		this.healthMaxBase = template.healthMaxBase;
@@ -23,25 +22,6 @@ export default class Bot extends Actor {
 
 		this.gameId = util.firstEmptyIndex(game.bots);
 		game.bots[this.gameId] = this;
-	}
-	
-	getMapItem(mapId, id) {
-		const slot = super.getMapItem(mapId, id);
-		if (slot == null) return;
-		
-		const item = game.items[id];
-		item.moveToBot(this.mapId, this.gameId, slot);
-	}
-
-	getItem(data) {
-		let slot = super.getItem(data);
-		if (slot == null) return;
-
-		data.owner = 'bot';
-		data.mapId = this.mapId;
-		data.gameId = this.gameId;
-		data.slot = slot;
-		new Item(data);
 	}
 
 	update(delta) {
@@ -103,23 +83,21 @@ export default class Bot extends Actor {
 	}
 
 	remove() {
-		delete game.maps[this.mapId].bots[this.gameId];
+		delete game.bots[this.gameId];
 	}
 	
 	move(direction) {
 		let moveTime = 24;
-		if (this.isRunning) {
-			moveTime = 17;
-		}
+		if (this.isRunning) moveTime = 17;
 		if (this.moveTimer > moveTime && this.attackTimer === 0) {
 			super.move(direction);
 			this.moveTimer = 0;
 		}
 	}
 	
-	takeDamage(damage, source) {
-		if (source instanceof Actor) this.setTask('attacking', source);
-		super.takeDamage(damage, source);
+	takeDamage(damage, attacker) {
+		if (attacker instanceof Actor) this.setTask('attacking', attacker);
+		super.takeDamage(damage, attacker);
 	}
 	
 	pickUp() {
@@ -127,9 +105,16 @@ export default class Bot extends Actor {
 		this.checkBestEquipment();
 	}
 
+	getInventory() {
+		const inventory = game.items.filter(item => {
+			return item.botId === this.botId;
+		});
+		return inventory;
+	}
+
 	setDead() {
 		super.setDead();
-		delete game.mapData[this.mapId].bots[this.gameId];
+		this.remove();
 	}
 
 	// Inputs
@@ -169,69 +154,40 @@ export default class Bot extends Actor {
 	}
 	
 	checkBestEquipment() {
-		for (let slot = 0; slot < config.INVENTORY_SIZE; slot++) {
-			let item = this.inventory[slot];
-			if (!item) {
-				continue;
+		const inventory = this.getInventory();
+		const equipment = [];
+		for (let slot = 0; slot < config.EQUIPMENT_SIZE; slot++) {
+			equipment.push([]);
+		}
+
+		for (let i = 0; i < inventory.length; i++) {
+			const item = inventory[i];
+			for (let slot = 0; slot < config.EQUIPMENT_SIZE; slot++) {
+				if (item.equippedSlot === slot) {
+					equipment[slot].push(item);
+				}
 			}
-			
-			switch (item.type) {
-				case 'weapon':
-					if (this.inventory[config.INVENTORY_SIZE]) {
-						if (item.damage > this.inventory[config.INVENTORY_SIZE].damage) {
-							this.equipItem(slot);
-							continue;
-						}
-					}
-					else {
-						this.equipItem(slot);
-					}
-				break;
-				case 'shield':
-					if (this.inventory[config.INVENTORY_SIZE + 1]) {
-						if (item.defence > this.inventory[config.INVENTORY_SIZE + 1].defence) {
-							this.equipItem(slot);
-							continue;
-						}
-					}
-					else {
-						this.equipItem(slot);
-					}
-				break;
-				case 'armour':
-					if (this.inventory[config.INVENTORY_SIZE + 2]) {
-						if (item.defence > this.inventory[config.INVENTORY_SIZE + 2].defence) {
-							this.equipItem(slot);
-							continue;
-						}
-					}
-					else {
-						this.equipItem(slot);
-					}
-				break;
-				case 'helmet':
-					if (this.inventory[config.INVENTORY_SIZE + 3]) {
-						if (item.defence > this.inventory[config.INVENTORY_SIZE + 3].defence) {
-							this.equipItem(slot);
-							continue;
-						}
-					}
-					else {
-						this.equipItem(slot);
-					}
-				break;
-				case 'ring':
-					if (this.inventory[config.INVENTORY_SIZE + 4]) {
-						if (item.damage > this.inventory[config.INVENTORY_SIZE + 4].damage) {
-							this.equipItem(slot);
-							continue;
-						}
-					}
-					else {
-						this.equipItem(slot);
-					}
-				break;
-			}
+		}
+
+		if (equipment[0].length > 0) {
+			equipment[0].sort((a, b) => b.equipped.damage - a.equipped.damage);
+			this.equipItem(equipment[0][0]);
+		}
+		if (equipment[1].length > 0) {
+			equipment[1].sort((a, b) => b.equipped.defence - a.equipped.defence);
+			this.equipItem(equipment[1][0]);
+		}
+		if (equipment[2].length > 0) {
+			equipment[2].sort((a, b) => b.equipped.defence - a.equipped.defence);
+			this.equipItem(equipment[2][0]);
+		}
+		if (equipment[3].length > 0) {
+			equipment[3].sort((a, b) => b.equipped.defence - a.equipped.defence);
+			this.equipItem(equipment[3][0]);
+		}
+		if (equipment[4].length > 0) {
+			equipment[4].sort((a, b) => b.equipped.defence - a.equipped.defence);
+			this.equipItem(equipment[4][0]);
 		}
 	}
 }
