@@ -149,7 +149,15 @@ class Server {
 		if (!player) return;
 	
 		socket.playerId = player.gameId;
-		socket.on('input', (data) => this.onInput(player, data));
+		socket.on('input', (data) => player.inputData(data));
+		socket.on('uploadMap', (data) => {
+			if (player.adminAccess >= 2) {
+				this.onUploadMap(data);
+			}
+			else {
+				game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
+			}
+		});
 		this.sendMapData(socket, player.mapId);
 	}
 	
@@ -159,100 +167,19 @@ class Server {
 			socket.playerId = null;
 		}
 	}
-
-	async onInput(player, data) {
-		switch (data.input) {
-			case null:
-			case 'move': player.input.direction = data.direction;
-			break;
-			case 'run': player.input.run = data.state;
-			break;
-			case 'pickup':
-				if (!player.input.pickup && data.state) {
-					player.pickUp();
-				}
-				player.input.pickup = data.state;
-			break;
-			case 'attack':
-			player.input.attack = data.state;
-				if (!player.isDead) player.attack(1, player.direction);
-			break;
-			case 'doubleClickItem':
-				if (player.inventory[data.slot]) {
-					if (!player.isDead) player.useItem(data.slot);
-				}
-			break;
-			case 'rightClickItem':
-				if (player.inventory[data.slot]) {
-					if (!player.isDead) player.dropItem(data.slot);
-				}
-			break;
-			case 'dragStopGame':
-				if (player.inventory[data.slot]) {
-					if (!player.isDead) player.dropItem(data.slot);
-				}
-			break;
-			case 'dragStopInventory':
-			case 'dragStopEquipment':
-				if (player.inventory[data.slot]) {
-					if (!player.isDead) player.moveItemToSlot(data.slot, data.newSlot);
-				}
-			break;
-			case 'serverChat': game.sendMessageGlobal(player.gameId, `${player.name} yells, "${data.message}"`);
-			break;
-			case 'mapChat': game.sendMessageMap(player.gameId, player.mapId, `${player.name} says, "${data.message}"`);
-			break;
-			case 'playerChat':
-				let target = game.players[data.targetId];
-				if (target) {
-					game.sendMessagePlayer(player.gameId, target.gameId, `${player.name} whispers, "${data.message}"`);
-					game.sendMessagePlayer(player.gameId, player.gameId, `You whisper to ${target.name}, "${data.message}"`);
-				}
-			break;
-
-			// God Inputs
-			case 'spawnMapItem':
-				if (player.adminAccess >= 2) {
-					game.spawnMapItem(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]);
-				}
-				else {
-					game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
-				}
-			break;
-			case 'spawnBot':
-				if (player.adminAccess >= 2) {
-					game.spawnBot(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]);
-				}
-				else {
-					game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
-				}
-			case 'setSprite':
-				if (player.adminAccess >= 2) {
-					player.sprite = data.args[0];
-				}
-				else {
-					game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
-				}
-			break;
-			case 'uploadMap':
-				if (player.adminAccess < 2) {
-					game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
-					return;
-				}
-
-				let success = await db.saveMap(data);
-				if (!success) {
-					console.log("Failed to upload map.");
-					return;
-				}
-
-				game.players.forEach((player) => {
-					if (player.mapId === data.mapId) {
-						this.sendMapData(this.socketList[player.socketId], player.mapId);
-					}
-				});
-			break;
+	
+	async onUploadMap(data) {
+		let success = await db.saveMap(data);
+		if (!success) {
+			console.log("Failed to upload map.");
+			return;
 		}
+
+		game.players.forEach((player) => {
+			if (player.mapId === data.mapId) {
+				this.sendMapData(this.socketList[player.socketId], player.mapId);
+			}
+		});
 	}
 
 	// Send data to clients

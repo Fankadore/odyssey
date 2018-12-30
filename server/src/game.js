@@ -27,6 +27,7 @@ class Game {
 		this.loadPlayerTemplates();
 		this.loadBotTemplates();
 		this.loadItemTemplates();
+		this.loadCommands();
 	}
 
 	loadMaps() {
@@ -80,8 +81,43 @@ class Game {
 		}).catch(err => console.log(err));
 	}
 
+	loadCommands() {
+		this.commands = {
+			move: (data, player) => player.input.direction = data.direction,
+			run: (data, player) => player.input.run = data.state,
+			pickup: (data, player) => {
+				if (!player.input.pickup && data.state) player.pickUp();
+				player.input.pickup = data.state;
+			},
+			attack: (data, player) => {
+				player.input.attack = data.state;
+				player.attack(1, player.direction);
+			},
+			doubleClickItem: (data, player) => player.useItem(data.slot),
+			rightClickItem: (data, player) => player.dropItem(data.slot),
+			dragStopGame: (data, player) => player.dropItem(data.slot),
+			dragStopInventory: (data, player) => player.moveItemToSlot(data.slot, data.newSlot),
+			dragStopEquipment: (data, player) => player.moveItemToSlot(data.slot, data.newSlot),
+			serverChat: (data, player) => game.sendMessageGlobal(player.gameId, `${player.name} yells, "${data.message}"`),
+			mapChat: (data, player) => game.sendMessageMap(player.gameId, player.mapId, `${player.name} says, "${data.message}"`),
+			playerChat: (data, player) => {
+				const target = game.players[data.targetId];
+				if (target) {
+					game.sendMessagePlayer(player.gameId, target.gameId, `${player.name} whispers, "${data.message}"`);
+					game.sendMessagePlayer(player.gameId, player.gameId, `You whisper to ${target.name}, "${data.message}"`);
+				}
+			}
+		};
+		
+		this.godCommands = {
+			spawnMapItem: (data) => this.spawnMapItem(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]),
+			spawnBot: (data) => this.spawnBot(data.args[0], data.args[1], data.args[2], data.args[3], data.args[4]),
+			setSprite: (data, player) => player.sprite = data.args[0]
+		};
+	}
+
 	update(delta) {
-		let pack = {
+		const pack = {
 			players: [],
 			bots: [],
 			items: [],
@@ -93,35 +129,24 @@ class Game {
 
 		for (let i = 0; i < this.players.length; i++) {
 			const player = this.players[i];
-			if (player != null) {
-				pack.players[player.gameId] = player.update(delta);
-			}
+			if (player != null) pack.players[player.gameId] = player.update(delta);
 		}
 		for (let i = 0; i < this.bots.length; i++) {
 			const bot = this.bots[i];
-			if (bot != null) {
-				pack.bots[bot.gameId] = bot.update(delta);
-			}
+			if (bot != null) pack.bots[bot.gameId] = bot.update(delta);
 		}
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
-			if (item != null) {
-				pack.items[item.id] = item.update(delta);
-			}
+			if (item != null) pack.items[item.gameId] = item.update(delta);
 		}
 		for (let i = 0; i < this.effects.length; i++) {
 			const effect = this.effects[i];
-			if (effect != null) {
-				pack.effects[effect.id] = effect.update(delta);
-			}
+			if (effect != null) pack.effects[effect.id] = effect.update(delta);
 		}
 		for (let i = 0; i < this.texts.length; i++) {
 			const text = this.texts[i];
-			if (text != null) {
-				pack.texts[text.id] = text.update(delta);
-			}
+			if (text != null) pack.texts[text.gameId] = text.update(delta);
 		}
-
 		return pack;
 	}
 
@@ -217,7 +242,6 @@ class Game {
 	}
 	
 	spawnMapItem(mapId, x, y, templateId, stack = 1) {
-		templateId = "5c1bfeb7d8fb6012cc966083";
 		let template = this.itemTemplates[templateId];
 		if (template) {
 			new Item({mapId, x, y}, template, stack);
