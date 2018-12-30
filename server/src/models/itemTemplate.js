@@ -4,6 +4,7 @@ const itemTemplateSchema = new mongoose.Schema({
 	_id: mongoose.SchemaTypes.ObjectId,
 	name: {type: String, required: true},
 	sprite: {type: Number, default: 1},
+	reusable: {type: Boolean, default: true},
 	type: {type: mongoose.SchemaTypes.ObjectId, ref: 'ItemType', required: true},
 	passiveDamage: {type: Number, default: 0},
 	passiveDefence: {type: Number, default: 0},
