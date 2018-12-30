@@ -16,8 +16,8 @@ export default class Text {
 		this.displayTime = displayTime;
 		this.timer = 0;
 
-		this.id = util.firstEmptyIndex(game.maps[this.mapId].texts);
-		game.maps[this.mapId].texts[this.id] = this;
+		this.gameId = util.firstEmptyIndex(game.texts);
+		game.texts[this.gameId] = this;
 	}
 	
 	update(delta) {
@@ -52,7 +52,7 @@ export default class Text {
 	
 	getPack() {
 		return {
-			id: this.id,
+			gameId: this.gameId,
 			mapId: this.mapId,
 			x: this.x,
 			y: this.y,
@@ -64,6 +64,6 @@ export default class Text {
 	}
 
 	remove() {
-		delete game.maps[this.mapId].texts[this.id];
+		delete game.texts[this.gameId];
 	}
 }

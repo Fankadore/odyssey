@@ -14,8 +14,8 @@ export default class Effect extends Entity {
 		this.speed = speed;
 		this.timer = 0;
 		
-		this.id = util.firstEmptyIndex(game.maps[this.mapId].effects);
-		game.maps[this.mapId].effects[this.id] = this;
+		this.gameId = util.firstEmptyIndex(game.effects);
+		game.effects[this.gameId] = this;
 	}
 	
 	update(delta) {
@@ -45,7 +45,7 @@ export default class Effect extends Entity {
 	
 	getPack() {
 		return {
-			id: this.id,
+			gameId: this.gameId,
 			mapId: this.mapId,
 			x: this.x,
 			y: this.y,
@@ -55,6 +55,6 @@ export default class Effect extends Entity {
 	}
 	
 	remove() {
-		delete game.maps[this.mapId].effects[this.id];
+		delete game.effects[this.gameId];
 	}	
 }
