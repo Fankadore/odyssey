@@ -357,6 +357,7 @@ class Database {
 			_id: new mongoose.Types.ObjectId,
 			name: data.name,
 			sprite: data.sprite,
+			reusable: data.reusable,
 			type: data.typeId,
 			passiveDamage: data.passiveDamage,
 			passiveDefence: data.passiveDefence,
@@ -376,7 +377,7 @@ class Database {
 	}
 	async getItemTemplate(templateId) {
 		return await ItemTemplate.findById(templateId)
-		.select('name sprite type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.select('name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
 		.populate('type')
 		.exec()
 		.then(template => template)
@@ -384,7 +385,7 @@ class Database {
 	}
 	async getAllItemTemplates() {
 		return await ItemTemplate.find({})
-		.select('_id name sprite type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.select('_id name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
 		.populate('type')
 		.exec()
 		.then(templates => templates)
