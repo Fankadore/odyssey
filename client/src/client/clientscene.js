@@ -118,7 +118,7 @@ export default class ClientScene extends Scene {
 	emitCommand(command, ...args) {
 		this.socket.emit('input', {
 			input: command,
-			args: args
+			args
 		});
 	}
 }
