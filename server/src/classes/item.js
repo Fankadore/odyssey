@@ -1,5 +1,4 @@
 import game from '../game.js';
-import config from '../config.js';
 import util from '../util.js';
 import Entity from './entity.js';
 
@@ -22,10 +21,10 @@ export default class Item extends Entity {
 		this.name = template.name;
 		this.description = template.description;
 		this.reusable = template.reusable;
-		
+
 		this.type = template.type.name;
 		this.stackable = template.type.stackable;
-		this.equippableSlot = template.type.equippableSlot;
+		this.equippedSlot = template.type.equippedSlot;
 		
 		this.passive = {
 			damage: template.passiveDamage,
@@ -50,29 +49,8 @@ export default class Item extends Entity {
 			this.stack = 0;
 		}
 
-		this.id = util.firstEmptyIndex(game.items);
-		game.items[this.id] = this;
-	}
-	
-	get damage() {
-		const damageTotal = this.passiveDamage + this.equipDamage;
-		return (damageTotal < 0) ? 0 : damageTotal;
-	}
-	get defence() {
-		const defenceTotal = this.passiveDefence + this.equipDefence;
-		return (defenceTotal < 0) ? 0 : defenceTotal;
-	}
-	get healthMax() {
-		const healthMaxTotal = this.passiveHealthMax + this.equipHealthMax;
-		return (healthMaxTotal < 0) ? 0 : healthMaxTotal;
-	}
-	get energyMax() {
-		const energyMaxTotal = this.passiveEnergyMax + this.equipEnergyMax;
-		return (energyMaxTotal < 0) ? 0 : energyMaxTotal;
-	}
-	get range() {
-		const rangeTotal = this.passiveRange + this.equipRange;
-		return (rangeTotal < 0) ? 0 : rangeTotal;
+		this.gameId = util.firstEmptyIndex(game.items);
+		game.items[this.gameId] = this;
 	}
 
 	update(delta) {
@@ -81,7 +59,7 @@ export default class Item extends Entity {
 
 	getPack() {
 		return {
-			id: this.id,
+			gameId: this.gameId,
 			playerId: this.playerId,
 			botId: this.botId,
 			slot: this.slot,
@@ -103,6 +81,15 @@ export default class Item extends Entity {
 	
 	remove() {
 		delete game.items[this.gameId];
+	}
+
+	removeOne() {
+		if (this.stack > 1) {
+			this.stack--;
+		}
+		else {
+			this.remove();
+		}
 	}
 
 	moveToInventory(playerId, botId, slot) {
@@ -127,5 +114,14 @@ export default class Item extends Entity {
 	
 	getZPosition(mapId, x, y) {
 		return -10;
+	}
+
+	isEquipment() {
+		if (this.equippedSlot >= 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
