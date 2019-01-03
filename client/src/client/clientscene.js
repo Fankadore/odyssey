@@ -121,4 +121,7 @@ export default class ClientScene extends Scene {
 			args
 		});
 	}
+	emitUploadMap(data) {
+		this.socket.emit('uploadMap', data);
+	}
 }
