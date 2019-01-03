@@ -174,7 +174,8 @@ class Server {
 			console.log("Failed to upload map.");
 			return;
 		}
-
+		game.maps[data.mapId].upload(data);
+		
 		game.players.forEach((player) => {
 			if (player.mapId === data.mapId) {
 				this.sendMapData(this.socketList[player.socketId], player.mapId);
@@ -200,21 +201,13 @@ class Server {
 			// pack.game.players = updatePack.players.filter((playerData) => {
 			// 	return (playerData.mapId === player.mapId && (playerData.isVisible || playerData.socketId === player.socketId));
 			// });
-			pack.game.bots = updatePack.bots.filter(bot => {
-				return bot.mapId === player.mapId;
-			});
-			pack.game.items = updatePack.items.filter(item => {
-				return item.mapId === player.mapId;
-			});
-			pack.game.effects = updatePack.effects.filter(effect => {
-				return effect.mapId === player.mapId;
-			});
-			pack.game.texts = updatePack.texts.filter(text => {
-				return text.mapId === player.mapId;
-			});
+			pack.game.bots = updatePack.bots.filter(bot => bot.mapId === player.mapId);
+			pack.game.items = updatePack.items.filter(item => item.mapId === player.mapId);
+			pack.game.effects = updatePack.effects.filter(effect => effect.mapId === player.mapId);
+			pack.game.texts = updatePack.texts.filter(text => text.mapId === player.mapId);
 
-			pack.ui.messages = updatePack.messages.filter((message) => {
-				return ((message.mapId == null && message.id == null) || player.mapId === message.mapId || player.gameId === message.id);
+			pack.ui.messages = updatePack.messages.filter(message => {
+				return (message.mapId == null && message.id == null) || player.mapId === message.mapId || player.gameId === message.id;
 			});
 			
 			this.socketList[player.socketId].emit('update', pack);
