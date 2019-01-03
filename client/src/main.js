@@ -11,7 +11,8 @@ const phaserConfig = {
 	width: config.WIDTH,
 	height: config.HEIGHT,
 	parent: 'game-window',
-	scene: [GameScene, UIScene, ClientScene]	// TODO: Signup/signin scene, create/select player scene
+	scene: [GameScene, UIScene, ClientScene],	// TODO: Signup/signin scene, create/select player scene
+	input: { gamepad: true }
 };
 
 const game = new Phaser.Game(phaserConfig);

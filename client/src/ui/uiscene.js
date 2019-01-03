@@ -13,10 +13,33 @@ export default class UIScene extends Scene {
   }
 
 	init() {
-		this.pressingLeft = false;
-		this.pressingRight = false;
-		this.pressingUp = false;
-		this.pressingDown = false;
+		this.state = {
+			direction: null,
+			attack: false,
+			pickUp: false,
+			run: false,
+			scroll: null,
+			macro1: false,
+			macro2: false,
+			macro3: false,
+			macro4: false
+		};
+
+		this.inputs = {
+			left: false,
+			right: false,
+			up: false,
+			down: false,
+			attack: false,
+			pickUp: false,
+			run: false,
+			scrollUp: false,
+			scrollDown: false,
+			macro1: false,
+			macro2: false,
+			macro3: false,
+			macro4: false
+		};
 
 		this.moveSpeed = 0;
 		this.attackSpeed = 0;
@@ -27,6 +50,8 @@ export default class UIScene extends Scene {
 		this.inventory = new Inventory(this);
 		this.infobox = new Infobox(this);
 		this.chatbox = new Chatbox(this);
+		this.client = null;
+		this.gamepad = null;
 	}
 
   preload() {
@@ -57,102 +82,69 @@ export default class UIScene extends Scene {
 		this.infobox.create(this);
 		this.chatbox.create(this);
 
-		// Create Inputs
-		const client = this.scene.get('clientScene');
+		this.client = this.scene.get('clientScene');
+		this.createGamepadInputs();
+		this.createKeyboardInputs();
+		this.createMouseInputs(this.client);
+	}
+	
+	createGamepadInputs() {
+		this.input.gamepad.once('connected', pad => this.gamepad = pad);
 		
-		// Create Keyboard Inputs
-		this.input.keyboard.on('keydown_LEFT', () => {
-			this.pressingLeft = true;
-			client.emitInputMove('left');
+		this.input.gamepad.on('down', (pad, button, index) => {
+			if (button.index === 14) this.inputs.left = true;
+			else if (button.index === 15) this.inputs.right = true;
+			else if (button.index === 12) this.inputs.up = true;
+			else if (button.index === 13) this.inputs.down = true;
+			else if (button.index === 2) this.inputs.pickUp = true;
+			else if (button.index === 6) this.inputs.run = true;
+			else if (button.index === 7) this.inputs.attack = true;
 		});
-		this.input.keyboard.on('keydown_RIGHT', () => {
-			this.pressingRight = true;
-			client.emitInputMove('right');
+		this.input.gamepad.on('up', (pad, button, index) => {
+			if (button.index === 14) this.inputs.left = false;
+			else if (button.index === 15) this.inputs.right = false;
+			else if (button.index === 12) this.inputs.up = false;
+			else if (button.index === 13) this.inputs.down = false;
+			else if (button.index === 2) this.inputs.pickUp = false;
+			else if (button.index === 6) this.inputs.run = false;
+			else if (button.index === 7) this.inputs.attack = false;
 		});
-		this.input.keyboard.on('keydown_UP', () => {
-			this.pressingUp = true;
-			client.emitInputMove('up');
+	}
+	
+	createKeyboardInputs() {
+		this.input.keyboard.on('keydown', event => {
+			if (event.keyCode === 37) this.inputs.left = true;
+			else if (event.keyCode === 39) this.inputs.right = true;
+			else if (event.keyCode === 38) this.inputs.up = true;
+			else if (event.keyCode === 40) this.inputs.down = true;
+			else if (event.keyCode === 13) this.inputs.pickUp = true;
+			else if (event.keyCode === 16) this.inputs.run = true;
+			else if (event.keyCode === 17) this.inputs.attack = true;
+			else if (event.keyCode === 112) this.inputs.macro1 = true;
+			else if (event.keyCode === 113) this.inputs.macro2 = true;
+			else if (event.keyCode === 114) this.inputs.macro3 = true;
+			else if (event.keyCode === 115) this.inputs.macro4 = true;
+			else if (event.keyCode === 33) this.inputs.scrollUp = true;
+			else if (event.keyCode === 34) this.inputs.scrollDown = true;
 		});
-		this.input.keyboard.on('keydown_DOWN', () => {
-			this.pressingDown = true;
-			client.emitInputMove('down');
+		this.input.keyboard.on('keyup', event => {
+			if (event.keyCode === 37) this.inputs.left = false;
+			else if (event.keyCode === 39) this.inputs.right = false;
+			else if (event.keyCode === 38) this.inputs.up = false;
+			else if (event.keyCode === 40) this.inputs.down = false;
+			else if (event.keyCode === 13) this.inputs.pickUp = false;
+			else if (event.keyCode === 16) this.inputs.run = false;
+			else if (event.keyCode === 17) this.inputs.attack = false;
+			else if (event.keyCode === 112) this.inputs.macro1 = false;
+			else if (event.keyCode === 113) this.inputs.macro2 = false;
+			else if (event.keyCode === 114) this.inputs.macro3 = false;
+			else if (event.keyCode === 115) this.inputs.macro4 = false;
+			else if (event.keyCode === 33) this.inputs.scrollUp = false;
+			else if (event.keyCode === 34) this.inputs.scrollDown = false;
 		});
-		
-		this.input.keyboard.on('keyup_LEFT', () => {
-			this.pressingLeft = false;
-			if (this.pressingRight) {
-				client.emitInputMove('right');
-			}
-			else if (this.pressingUp) {
-				client.emitInputMove('up');
-			}
-			else if (this.pressingDown) {
-				client.emitInputMove('down');
-			}
-			else {
-				client.emitInputMove(null);
-			}
-		});
-		this.input.keyboard.on('keyup_RIGHT', () => {
-			this.pressingRight = false;
-			if (this.pressingLeft) {
-				client.emitInputMove('left');
-			}
-			else if (this.pressingUp) {
-				client.emitInputMove('up');
-			}
-			else if (this.pressingDown) {
-				client.emitInputMove('down');
-			}
-			else {
-				client.emitInputMove(null);
-			}
-		});
-		this.input.keyboard.on('keyup_UP', () => {
-			this.pressingUp = false;
-			if (this.pressingLeft) {
-				client.emitInputMove('left');
-			}
-			else if (this.pressingRight) {
-				client.emitInputMove('right');
-			}
-			else if (this.pressingDown) {
-				client.emitInputMove('down');
-			}
-			else {
-				client.emitInputMove(null);
-			}
-		});
-		this.input.keyboard.on('keyup_DOWN', () => {
-			this.pressingDown = false;
-			if (this.pressingLeft) {
-				client.emitInputMove('left');
-			}
-			else if (this.pressingRight) {
-				client.emitInputMove('right');
-			}
-			else if (this.pressingUp) {
-				client.emitInputMove('up');
-			}
-			else {
-				client.emitInputMove(null);
-			}
-		});
-		
-		this.input.keyboard.on('keydown_SHIFT', () => client.emitInput('run', true));
-		this.input.keyboard.on('keyup_SHIFT', () => client.emitInput('run', false));
-		this.input.keyboard.on('keydown_ENTER', () => client.emitInput('pickup', true));
-		this.input.keyboard.on('keyup_ENTER', () => client.emitInput('pickup', false));
-		this.input.keyboard.on('keydown_CTRL', () => client.emitInput('attack', true));
-		this.input.keyboard.on('keyup_CTRL', () => client.emitInput('attack', false));
-		this.input.keyboard.on('keydown_PAGE_UP', () => this.chatbox.scrollUp());
-		this.input.keyboard.on('keydown_PAGE_DOWN', () => this.chatbox.scrollDown());
-		this.input.keyboard.on('keydown_F2', () => client.emitCommand('spawnMapItem', 1, 5, 5, "5c1bfeb7d8fb6012cc966083"));
-		this.input.keyboard.on('keydown_F3', () => client.emitCommand('spawnMapItem', 1, 5, 5, 5));
-		this.input.keyboard.on('keydown_F4', () => client.emitCommand('spawnBot', 1, 5, 5, 0));
-		this.input.keyboard.on('keydown_F5', () => client.emitCommand('setSprite', 1));
-		
-		// Create Mouse Inputs
+	}
+	
+	createMouseInputs() {
 		this.input.mouse.disableContextMenu();
 		this.input.on('pointerdown', (pointer) => {
 			const x = pointer.x;
@@ -174,14 +166,14 @@ export default class UIScene extends Scene {
 				const slotX = this.inventory.getSlotXFromX(x, config.INVENTORY_LEFT);
 				const slotY = this.inventory.getSlotYFromY(y, config.INVENTORY_TOP);
 				const slot = util.getIndexFromXY(slotX, slotY, config.INVENTORY_COLUMNS);
-				this.buttonDown(client, pointer, slot);
+				this.buttonDown(pointer, slot);
 			}
 			else if (this.isWithinEquipmentBounds(x, y)) {
 				// Click on Equipment
 				const slotX = this.inventory.getSlotXFromX(x, config.EQUIPMENT_LEFT);
 				const slotY = this.inventory.getSlotYFromY(y, config.EQUIPMENT_TOP);
 				const slot = config.INVENTORY_SIZE + util.getIndexFromXY(slotX, slotY, config.EQUIPMENT_COLUMNS);
-				this.buttonDown(client, pointer, slot);
+				this.buttonDown(pointer, slot);
 			}
 		});
 		this.input.on('dragstart', (pointer, item) => {
@@ -195,7 +187,7 @@ export default class UIScene extends Scene {
 			setTimeout(() => item.dragged = false, 50);
 
 			if (this.isWithinMapBounds(pointer.x, pointer.y)) {
-				client.emitInputDrag('dragStopGame', item.slot);
+				this.client.emitInputDrag('dragStopGame', item.slot);
 				this.clearItemInfo();
 			}
 			else if (this.isWithinInventoryBounds(pointer.x, pointer.y)) {
@@ -203,7 +195,7 @@ export default class UIScene extends Scene {
 				const newSlotY = this.inventory.getSlotYFromY(pointer.y, config.INVENTORY_TOP);
 				const newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.INVENTORY_COLUMNS);
 				if (item.slot !== newSlot) {
-					client.emitInputDrag('dragStopInventory', item.slot, newSlot);
+					this.client.emitInputDrag('dragStopInventory', item.slot, newSlot);
 					this.inventory.setSelected(newSlot);
 				}
 				
@@ -213,13 +205,110 @@ export default class UIScene extends Scene {
 				const newSlotY = this.inventory.getSlotYFromY(pointer.y, config.EQUIPMENT_TOP);
 				const newSlot = config.INVENTORY_SIZE + util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT_COLUMNS);
 				if (item.slot !== newSlot) {
-					client.emitInputDrag('dragStopEquipment', item.slot, newSlot);
+					this.client.emitInputDrag('dragStopEquipment', item.slot, newSlot);
 					this.inventory.setSelected(newSlot);
 				}
 			}
 		});
 	}
-	
+
+	buttonDown(pointer, slot) {
+		if (pointer.leftButtonDown()) {
+			if (this.inventory.clickSlot(slot)) this.client.emitInputClick('doubleClickItem', slot);
+			const item = this.inventory.setSelected(slot);
+			if (item) this.infobox.setPreview(item.sprite, item.name, item.description);
+			else this.infobox.clear();
+		}
+		else if (pointer.rightButtonDown()) {
+			if (this.inventory.hasItemInSlot(slot)) this.client.emitInputClick('rightClickItem', slot);
+			this.clearItemInfo();
+		}
+	}
+
+	update() {
+		if (this.gamepad) this.updateGamepadSticks();
+
+		if (this.state.attack !== this.inputs.attack) {
+			this.state.attack = this.inputs.attack;
+			this.client.emitInput('attack', this.inputs.attack);
+		}
+		if (this.state.pickUp !== this.inputs.pickUp) {
+			this.state.pickUp = this.inputs.pickUp;
+			this.client.emitInput('pickup', this.inputs.pickUp);
+		}
+		if (this.state.run !== this.inputs.run) {
+			this.state.run = this.inputs.run;
+			this.client.emitInput('run', this.inputs.run);
+		}
+		if (this.state.macro1 !== this.inputs.macro1) {
+			this.state.macro1 = this.inputs.macro1;
+			this.client.emitInput('macro1', this.inputs.macro1);
+		}
+		if (this.state.macro2 !== this.inputs.macro2) {
+			this.state.macro2 = this.inputs.macro2;
+			this.client.emitInput('macro2', this.inputs.macro2);
+		}
+		if (this.state.macro3 !== this.inputs.macro3) {
+			this.state.macro3 = this.inputs.macro3;
+			this.client.emitInput('macro3', this.inputs.macro3);
+		}
+		if (this.state.macro4 !== this.inputs.macro4) {
+			this.state.macro4 = this.inputs.macro4;
+			this.client.emitInput('macro4', this.inputs.macro4);
+		}
+
+		if (!this.state.scroll) {
+			if (this.inputs.scrollUp) this.state.scroll = 'up';
+			else if (this.inputs.scrollDown) this.state.scroll = 'down';
+		}
+		else if (this.state.scroll === 'up' && !this.inputs.scrollUp) {
+			if (this.inputs.scrollDown) this.state.scroll = 'down';
+			else this.state.scroll = null;
+		}
+		else if (this.state.scroll === 'down' && !this.inputs.scrollDown) {
+			if (this.inputs.scrollUp) this.state.scroll = 'up';
+			else this.state.scroll = null;
+		}
+		if (this.state.scroll === 'up') this.chatbox.scrollUp();
+		else if (this.state.scroll === 'down') this.chatbox.scrollDown();
+
+		if (!this.state.direction) {
+			if (this.inputs.left) this.state.direction = 'left';
+			else if (this.inputs.right) this.state.direction = 'right';
+			else if (this.inputs.up) this.state.direction = 'up';
+			else if (this.inputs.down) this.state.direction = 'down';
+			if (this.state.direction) this.client.emitInputMove(this.state.direction);
+		}
+		else if (this.state.direction === 'left' && !this.inputs.left) {
+			if (this.inputs.right) this.state.direction = 'right';
+			else if (this.inputs.up) this.state.direction = 'up';
+			else if (this.inputs.down) this.state.direction = 'down';
+			else this.state.direction = null;
+			this.client.emitInputMove(this.state.direction);
+		}
+		else if (this.state.direction === 'right' && !this.inputs.right) {
+			if (this.inputs.left) this.state.direction = 'left';
+			else if (this.inputs.up) this.state.direction = 'up';
+			else if (this.inputs.down) this.state.direction = 'down';
+			else this.state.direction = null;
+			this.client.emitInputMove(this.state.direction);
+		}
+		else if (this.state.direction === 'up' && !this.inputs.up) {
+			if (this.inputs.left) this.state.direction = 'left';
+			else if (this.inputs.right) this.state.direction = 'right';
+			else if (this.inputs.down) this.state.direction = 'down';
+			else this.state.direction = null;
+			this.client.emitInputMove(this.state.direction);
+		}
+		else if (this.state.direction === 'down' && !this.inputs.down) {
+			if (this.inputs.left) this.state.direction = 'left';
+			else if (this.inputs.right) this.state.direction = 'right';
+			else if (this.inputs.up) this.state.direction = 'up';
+			else this.state.direction = null;
+			this.client.emitInputMove(this.state.direction);
+		}
+	}
+
   onUpdate(data) {
 		if (data.moveSpeed != null) this.moveSpeed = data.moveSpeed;
 		if (data.attackSpeed != null) this.attackSpeed = data.attackSpeed;
@@ -230,6 +319,20 @@ export default class UIScene extends Scene {
 		if (this.chatbox) this.chatbox.onUpdate(data.messages);
   }
 	
+	updateGamepadSticks() {
+		const x = this.gamepad.axes[0].value;
+		const y = this.gamepad.axes[1].value;
+
+		if (x < -0.6) this.inputs.left = true;
+		else this.inputs.left = false;
+		if (x > 0.6) this.inputs.right = true;
+		else this.inputs.right = false;
+		if (y < -0.6) this.inputs.up = true;
+		else this.inputs.up = false;
+		if (y > 0.6) this.inputs.down = true;
+		else this.inputs.down = false;
+	}
+
 	onLoadMap(data) {
 		if (this.menu) this.menu.onLoadMap(data.name);
 		// player is on data.isHostile tile = show pk indicator
@@ -246,20 +349,7 @@ export default class UIScene extends Scene {
 	isWithinEquipmentBounds(x, y) {
 		return (x >= config.EQUIPMENT_LEFT && x < config.EQUIPMENT_RIGHT && y >= config.EQUIPMENT_TOP && y < config.EQUIPMENT_BOTTOM);
 	}
-
-	buttonDown(client, pointer, slot) {
-		if (pointer.leftButtonDown()) {
-			if (this.inventory.clickSlot(slot)) client.emitInputClick('doubleClickItem', slot);
-			const item = this.inventory.setSelected(slot);
-			if (item) this.infobox.setPreview(item.sprite, item.name, item.description);
-			else this.infobox.clear();
-		}
-		else if (pointer.rightButtonDown()) {
-			if (this.inventory.hasItemInSlot(slot)) client.emitInputClick('rightClickItem', slot);
-			this.clearItemInfo();
-		}
-	}
-
+	
 	clearItemInfo() {
 		this.inventory.setSelected(null);
 		this.infobox.clear();
