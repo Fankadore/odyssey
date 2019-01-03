@@ -106,7 +106,21 @@ class Game {
 					game.sendMessagePlayer(player.gameId, target.gameId, `${player.name} whispers, "${data.message}"`);
 					game.sendMessagePlayer(player.gameId, player.gameId, `You whisper to ${target.name}, "${data.message}"`);
 				}
-			}
+			},
+			macro1: (data) => {
+				this.spawnMapItem(1, 5, 5, "5c1bfeb7d8fb6012cc966083");
+			},
+			macro2: (data) => {
+				this.spawnBot(1, 5, 5, "5c1becde28d05b077cbaa385");
+			},
+			macro3: (data) => {
+				if (player.sprite >= config.MAX_SPRITES) player.sprite = 1;
+				else player.sprite++;
+			},
+			macro4: (data) => {
+
+			},
+
 		};
 		
 		this.godCommands = {
@@ -208,24 +222,18 @@ class Game {
 	// Map
 	isVacant(mapId, x, y) {
 		// Check for Map Edges
-		if (x < 0 || x >= config.MAP_COLUMNS) return false;
-		if (y < 0 || y >= config.MAP_ROWS) return false;
+		if (x < 0 || x >= config.MAP_COLUMNS || y < 0 || y >= config.MAP_ROWS) return false;
 		
 		// Check for Wall Tiles
-		let map = this.maps[mapId];
-		if (map.isWall[y][x] === true) return false;
+		const map = this.maps[mapId];
+		if (map.isWall[y][x]) return false;
 		
-		// Check for Bots
-		let bots = this.bots.filter((bot) => {
-			if (bot.mapId === mapId && bot.x === x && bot.y === y && !bot.isDead) return true;
+		// Check for Actors
+		const actorList = this.players.concat(this.bots);
+		const actorsOnTile = actorList.filter(actor => {
+			return actor.mapId === mapId && actor.x === x && actor.y === y && !actor.isDead;
 		});
-		if (bots.length > 0) return false;
-		
-		// Check for Players
-		let players = this.players.filter((player) => {
-			if (player.mapId === mapId && player.x === x && player.y === y && !player.isDead) return true;
-		});
-		if (players.length > 0) return false;
+		if (actorsOnTile.length > 0) return false;
 
 		return true;
 	}
