@@ -235,7 +235,7 @@ class Database {
 	async getAllMaps() {
 		try {
 			return await Map.find({})
-			.select('mapId name tiles hostile dropChance dropAmountEQ')
+			.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
 			.exec()
 			.then(maps => maps)
 			.catch(err => console.log(err));
