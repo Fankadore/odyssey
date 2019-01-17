@@ -32,6 +32,7 @@ export default class PlayScene extends Scene {
 			right: false,
 			up: false,
 			down: false,
+			direction: null,
 			attack: false,
 			pickUp: false,
 			run: false,
@@ -93,10 +94,22 @@ export default class PlayScene extends Scene {
 
 	createKeyboardInputs() {
 		this.input.keyboard.on('keydown', event => {
-			if (event.keyCode === 37) this.inputs.left = true;
-			else if (event.keyCode === 39) this.inputs.right = true;
-			else if (event.keyCode === 38) this.inputs.up = true;
-			else if (event.keyCode === 40) this.inputs.down = true;
+			if (event.keyCode === 37) {
+				this.inputs.left = true;
+				this.inputs.direction = 'left';
+			}
+			else if (event.keyCode === 39) {
+				this.inputs.right = true;
+				this.inputs.direction = 'right';				
+			}
+			else if (event.keyCode === 38) {
+				this.inputs.up = true;
+				this.inputs.direction = 'up';
+			}
+			else if (event.keyCode === 40) {
+				this.inputs.down = true;
+				this.inputs.direction = 'down';
+			}
 			else if (event.keyCode === 13) this.inputs.pickUp = true;
 			else if (event.keyCode === 16) this.inputs.run = true;
 			else if (event.keyCode === 17) this.inputs.attack = true;
@@ -108,10 +121,34 @@ export default class PlayScene extends Scene {
 			else if (event.keyCode === 34) this.inputs.scrollDown = true;
 		});
 		this.input.keyboard.on('keyup', event => {
-			if (event.keyCode === 37) this.inputs.left = false;
-			else if (event.keyCode === 39) this.inputs.right = false;
-			else if (event.keyCode === 38) this.inputs.up = false;
-			else if (event.keyCode === 40) this.inputs.down = false;
+			if (event.keyCode === 37) {
+				this.inputs.left = false;
+				if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (event.keyCode === 39) {
+				this.inputs.right = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (event.keyCode === 38) {
+				this.inputs.up = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (event.keyCode === 40) {
+				this.inputs.down = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else this.inputs.direction = null;
+			}
 			else if (event.keyCode === 13) this.inputs.pickUp = false;
 			else if (event.keyCode === 16) this.inputs.run = false;
 			else if (event.keyCode === 17) this.inputs.attack = false;
@@ -252,39 +289,8 @@ export default class PlayScene extends Scene {
 		if (this.state.scroll === 'up') this.chatbox.scrollUp();
 		else if (this.state.scroll === 'down') this.chatbox.scrollDown();
 
-		if (!this.state.direction) {
-			if (this.inputs.left) this.state.direction = 'left';
-			else if (this.inputs.right) this.state.direction = 'right';
-			else if (this.inputs.up) this.state.direction = 'up';
-			else if (this.inputs.down) this.state.direction = 'down';
-			if (this.state.direction) this.client.emitInputMove(this.state.direction);
-		}
-		else if (this.state.direction === 'left' && !this.inputs.left) {
-			if (this.inputs.right) this.state.direction = 'right';
-			else if (this.inputs.up) this.state.direction = 'up';
-			else if (this.inputs.down) this.state.direction = 'down';
-			else this.state.direction = null;
-			this.client.emitInputMove(this.state.direction);
-		}
-		else if (this.state.direction === 'right' && !this.inputs.right) {
-			if (this.inputs.left) this.state.direction = 'left';
-			else if (this.inputs.up) this.state.direction = 'up';
-			else if (this.inputs.down) this.state.direction = 'down';
-			else this.state.direction = null;
-			this.client.emitInputMove(this.state.direction);
-		}
-		else if (this.state.direction === 'up' && !this.inputs.up) {
-			if (this.inputs.left) this.state.direction = 'left';
-			else if (this.inputs.right) this.state.direction = 'right';
-			else if (this.inputs.down) this.state.direction = 'down';
-			else this.state.direction = null;
-			this.client.emitInputMove(this.state.direction);
-		}
-		else if (this.state.direction === 'down' && !this.inputs.down) {
-			if (this.inputs.left) this.state.direction = 'left';
-			else if (this.inputs.right) this.state.direction = 'right';
-			else if (this.inputs.up) this.state.direction = 'up';
-			else this.state.direction = null;
+		if (this.state.direction !== this.inputs.direction) {
+			this.state.direction = this.inputs.direction;
 			this.client.emitInputMove(this.state.direction);
 		}
 	}
