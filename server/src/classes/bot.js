@@ -21,6 +21,7 @@ export default class Bot extends Actor {
 		this.moveTimer = 0;
 
 		this.gameId = util.firstEmptyIndex(game.bots);
+		this.botId = this.gameId;
 		game.bots[this.gameId] = this;
 	}
 
