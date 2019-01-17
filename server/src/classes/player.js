@@ -11,7 +11,7 @@ export default class Player extends Actor {
 		if (data.sprite == null) data.sprite = data.template.sprite;
 
 		super(data.mapId, data.x, data.y, data.direction, data.name, data.sprite);
-		this.id = data._id;
+		this.playerId = data._id;
 		this.socketId = socketId;
 		this.accountId = data.account;
 		this.adminAccess = data.adminAccess;
