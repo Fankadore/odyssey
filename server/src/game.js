@@ -108,17 +108,18 @@ class Game {
 				}
 			},
 			macro1: (data) => {
-				this.spawnMapItem(1, 5, 5, "5c1bfeb7d8fb6012cc966083");
+				if (data) this.spawnMapItem(1, 5, 5, "5c1bfeb7d8fb6012cc966083");
 			},
 			macro2: (data) => {
-				this.spawnBot(1, 5, 5, "5c1becde28d05b077cbaa385");
+				if (data) this.spawnBot(1, 5, 5, "5c1becde28d05b077cbaa385");
 			},
 			macro3: (data) => {
-				if (player.sprite >= config.MAX_SPRITES) player.sprite = 1;
-				else player.sprite++;
+				if (data) {
+					if (player.sprite >= config.MAX_SPRITES) player.sprite = 1;
+					else player.sprite++;
+				}
 			},
 			macro4: (data) => {
-
 			},
 
 		};
@@ -147,19 +148,19 @@ class Game {
 		}
 		for (let i = 0; i < this.bots.length; i++) {
 			const bot = this.bots[i];
-			if (bot != null) pack.bots[bot.gameId] = bot.update(delta);
+			if (bot) pack.bots[bot.gameId] = bot.update(delta);
 		}
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
-			if (item != null) pack.items[item.gameId] = item.update(delta);
+			if (item) pack.items[item.gameId] = item.update(delta);
 		}
 		for (let i = 0; i < this.effects.length; i++) {
 			const effect = this.effects[i];
-			if (effect != null) pack.effects[effect.id] = effect.update(delta);
+			if (effect) pack.effects[effect.id] = effect.update(delta);
 		}
 		for (let i = 0; i < this.texts.length; i++) {
 			const text = this.texts[i];
-			if (text != null) pack.texts[text.gameId] = text.update(delta);
+			if (text) pack.texts[text.gameId] = text.update(delta);
 		}
 		return pack;
 	}

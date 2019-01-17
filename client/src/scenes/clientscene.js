@@ -2,7 +2,7 @@ import { Scene } from '../lib/phaser.js';
 
 export default class ClientScene extends Scene {
 	constructor() {
-		super({key: 'clientScene', active: true});
+		super({key: 'clientScene'});
 	}
 
 	init() {
@@ -19,64 +19,52 @@ export default class ClientScene extends Scene {
 		this.socket.on('loggedOut', () => this.onLoggedOut());
 		this.socket.on('loadMap', (data) => this.onLoadMap(data));
 		this.socket.on('update', (data) => this.onUpdate(data));
-		
-		setTimeout(() => this.emitSignIn("Fank", "asd"), 500);
-		setTimeout(() => this.emitLogIn("Fankadore"), 2000);
+		this.scene.launch('signInScene');
 	}
 	
 	onSignedIn(data) {
-		// Show create/select player scene
-		this.account = {
-			email: data.email,
-			verified: data.verified,
-			//dateCreated: data.dateCreated
-		};
+		if (data) {
+			// Show create/select player scene
+			this.account = data.account;
+			this.players = data.players;
+			this.emitLogIn(this.players[0].name);
+		}
 	}
 	onSignedOut() {
 		// Show signup/signin scene
 		this.account = null;
 	}
-	onLoggedIn(data) {
-		// Show game scene
+	onLoggedIn(mapData) {
+		if (mapData) {
+			this.scene.stop('signInScene');
+			this.scene.launch('playScene', mapData);
+		}
 	}
 	onLoggedOut() {
 		// Show create/select character scene
 	}
-	onLoadMap(data) {
-		const game = this.scene.get('gameScene');
-		const ui = this.scene.get('uiScene');
-		game.onLoadMap(data.tiles);
-		ui.onLoadMap(data);
+	onLoadMap(mapData) {
+		const play = this.scene.get('playScene');
+		play.onLoadMap(mapData);
 	}
+
 	onUpdate(data) {
-		const game = this.scene.get('gameScene');
-		const ui = this.scene.get('uiScene');
-		game.onUpdate(data.game);
-		ui.onUpdate(data.ui);
+		const play = this.scene.get('playScene');
+		play.onUpdate(data);
 	}
 
 	emitSignUp(username, password, email) {
-		this.socket.emit('signup', {
-			username,
-			password,
-			email
-		});
+		this.socket.emit('signup', {username, password, email});
 	}
 	emitSignIn(username, password) {
-		this.socket.emit('signin', {
-			username,
-			password
-		});
+		this.socket.emit('signin', {username, password});
 	}
 	emitSignOut() {
 		this.socket.emit('signout');
 	}
 
 	emitAddPlayer(name, templateName) {
-		this.socket.emit('addPlayer', {
-			name,
-			templateName
-		});
+		this.socket.emit('addPlayer', {name, templateName});
 	}
 	emitLogIn(name) {
 		this.socket.emit('login', name);
@@ -90,36 +78,20 @@ export default class ClientScene extends Scene {
 	}
 
 	emitInput(input, state) {
-		this.socket.emit('input', {
-			input,
-			state
-		});
+		this.socket.emit('input', {input, state});
 	}
 	emitInputMove(direction) {
-		this.socket.emit('input', {
-			input: 'move',
-			direction
-		});
+		this.socket.emit('input', {input: 'move', direction});
 	}
 	emitInputClick(input, slot) {
-		this.socket.emit('input', {
-			input,
-			slot
-		});
+		this.socket.emit('input', {input, slot});
 	}
 	emitInputDrag(input, slot, newSlot) {
-		this.socket.emit('input', {
-			input,
-			slot,
-			newSlot
-		});
+		this.socket.emit('input', {input, slot, newSlot});
 	}
 	
 	emitCommand(command, ...args) {
-		this.socket.emit('input', {
-			input: command,
-			args
-		});
+		this.socket.emit('input', {input: command, args});
 	}
 	emitUploadMap(data) {
 		this.socket.emit('uploadMap', data);

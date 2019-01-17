@@ -1,5 +1,5 @@
-import Phaser from '../lib/phaser.js';
-import config from '../config.js';
+import Phaser from '../../lib/phaser.js';
+import config from '../../config.js';
 
 export default class Message extends Phaser.GameObjects.Text {
 	constructor(scene, data) {

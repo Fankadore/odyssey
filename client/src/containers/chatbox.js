@@ -1,9 +1,10 @@
 import config from '../config.js';
-import Cursor from './cursor.js';
-import Message from './message.js';
+
+import Cursor from '../objects/chatbox/cursor.js';
+import Message from '../objects/chatbox/message.js';
 
 export default class Chatbox {
-	constructor() {
+	constructor(scene) {
 		this.messages = [];
 		this.visibleMessages = [];
 		this.showGameInfo = true;
@@ -12,17 +13,16 @@ export default class Chatbox {
 		this.showPlayerMessages = true;
 		this.currentLine = 0;
 		this.cursor = null;
-	}
 
-	create(scene) {
 		scene.add.image(config.CHATBOX_LEFT, config.CHATBOX_TOP, 'chatbox').setOrigin(0, 0);
 		this.cursor = new Cursor(scene);
+
 		this.Message = (messageData) => new Message(scene, messageData);
 	}
 
 	onUpdate(data) {
-		if (data) {
-			data.forEach((messageData) => {
+		if (data && data.messages) {
+			data.messages.forEach((messageData) => {
 				this.messages.unshift(this.Message(messageData));
 				this.refresh();
 			});	

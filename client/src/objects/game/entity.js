@@ -1,5 +1,5 @@
-import Phaser from '../lib/phaser.js';
-import config from '../config.js';
+import Phaser from '../../lib/phaser.js';
+import config from '../../config.js';
 
 export default class Entity extends Phaser.GameObjects.Sprite {
   constructor(scene, gameId, x, y, sprite, spritesheet) {

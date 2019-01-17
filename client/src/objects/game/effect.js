@@ -1,4 +1,4 @@
-import config from '../config.js';
+import config from '../../config.js';
 import Entity from './entity.js';
 
 export default class Effect extends Entity {
@@ -7,7 +7,7 @@ export default class Effect extends Entity {
     this.update(data);
   }
 
-  update(data) {
+  onUpdate(data) {
     if (data.x != null) this.x = data.x * config.TILE_SIZE;
     if (data.y != null) this.y = data.y * config.TILE_SIZE;
     if (data.currentFrame != null && data.currentFrame !== this.currentFrame) {

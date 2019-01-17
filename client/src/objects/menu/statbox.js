@@ -1,7 +1,7 @@
-import config from '../config.js';
+import config from '../../config.js';
 
 export default class Statbox {
-	constructor() {
+	constructor(scene) {
 		this.health = 0;
 		this.healthMax = 0;
 		this.energy = 0;
@@ -11,9 +11,7 @@ export default class Statbox {
 		this.energyBar = null;
 		this.manaBar = null;
 		this.experienceBar = null;
-	}
-
-	create(scene) {
+		
     scene.add.image(config.STATBOX_LEFT, config.STATBOX_TOP, 'statbox').setOrigin(0, 0);
 
 		this.graphics = scene.make.graphics();

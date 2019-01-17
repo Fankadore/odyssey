@@ -1,4 +1,4 @@
-import config from '../config.js';
+import config from '../../config.js';
 import Entity from './entity.js';
 import Text from './text.js';
 
@@ -20,18 +20,11 @@ export default class Actor extends Entity {
 		this.setFrame();
 		let lerpX = 0;
 		let lerpY = 0;
-		if (this.direction === 'left') {
-			lerpX -= this.grid.lerp;
-		}
-		else if (this.direction === 'right') {
-			lerpX += this.grid.lerp;
-		}
-		else if (this.direction === 'up') {
-			lerpY -= this.grid.lerp;
-		}
-		else if (this.direction === 'down') {
-			lerpY += this.grid.lerp;
-		}
+		if (this.direction === 'left') lerpX -= this.grid.lerp;
+		else if (this.direction === 'right') lerpX += this.grid.lerp;
+		else if (this.direction === 'up') lerpY -= this.grid.lerp;
+		else if (this.direction === 'down') lerpY += this.grid.lerp;
+		
 		this.displayName = new Text(scene, {
 			message: this.name,
 			colour: '#ff9000',
@@ -44,16 +37,11 @@ export default class Actor extends Entity {
 
 	setDead(isDead) {
 		this.isDead = isDead;
-
-		if (isDead) {
-			this.setOrigin(0, 0);
-		}
-		else {
-			this.setOrigin(0, 0.5);
-		}
+		if (isDead) this.setOrigin(0, 0);
+		else this.setOrigin(0, 0.5);
 	}
 	
-	update(data) {
+	onUpdate(data) {
 		if (!data) return;
 
 		if (data.name !== undefined) this.name = data.name;
@@ -145,19 +133,12 @@ export default class Actor extends Entity {
 	updateDisplayName() {
 		let lerpX = 0;
 		let lerpY = 0;
-		if (this.direction === 'left') {
-			lerpX -= this.grid.lerp;
-		}
-		else if (this.direction === 'right') {
-			lerpX += this.grid.lerp;
-		}
-		else if (this.direction === 'up') {
-			lerpY -= this.grid.lerp;
-		}
-		else if (this.direction === 'down') {
-			lerpY += this.grid.lerp;
-		}
-		this.displayName.update({
+		if (this.direction === 'left') lerpX -= this.grid.lerp;
+		else if (this.direction === 'right') lerpX += this.grid.lerp;
+		else if (this.direction === 'up') lerpY -= this.grid.lerp;
+		else if (this.direction === 'down') lerpY += this.grid.lerp;
+		
+		this.displayName.onUpdate({
 			message: this.name,
 			colour: '#ff9000',
 			x: this.grid.x,
