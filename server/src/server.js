@@ -65,19 +65,19 @@ class Server {
 		let success = await db.authAccount(username, password);
 		if (!success) {
 			console.log(`Sign in failed on username ${username}`);
-			// Tell client signin was not successful
+			socket.emit('signedIn', false);	// Tell client signin was not successful
 			return;
 		}
 
-		let accountId = await db.getAccountId(username);
-		if (this.activeAccounts[accountId]) {
+		let account = await db.getAccountByUsername(username);
+		if (this.activeAccounts[account._id]) {
 			console.log("That account is already signed in.");
-			// Tell client that account is already signed in
+			socket.emit('signedIn', false);	// Tell client that account is already signed in
 			return;
 		}
 		
-		socket.accountId = accountId;
-		this.activeAccounts[accountId] = username;
+		socket.accountId = account._id;
+		this.activeAccounts[account._id] = username;
 
 		socket.on('addPlayer', (data) => this.onAddPlayer(socket, data.name, data.templateName));
 		socket.on('login', (name) => this.onLogIn(socket, name));
@@ -85,7 +85,11 @@ class Server {
 		socket.on('addPlayerTemplate', (data) => this.onAddPlayerTemplate(data));
 
 		db.log(`${socket.id} - ${username} signed in.`);
-		this.sendSignedIn(socket);
+		let players = await db.getPlayersByAccount(account._id);
+		socket.emit('signedIn', {
+			account,
+			players
+		});
 	}
 	
 	async onSignOut(socket) {
@@ -96,7 +100,7 @@ class Server {
 			db.log(`${socket.id} - ${username} signed out.`);
 			delete this.activeAccounts[socket.accountId];
 			socket.accountId = null;
-			this.sendSignedOut(socket);
+			socket.emit('signedOut');
 		}
 	}
 
@@ -127,38 +131,42 @@ class Server {
 	async onLogIn(socket, name) {
 		if (!socket.accountId) {
 			console.log("Not signed into account.");
+			socket.emit('loggedIn', false);
 			return;
 		}
 		if (socket.playerId != null) {
 			console.log("Already logged in.");
+			socket.emit('loggedIn', false);
 			return;
 		}
 
 		let playerData = await db.getPlayer(name);
 		if (!playerData) {
 			console.log("No player with that name.");
+			socket.emit('loggedIn', false);
 			return;
 		}
 
 		if (""+socket.accountId !== ""+playerData.account) {	// Cast to string before comparison
 			db.log(`Attempt to login to player (${playerData.name}) from wrong account (${socket.accountId}) on socket ${socket.id}.`);
+			socket.emit('loggedIn', false);
 			return;
 		}
 
 		const player = game.playerLogin(socket.id, playerData);
-		if (!player) return;
+		if (!player) {
+			socket.emit('loggedIn', false);
+			return;
+		}
 	
 		socket.playerId = player.gameId;
 		socket.on('input', (data) => player.inputData(data));
 		socket.on('uploadMap', (data) => {
-			if (player.adminAccess >= 2) {
-				this.onUploadMap(data);
-			}
-			else {
-				game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
-			}
+			if (player.adminAccess >= 2) this.onUploadMap(data);
+			else game.sendGameInfoPlayer(player.gameId, `You don't have access to that command.`);
 		});
-		this.sendMapData(socket, player.mapId);
+		const mapData = game.maps[player.mapId].getPack();
+		socket.emit('loggedIn', mapData);
 	}
 	
 	async onLogOut(socket) {
@@ -185,28 +193,45 @@ class Server {
 
 	// Send data to clients
 	sendUpdatePack(updatePack) {
-		game.players.forEach((player) => {
+		game.players.forEach(player => {
 			const pack = {
 				game: {
-					players: []
+					players: [],
+					bots: [],
+					items: [],
+					effects: [],
+					texts: []
 				},
-				ui: player.getUIPack()
+				menu: player.getUIPack(),
+				chatbox: {}
 			};
 
 			for (let playerData of updatePack.players) {
-				if (playerData && (playerData.mapId === player.mapId && (playerData.isVisible || playerData.socketId === player.socketId))) {
+				if (playerData && ((playerData.mapId === player.mapId && playerData.isVisible) || playerData.socketId === player.socketId)) {
 					pack.game.players[playerData.gameId] = playerData;
 				}
 			}
-			// pack.game.players = updatePack.players.filter((playerData) => {
-			// 	return (playerData.mapId === player.mapId && (playerData.isVisible || playerData.socketId === player.socketId));
-			// });
+			for (let bot of updatePack.bots) {
+				if (bot && bot.mapId === player.mapId) pack.game.bots[bot.gameId] = bot;
+			}
+			for (let item of updatePack.items) {
+				if (item && item.mapId === player.mapId) pack.game.items[item.gameId] = item;
+			}
+			for (let effect of updatePack.effects) {
+				if (effect && effect.mapId === player.mapId) pack.game.effects[effect.gameId] = effect;
+			}
+			for (let text of updatePack.texts) {
+				if (text && text.mapId === player.mapId) pack.game.texts[text.gameId] = text;
+			}
+
+
+/* 			pack.game.players = updatePack.players.filter(playerData => playerData.socketId === player.socketId || (playerData.mapId === player.mapId && playerData.isVisible));
 			pack.game.bots = updatePack.bots.filter(bot => bot.mapId === player.mapId);
 			pack.game.items = updatePack.items.filter(item => item.mapId === player.mapId);
 			pack.game.effects = updatePack.effects.filter(effect => effect.mapId === player.mapId);
-			pack.game.texts = updatePack.texts.filter(text => text.mapId === player.mapId);
+			pack.game.texts = updatePack.texts.filter(text => text.mapId === player.mapId); */
 
-			pack.ui.messages = updatePack.messages.filter(message => {
+			pack.chatbox.messages = updatePack.messages.filter(message => {
 				return (message.mapId == null && message.id == null) || player.mapId === message.mapId || player.gameId === message.id;
 			});
 			
@@ -217,19 +242,6 @@ class Server {
 	sendMapData(socket, mapId) {
 		const mapData = game.maps[mapId].getPack();
 		socket.emit('loadMap', mapData);
-	}
-
-	async sendSignedIn(socket) {
-		let account = await db.getAccount(socket.accountId);
-		socket.emit('signedIn', {
-			email: account.email,
-			verified: account.verified,
-			//dateCreated: account.dateCreated
-		});
-	}
-
-	sendSignedOut(socket) {
-		socket.emit('signedOut');
 	}
 }
 
