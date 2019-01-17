@@ -7,7 +7,11 @@ class Config {
 		
 		this.TILE_SIZE = 32;
 		this.SLOT_SIZE = this.TILE_SIZE + 6;
+
+		this.FONT_FAMILY = 'Arial';
 		this.FONT_SIZE = 12;
+		this.FONT_COLOUR = '#000000';
+		this.FONT_STYLE = { fontFamily: this.FONT_FAMILY, fontSize: this.FONT_SIZE + "px", fill: this.FONT_COLOUR };
 
 		this.SPRITE_FRAMES = 13;
 		this.SPRITE_COUNT = 13;
@@ -88,6 +92,14 @@ class Config {
 		this.CHATBOX_HEIGHT = this.FONT_SIZE * (this.CHATBOX_LINES + 3);
 		this.CHATBOX_RIGHT = this.CHATBOX_LEFT + this.CHATBOX_WIDTH;
 		this.CHATBOX_BOTTOM = this.CHATBOX_TOP + this.CHATBOX_HEIGHT;
+
+		this.SPRITESHEETS = ['sprites', 'effects', 'floor', 'potions'];
+		this.IMAGES = [
+			'map', 'menu', 'menu-panel', 'map-name', 'slot', 'equipment-slot', 'infobox', 'info-preview', 'chatbox',
+			'statbox', 'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty', 'mana-bar', 'mana-bar-empty',
+			'experience-bar', 'experience-bar-empty'
+		];
+
 		this.CRENDALE = {
 			mapId: 1,
 			tiles: [
