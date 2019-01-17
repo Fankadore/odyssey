@@ -202,11 +202,9 @@ export default class Actor extends Entity {
 		else if (util.randomInt(0, 1) === 0) {
 			if (target.x < this.x) {
 				if (target.x >= (this.x - this.range) && target.y === this.y) {
-					if (hostile) {
+					if (hostile && !this.isMoving) {
 						this.direction = 'left';
-						if (!this.isMoving) {
-							this.attack('left');
-						}
+						this.attack('left');
 					}
 				}
 				else {
@@ -215,11 +213,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.x > this.x) {
 				if (target.x === this.x + this.range && target.y === this.y) {
-					if (hostile) {
+					if (hostile && !this.isMoving) {
 						this.direction = 'right';
-						if (!this.isMoving) {
-							this.attack('right');
-						}
+						this.attack('right');
 					}
 				}
 				else {
@@ -228,11 +224,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.y < this.y) {
 				if (target.x === this.x && target.y === this.y - this.range) {
-					if (hostile) {
+					if (hostile && !this.isMoving) {
 						this.direction = 'up';
-						if (!this.isMoving) {
-							this.attack('up');
-						}
+						this.attack('up');
 					}
 				}
 				else {
@@ -241,11 +235,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.y > this.y) {
 				if (target.x === this.x && target.y === this.y + this.range) {
-					if (hostile) {
+					if (hostile && !this.isMoving) {
 						this.direction = 'down';
-						if (!this.isMoving) {
-							this.attack('down');
-						}
+						this.attack('down');
 					}
 				}
 				else {
@@ -256,10 +248,9 @@ export default class Actor extends Entity {
 		else {
 			if (target.y > this.y) {
 				if (target.x === this.x && target.y === this.y + this.range) {
-					if (hostile) {
-						if (!this.isMoving) {
-							this.attack('down');
-						}
+					if (hostile && !this.isMoving) {
+						this.direction = 'down';
+						this.attack('down');
 					}
 				}
 				else {
@@ -268,10 +259,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.y < this.y) {
 				if (target.x === this.x && target.y === this.y - this.range) {
-					if (hostile) {
-						if (!this.isMoving) {
-							this.attack('up');
-						}
+					if (hostile && !this.isMoving) {
+						this.direction = 'up';
+						this.attack('up');
 					}
 				}
 				else {
@@ -280,10 +270,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.x > this.x) {
 				if (target.x === this.x + this.range && target.y === this.y) {
-					if (hostile) {
-						if (!this.isMoving) {
-							this.attack('right');
-						}
+					if (hostile && !this.isMoving) {
+						this.direction = 'right';
+						this.attack('right');
 					}
 				}
 				else {
@@ -292,10 +281,9 @@ export default class Actor extends Entity {
 			}
 			else if (target.x < this.x) {
 				if (target.x >= (this.x - this.range) && target.y === this.y) {
-					if (hostile) {
-						if (!this.isMoving) {
-							this.attack('left');
-						}
+					if (hostile && !this.isMoving) {
+						this.direction = 'left';
+						this.attack('left');
 					}
 				}
 				else {
