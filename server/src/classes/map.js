@@ -58,4 +58,12 @@ export default class Map {
 			warpY: this.warpY
 		};
 	}
+
+	getUpdatePack() {
+		return {
+			mapId: this.mapId,
+			name: this.name,
+			tiles: this.tiles
+		};
+	}
 }
