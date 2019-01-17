@@ -20,15 +20,15 @@ class Database {
 		this.serverLog = [];
 	}
 
-	async backup() {
+	async backup(data = {}) {
 		//TODO save everything
 		// const maps = save-all-maps
-		// const players = save-all-online-players
+		let players = this.saveOnlinePlayers(data.players);
 		// const bots = save-all-bots
 		// const items = save-all-items
 		let logSaved = this.saveLog();
-		await Promise.all([logSaved]);
-		this.log("Game saved to disk.");
+		Promise.all([players, logSaved])
+		.then(() => this.log("Game saved to disk."));
 	}
 	
 	log(message) {
@@ -116,6 +116,13 @@ class Database {
 		.then(account => account)
 		.catch(err => console.log(err));
 	}
+	async getAccountByUsername(username) {
+		return await Account.findOne({username: username})
+		.select('_id username password email verified')
+		.exec()
+		.then(account => account)
+		.catch(err => console.log(err));
+	}
 	async getAccountId(username) {
 		return await Account.findOne({username: username})
 		.select('_id')
@@ -173,11 +180,26 @@ class Database {
 		.then(player => player)
 		.catch(err => console.log(err));
 	}
+	async getPlayersByAccount(accountId) {
+		return await Player.find({account: accountId})
+		.select('_id account name template level experience mapId x y direction adminAccess sprite')
+		.populate('template')
+		.exec()
+		.then(players => players)
+		.catch(err => console.log(err));
+	}
 	async savePlayer(data) {
 		return await Player.updateOne({name: data.name}, {$set: data})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
+	}
+	saveOnlinePlayers(players = []) {
+		for (let i = 0; i < players.length; i++) {
+			const player = players[i];
+			if (!player) continue;
+			this.savePlayer(player.getDBPack());
+		}
 	}
 
 	async addBot(templateName, mapId, x, y) {
