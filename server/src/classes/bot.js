@@ -6,22 +6,37 @@ import Actor from './actor.js';
 // A Bot is an Actor with conditional inputs
 
 export default class Bot extends Actor {
-	constructor(mapId, x, y, direction, template) {
-		super(mapId, x, y, direction, template.name, template.sprite);
-		this.damageBase = template.damageBase;
-		this.defenceBase = template.defenceBase;
-		this.healthMaxBase = template.healthMaxBase;
-		this.energyMaxBase = template.energyMaxBase;
-		this.rangeBase = template.rangeBase;
+	constructor(data) {
+		let { _id, mapId, x, y, direction, template, name, sprite, hostile,
+					damageBase, defenceBase, healthMaxBase, energyMaxBase, rangeBase 
+				} = data;
+		
+		if (_id == null) _id = game.requestDBId();
+		if (name == null) name = template.name;
+		if (sprite == null) sprite = template.sprite;
+		if (hostile == null) hostile = template.hostile;
+		if (damageBase == null) damageBase = template.damageBase;
+		if (defenceBase == null) defenceBase = template.defenceBase;
+		if (healthMaxBase == null) healthMaxBase = template.healthMaxBase;
+		if (energyMaxBase == null) energyMaxBase = template.energyMaxBase;
+		if (rangeBase == null) rangeBase = template.rangeBase;
+
+		super(mapId, x, y, direction, name, sprite);
+		this.botId = _id;
+		this.templateId = template._id;
+		this.damageBase = damageBase;
+		this.defenceBase = defenceBase;
+		this.healthMaxBase = healthMaxBase;
+		this.energyMaxBase = energyMaxBase;
+		this.rangeBase = rangeBase;
 		this.restore();
 		
-		this.hostile = template.hostile;
+		this.hostile = hostile;
 		this.target = null;
 		this.setTask('wandering');
 		this.moveTimer = 0;
 
 		this.gameId = util.firstEmptyIndex(game.bots);
-		this.botId = this.gameId;
 		game.bots[this.gameId] = this;
 	}
 
@@ -82,6 +97,20 @@ export default class Bot extends Actor {
 			isVisible: this.isVisible
 		};
 	}
+	
+	getDBPack() {
+		return {
+			botId: this.botId,
+			templateId: this.templateId,
+			mapId: this.mapId,
+			x: this.x,
+			y: this.y,
+			direction: this.direction,
+			name: this.name,
+			sprite: this.sprite,
+			hostile: this.hostile
+		};
+	}
 
 	remove() {
 		delete game.bots[this.gameId];
@@ -108,7 +137,7 @@ export default class Bot extends Actor {
 
 	getInventory() {
 		const inventory = game.items.filter(item => {
-			return item.botId === this.botId;
+			return ""+item.botId === ""+this.botId;
 		});
 		return inventory;
 	}

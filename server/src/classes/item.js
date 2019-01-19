@@ -3,42 +3,68 @@ import util from '../util.js';
 import Entity from './entity.js';
 
 export default class Item extends Entity {
-	constructor(position, template, stack) {
-		if (position.playerId === undefined) position.playerId = null;
-		if (position.botId === undefined) position.botId = null;
-		if (position.slot === undefined) position.slot = null;
-		if (position.mapId === undefined) position.mapId = null;
-		if (position.x === undefined) position.x = null;
-		if (position.y === undefined) position.y = null;
+	constructor(data) {
+		if (!data) return;
 
-		super(position.mapId, position.x, position.y, template.sprite);
+		let { _id, playerId, botId, slot, mapId, x, y, template, stack, sprite, name, description, reusable, createdBy, createdDate,
+					passiveDamage, passiveDefence, passiveHealthMax, passiveEnergyMax, passiveRange,
+					equippedDamage, equippedDefence, equippedHealthMax, equippedEnergyMax, equippedRange
+				} = data;
+
+		if (_id == null) _id = game.requestDBId();
+		if (playerId === undefined) playerId = null;
+		if (botId === undefined) botId = null;
+		if (slot === undefined) slot = null;
+		if (mapId === undefined) mapId = null;
+		if (x === undefined) x = null;
+		if (y === undefined) y = null;
+		if (createdBy === undefined) createdBy = null;
+		if (createdDate === undefined) createdDate = new Date();
+
+		if (sprite === undefined) sprite = template.sprite;
+		if (name === undefined) name = template.name;
+		if (description === undefined) description = template.description;
+		if (reusable === undefined) reusable = template.reusable;
+		if (passiveDamage === undefined) passiveDamage = template.passiveDamage;
+		if (passiveDefence === undefined) passiveDefence = template.passiveDefence;
+		if (passiveHealthMax === undefined) passiveHealthMax = template.passiveHealthMax;
+		if (passiveEnergyMax === undefined) passiveEnergyMax = template.passiveEnergyMax;
+		if (passiveRange === undefined) passiveRange = template.passiveRange;
+		if (equippedDamage === undefined) equippedDamage = template.equippedDamage;
+		if (equippedDefence === undefined) equippedDefence = template.equippedDefence;
+		if (equippedHealthMax === undefined) equippedHealthMax = template.equippedHealthMax;
+		if (equippedEnergyMax === undefined) equippedEnergyMax = template.equippedEnergyMax;
+		if (equippedRange === undefined) equippedRange = template.equippedRange;
+
+		super(mapId, x, y, sprite);
 		this.z = -10;
-		this.playerId = position.playerId;
-		this.botId = position.botId;
-		this.slot = position.slot;
+		this.itemId = _id;
+		this.playerId = playerId;
+		this.botId = botId;
+		this.slot = slot;
 		
 		this.templateId = template._id;
-		this.name = template.name;
-		this.description = template.description;
-		this.reusable = template.reusable;
+		this.name = name;
+		this.description = description;
+		this.reusable = reusable;
 
 		this.type = template.type.name;
 		this.stackable = template.type.stackable;
 		this.equippedSlot = template.type.equippedSlot;
 		
 		this.passive = {
-			damage: template.passiveDamage,
-			defence: template.passiveDefence,
-			healthMax: template.passiveHealthMax,
-			energyMax: template.passiveEnergyMax,
-			range: template.passiveRange
+			damage: passiveDamage,
+			defence: passiveDefence,
+			healthMax: passiveHealthMax,
+			energyMax: passiveEnergyMax,
+			range: passiveRange
 		};
 		this.equipped = {
-			damage: template.equippedDamage,
-			defence: template.equippedDefence,
-			healthMax: template.equippedHealthMax,
-			energyMax: template.equippedEnergyMax,
-			range: template.equippedRange
+			damage: equippedDamage,
+			defence: equippedDefence,
+			healthMax: equippedHealthMax,
+			energyMax: equippedEnergyMax,
+			range: equippedRange
 		};
 		
 		if (this.stackable) {
@@ -57,6 +83,37 @@ export default class Item extends Entity {
 		return this.getPack();
 	}
 
+	getDBPack() {
+		return {
+			itemId: this.itemId,
+			playerId: this.playerId,
+			botId: this.botId,
+			slot: this.slot,
+			mapId: this.mapId,
+			x: this.x,
+			y: this.y,
+			createdBy: this.createdBy,
+			createdDate: this.createdDate,
+			templateId: this.templateId,
+			name: this.name,
+			description: this.description,
+			sprite: this.sprite,
+			reusable: this.reusable,
+			passiveDamage: this.passive.damage,
+			passiveDefence: this.passive.defence,
+			passiveHealthMax: this.passive.healthMax,
+			passiveEnergyMax: this.passive.energyMax,
+			passiveRange: this.passive.range,
+			equippedDamage: this.equipped.damage,
+			equippedDefence: this.equipped.defence,
+			equippedHealthMax: this.equipped.healthMax,
+			equippedEnergyMax: this.equipped.energyMax,
+			equippedRange: this.equipped.range,
+			stack: this.stack,
+			isVisible: this.isVisible
+		};
+	}
+	
 	getPack() {
 		return {
 			gameId: this.gameId,
