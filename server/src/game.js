@@ -28,6 +28,8 @@ class Game {
 		this.loadBotTemplates();
 		this.loadItemTemplates();
 		this.loadCommands();
+		this.loadItems();
+		this.loadBots();
 	}
 
 	loadMaps() {
@@ -131,6 +133,22 @@ class Game {
 		};
 	}
 
+	async loadItems() {
+		let itemData = await db.getAllItems();
+		for (let i = 0; i < itemData.length; i++) {
+			new Item(itemData[i]);
+		}
+	}
+	async loadBots() {
+		let botData = await db.getAllBots();
+		for (let i = 0; i < botData.length; i++) {
+			new Bot(botData[i]);
+		}
+	}
+	requestDBId() {
+		return db.generateId();
+	}
+
 	update(delta) {
 		const pack = {
 			players: [],
@@ -163,6 +181,18 @@ class Game {
 			if (text) pack.texts[text.gameId] = text.update(delta);
 		}
 		return pack;
+	}
+
+	getDBPack() {
+		const dbPack = {
+			players: [],
+			bots: [],
+			items: []
+		};
+		this.players.forEach(player => dbPack.players.push(player.getDBPack()));
+		this.bots.forEach(bot => dbPack.bots.push(bot.getDBPack()));
+		this.items.forEach(item => dbPack.items.push(item.getDBPack()));
+		return dbPack;
 	}
 
 	// Players
@@ -240,20 +270,19 @@ class Game {
 	}
 
 	spawnBot(mapId, x, y, templateId, direction = 'down') {
-		templateId = '5c1becde28d05b077cbaa385';
 		const template = this.botTemplates[templateId];
 		if (template) {
-			new Bot(mapId, x, y, direction, template);
+			new Bot({mapId, x, y, direction, template});
 		}
 		else {
 			console.log("Bot Template does not exist with that Id");
 		}
 	}
 	
-	spawnMapItem(mapId, x, y, templateId, stack = 1) {
+	spawnMapItem(mapId, x, y, templateId, stack = 0) {
 		let template = this.itemTemplates[templateId];
 		if (template) {
-			new Item({mapId, x, y}, template, stack);
+			new Item({mapId, x, y, template, stack});
 		}
 		else {
 			console.log("Item Template does not exist with that Id");
