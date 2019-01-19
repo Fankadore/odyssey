@@ -362,7 +362,6 @@ export default class Actor extends Entity {
 	}
 	
 	takeDamage(damage, attacker) {
-		console.log(`${this.health}/${this.healthMax}`);
 		damage -= this.defence;
 		if (damage < 0) damage = 0;
 		game.spawnDamageText(this.mapId, this.x, this.y, damage);
