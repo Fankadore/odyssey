@@ -37,7 +37,8 @@ class GameLoop {
 		// Periodic backup to database
 		if (this.timer.backup >= config.BACKUP_TIME) {
 			this.timer.backup -= config.BACKUP_TIME;
-			db.backup();
+			let dbPack = game.getDBPack();
+			db.backup(dbPack);
 		}
 	}
 }
