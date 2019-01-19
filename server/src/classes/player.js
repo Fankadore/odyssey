@@ -2,7 +2,6 @@ import game from '../game.js';
 import config from '../config.js';
 import util from '../util.js';
 import Actor from './actor.js';
-import itemTemplate from '../models/itemTemplate.js';
 
 // A Player is an immortal Actor which takes input from a client
 
@@ -153,7 +152,7 @@ export default class Player extends Actor {
 	
 	getInventory() {
 		const inventory = game.items.filter(item => {
-			return item.playerId === this.playerId;
+			return ""+item.playerId === ""+this.playerId;
 		});
 		return inventory;
 	}
