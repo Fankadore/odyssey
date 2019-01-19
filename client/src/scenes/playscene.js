@@ -71,8 +71,11 @@ export default class PlayScene extends Scene {
 
 	createGamepadInputs() {
 		this.input.gamepad.once('connected', pad => this.gamepad = pad);
+		this.input.gamepad.on('disconnected', pad => this.gamepad = null);
 		
 		this.input.gamepad.on('down', (pad, button, index) => {
+			if (this.gamepad !== pad) this.gamepad = pad;
+
 			if (button.index === 14) this.inputs.left = true;
 			else if (button.index === 15) this.inputs.right = true;
 			else if (button.index === 12) this.inputs.up = true;
@@ -298,14 +301,11 @@ export default class PlayScene extends Scene {
 	updateGamepadSticks() {
 		const x = this.gamepad.axes[0].value;
 		const y = this.gamepad.axes[1].value;
-
-		if (x < -0.6) this.inputs.left = true;
-		else this.inputs.left = false;
-		if (x > 0.6) this.inputs.right = true;
-		else this.inputs.right = false;
-		if (y < -0.6) this.inputs.up = true;
-		else this.inputs.up = false;
-		if (y > 0.6) this.inputs.down = true;
-		else this.inputs.down = false;
+		const cutoff = 0.75;
+		if (x < -cutoff) this.inputs.direction = 'left';
+		else if (x > cutoff) this.inputs.direction = 'right';
+		else if (y < -cutoff) this.inputs.direction = 'up';
+		else if (y > cutoff) this.inputs.direction = 'down';
+		else this.inputs.direction = null;
 	}
 }
