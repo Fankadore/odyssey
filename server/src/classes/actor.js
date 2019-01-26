@@ -32,6 +32,11 @@ export default class Actor extends Entity {
 		this.target = null;
 		this.kills = 0;
 
+		this.health = this.healthMax;
+		this.energy = this.energyMax;
+		this.regenTimer = 0;
+		this.isHit = false;
+
 		this.calcBonusStats();
 	}
 	
@@ -52,6 +57,14 @@ export default class Actor extends Entity {
 		let energyMaxTotal = this.energyMaxBase + this.energyMaxBonus;
 		return (energyMaxTotal < 0) ? 0 : energyMaxTotal;
 	}
+	get healthRegen() {
+		let healthRegenTotal = this.healthRegenBase + this.healthRegenBonus
+		return (healthRegenTotal < 1) ? 1 : healthRegenTotal;
+	}
+	get energyRegen() {
+		let energyRegenTotal = this.energyRegenBase + this.energyRegenBonus;
+		return (energyRegenTotal < 0) ? 0 : energyRegenTotal;
+	}
 	get range() {
 		let rangeTotal = this.rangeBase + this.rangeBonus;
 		return (rangeTotal < 1) ? 1 : rangeTotal;
@@ -62,6 +75,8 @@ export default class Actor extends Entity {
 		this.defenceBase = template.defenceBase || 0;
 		this.healthMaxBase = template.healthMaxBase + (template.healthPerLevel * (this.level - 1)) || 1;
 		this.energyMaxBase = template.energyMaxBase + (template.energyPerLevel * (this.level - 1)) || 1;
+		this.healthRegenBase = template.healthRegenBase || 1;
+		this.energyRegenBase = template.energyRegenBase || 1;
 		this.rangeBase = template.rangeBase || 1;
 	}
 
@@ -71,6 +86,8 @@ export default class Actor extends Entity {
 			defence: 0,
 			healthMax: 0,
 			energyMax: 0,
+			healthRegen: 0,
+			energyRegen: 0,
 			range: 0
 		};
 
@@ -83,6 +100,8 @@ export default class Actor extends Entity {
 			itemBonus.defence += item.passive.defence;
 			itemBonus.healthMax += item.passive.healthMax;
 			itemBonus.energyMax += item.passive.energyMax;
+			itemBonus.healthRegen += item.passive.healthRegen;
+			itemBonus.energyRegen += item.passive.energyRegen;
 			itemBonus.range += item.passive.range;
 
 			if (item.slot >= config.INVENTORY_SIZE) {
@@ -90,6 +109,8 @@ export default class Actor extends Entity {
 				itemBonus.defence += item.equipped.defence;
 				itemBonus.healthMax += item.equipped.healthMax;
 				itemBonus.energyMax += item.equipped.energyMax;
+				itemBonus.healthRegen += item.equipped.healthRegen;
+				itemBonus.energyRegen += item.equipped.energyRegen;
 				itemBonus.range += item.equipped.range;
 			}
 		}
@@ -103,6 +124,8 @@ export default class Actor extends Entity {
 			defence: 0,
 			healthMax: 0,
 			energyMax: 0,
+			healthRegen: 0,
+			energyRegen: 0,
 			range: 0
 		};
 
@@ -118,6 +141,8 @@ export default class Actor extends Entity {
 		this.defenceBonus = itemBonus.defence + effectBonus.defence;
 		this.healthMaxBonus = itemBonus.healthMax + effectBonus.healthMax;
 		this.energyMaxBonus = itemBonus.energyMax + effectBonus.energyMax;
+		this.healthRegenBonus = itemBonus.healthRegen + effectBonus.healthRegen;
+		this.energyRegenBonus = itemBonus.energyRegen + effectBonus.energyRegen;
 		this.rangeBonus = itemBonus.range + effectBonus.range;
 	}
 
@@ -139,9 +164,7 @@ export default class Actor extends Entity {
 	move(direction) {
 		if (this.isMoving) return;
 
-		if (direction) {
-			this.direction = direction;
-		}
+		if (direction) this.direction = direction;
 
 		if (direction === 'left') {
 			if (!game.isVacant(this.mapId, this.x - 1, this.y)) return;
@@ -367,7 +390,9 @@ export default class Actor extends Entity {
 		game.spawnDamageText(this.mapId, this.x, this.y, damage);
 		if (damage === 0) return;
 		
+		this.isHit = true;
 		this.health -= damage;
+		console.log(`${this.name} - ${this.health}`);
 		if (this.health <= 0) {
 			this.setDead();
 			
@@ -617,6 +642,29 @@ export default class Actor extends Entity {
 				this.isMoving = false;
 			}
 		}
+
+		// Regen
+		this.regenTimer += delta;
+		if (this.regenTimer >= 1) {
+			this.regenTimer = 0;
+			if (this.health < this.healthMax) {
+				if (this.isHit) {
+					this.isHit = false;
+				}
+				else {
+					this.health += this.healthRegen;
+					if (this.health > this.healthMax) this.health = this.healthMax;
+				}
+			}
+
+			if (this.energy < this.energyMax) {
+				if (!this.isRunning) {
+					this.energy += this.energyRegen;
+					if (this.energy > this.energyMax) this.energy = this.energyMax;
+				}
+			}
+		}
+
 	}
 
 	getInventoryPack() {

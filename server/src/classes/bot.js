@@ -8,7 +8,7 @@ import Actor from './actor.js';
 export default class Bot extends Actor {
 	constructor(data) {
 		let { _id, mapId, x, y, direction, template, name, sprite, hostile,
-					damageBase, defenceBase, healthMaxBase, energyMaxBase, rangeBase 
+					damageBase, defenceBase, healthMaxBase, energyMaxBase, healthRegenBase, energyRegenBase, rangeBase 
 				} = data;
 		
 		if (_id == null) _id = game.requestDBId();
@@ -19,6 +19,8 @@ export default class Bot extends Actor {
 		if (defenceBase == null) defenceBase = template.defenceBase;
 		if (healthMaxBase == null) healthMaxBase = template.healthMaxBase;
 		if (energyMaxBase == null) energyMaxBase = template.energyMaxBase;
+		if (healthRegenBase == null) healthRegenBase = template.healthRegenBase;
+		if (energyRegenBase == null) energyRegenBase = template.energyRegenBase;
 		if (rangeBase == null) rangeBase = template.rangeBase;
 
 		super(mapId, x, y, direction, name, sprite);
@@ -28,6 +30,8 @@ export default class Bot extends Actor {
 		this.defenceBase = defenceBase;
 		this.healthMaxBase = healthMaxBase;
 		this.energyMaxBase = energyMaxBase;
+		this.healthRegenBase = healthRegenBase;
+		this.energyRegenBase = energyRegenBase;
 		this.rangeBase = rangeBase;
 		this.restore();
 		

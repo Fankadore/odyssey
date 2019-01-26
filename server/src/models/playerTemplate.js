@@ -8,6 +8,8 @@ const playerTemplateSchema = new mongoose.Schema({
   defenceBase: {type: Number, default: 0},
   healthMaxBase: {type: Number, default: 1},
   energyMaxBase: {type: Number, default: 1},
+  healthRegenBase: {type: Number, default: 1},
+  energyRegenBase: {type: Number, default: 1},
   rangeBase: {type: Number, default: 1},
   healthPerLevel: {type: Number, default: 0},
   energyPerLevel: {type: Number, default: 0}

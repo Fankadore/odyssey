@@ -54,14 +54,10 @@ export default class Player extends Actor {
 			
 			// Check for Movement Input
 			if (!this.isMoving) {
+				this.isRunning = false;
 				if (this.input.direction) {
 					// Check for Run Input
-					if (this.input.run) {
-						(this.energy > 0) ? this.isRunning = true : this.isRunning = false;
-					}
-					else {
-						this.isRunning = false;
-					}
+					if (this.input.run && this.energy > 0) this.isRunning = true;
 					this.move(this.input.direction);
 				}
 			}
@@ -129,20 +125,12 @@ export default class Player extends Actor {
 		}
 
 		if (game.godCommands[data.input]) {
-			if (this.adminAccess > 0) {
-				game.godCommands[data.input](data, this);
-			}
-			else {
-				game.sendGameInfoPlayer(this.gameId, "You don't have access to that command.");
-			}
+			if (this.adminAccess > 0) game.godCommands[data.input](data, this);
+			else game.sendGameInfoPlayer(this.gameId, "You don't have access to that command.");
 		}
 		else {
-			if (game.commands[data.input]) {
-				game.commands[data.input](data, this);
-			}
-			else {
-				game.sendGameInfoPlayer(this.gameId, "Invalid command.");
-			}
+			if (game.commands[data.input]) game.commands[data.input](data, this);
+			else game.sendGameInfoPlayer(this.gameId, "Invalid command.");
 		}
 	}
 
