@@ -27,8 +27,10 @@ class Config {
 		
 		this.CHATBOX_LINES = 9;
 
-		this.MAP_LEFT = 0;
-		this.MAP_TOP = 0;
+		this.GAME_LEFT = 0;
+		this.GAME_TOP = 0;
+		this.MAP_LEFT = this.GAME_LEFT;
+		this.MAP_TOP = this.GAME_TOP;
 		this.MAP_WIDTH = this.MAP_COLUMNS * this.TILE_SIZE;
 		this.MAP_HEIGHT = this.MAP_ROWS * this.TILE_SIZE;
 		this.MAP_RIGHT = this.MAP_LEFT + this.MAP_WIDTH;
@@ -99,7 +101,7 @@ class Config {
 			'statbox', 'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty', 'mana-bar', 'mana-bar-empty',
 			'experience-bar', 'experience-bar-empty'
 		];
-
+		this.KEYBOARD_KEYS = 'ARROWLEFT,ARROWRIGHT,ARROWUP,ARROWDOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12';
 		this.CRENDALE = {
 			mapId: 1,
 			tiles: [
@@ -216,8 +218,12 @@ class Config {
 			this.CHATBOX_HEIGHT = this.CHATBOX_BOTTOM - this.CHATBOX_TOP;
 		}
 
-		this.WIDTH = this.MAP_WIDTH + this.MENU_WIDTH;
-		this.HEIGHT = this.MAP_HEIGHT + this.CHATBOX_HEIGHT;
+		this.GAME_WIDTH = this.MAP_WIDTH + this.MENU_WIDTH;
+		this.GAME_HEIGHT = this.MAP_HEIGHT + this.CHATBOX_HEIGHT;
+		this.GAME_RIGHT = this.GAME_LEFT + this.GAME_WIDTH;
+		this.GAME_BOTTOM = this.GAME_TOP + this.GAME_HEIGHT;
+		this.GAME_CENTREX = this.GAME_LEFT + (this.GAME_WIDTH / 2);
+		this.GAME_CENTREY = this.GAME_TOP + (this.GAME_HEIGHT / 2);
 	}
 }
 
