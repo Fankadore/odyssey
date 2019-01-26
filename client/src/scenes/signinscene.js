@@ -1,38 +1,65 @@
 import { Scene } from '../lib/phaser.js';
 import config from '../config.js';
 
-import TextInput from '../objects/menu/textinput.js';
+import Panel from '../objects/ui/panel.js';
+import InputBox from '../objects/ui/inputbox.js';
+import PasswordBox from '../objects/ui/passwordbox.js';
+import SubmitButton from '../objects/ui/submitbutton.js';
+import ToggleLight from '../objects/ui/togglelight.js';
 
 export default class SignInScene extends Scene {
 	constructor() {
 		super({key: 'signInScene'});
 	}
 
-	create() {
-		this.graphics = this.add.graphics();
-		this.graphics.fillStyle(0x000000);
-		this.graphics.fillRect(0, 0, config.MAP_WIDTH, config.MAP_HEIGHT);
-		this.usernameBox = new TextInput(this, (config.MAP_WIDTH / 2) - 64, (config.MAP_HEIGHT / 2.5) + 32, 128, 24);
-		this.passwordBox = new TextInput(this, (config.MAP_WIDTH / 2) - 64, (config.MAP_HEIGHT / 2.5) + 64, 128, 24);
-		this.passwordBox.password = true;
-
-		let style = { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 3) + 'px', fill: '#ffffff' };
-		this.add.text(config.MAP_WIDTH / 2, config.MAP_HEIGHT / 5, "Odyssey", style).setOrigin(0.5);
-
-		style = { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 2) + 'px', fill: '#ffffff' };
-		this.add.text(config.MAP_WIDTH / 2, config.MAP_HEIGHT / 2.5, "Sign In", style).setOrigin(0.5);
-
-		const client = this.scene.get('clientScene');
-		this.createKeyboardInputs();
-		this.input.on('pointerdown', pointer => {
-			// client.emitSignIn("Fank", "asd");
-		});
-		this.activeBox = null;
-		this.setActive(this.usernameBox);
+	preload() {
+		this.load.setPath('client/assets/gfx/');
+		this.load.image('panel-large', 'panel-large.png');
+		this.load.image('panel-medium', 'panel-medium.png');
+		this.load.image('text-input', 'text-input.png');
+		this.load.image('text-input-active', 'text-input-active.png');
+		this.load.image('toggle', 'toggle.png');
+		this.load.image('toggle-active', 'toggle-active.png');
+		this.load.image('button', 'button.png');
+		this.load.image('button-active', 'button-active.png');
+		this.load.image('button-slim', 'button-slim.png');
+		this.load.image('button-slim-active', 'button-slim-active.png');
 	}
-	
+
+	create() {
+		this.client = this.scene.get('clientScene');
+		const centreX = config.GAME_LEFT + (config.GAME_WIDTH / 2);
+		const centreY = config.GAME_TOP + (config.GAME_HEIGHT / 2);
+
+		// Panel
+		this.backgroundPanel = new Panel(this, centreX, centreY, 'panel-large');
+		this.signInPanel = new Panel(this, centreX, centreY + 64, 'panel-medium');
+		
+		// Title
+		let style = { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 3) + 'px', fill: '#ffffff' };
+		this.add.text(centreX, centreY / 2, "Odyssey", style).setOrigin(0.5);
+		
+		// Sign In / Sign Up Buttons
+		this.activeToggle = null;
+		this.signInToggle = new ToggleLight(this, centreX - 60, centreY - 50, "Sign In", (toggle) => this.setActiveToggle(toggle));
+		this.signUpToggle = new ToggleLight(this, centreX + 60, centreY - 50, "Sign Up", (toggle) => this.setActiveToggle(toggle));
+
+		// Inputs Boxes
+		this.activeBox = null;
+		this.usernameBox = new InputBox(this, centreX, centreY + 16, "Username", (box) => this.setActiveBox(box));
+		this.passwordBox = new PasswordBox(this, centreX, centreY + 48, (box) => this.setActiveBox(box));
+		this.emailBox = new InputBox(this, centreX, centreY + 80, "Email", (box) => this.setActiveBox(box));
+		
+		// Submit Button
+		this.submitButton = new SubmitButton(this, centreX, centreY + 128, () => this.submitInfo());
+
+		this.createKeyboardInputs();
+		this.setActiveBox(this.usernameBox);
+		this.setActiveToggle(this.signInToggle);
+	}
+
 	createKeyboardInputs() {
-		this.inputKeys = this.input.keyboard.addKeys('ARROWLEFT,ARROWRIGHT,ARROWUP,ARROWDOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12');
+		this.inputKeys = this.input.keyboard.addKeys(config.KEYBOARD_KEYS);
 		this.input.keyboard.on('keydown', event => {
 			let key = event.key;
 			key = key.replace(/Page/g, 'Page_');
@@ -46,22 +73,28 @@ export default class SignInScene extends Scene {
 					// TODO: Move cursor right
 				}
 				else if (key === 'Tab') {
-					if (this.activeBox === this.usernameBox) this.setActive(this.passwordBox);
-					else this.setActive(this.usernameBox);
+					if (this.activeBox === this.usernameBox) this.setActiveBox(this.passwordBox);
+					else if (this.activeBox === this.passwordBox) {
+						if (this.activeToggle === this.signInToggle) this.setActiveBox(this.usernameBox);
+						else if (this.activeToggle === this.signUpToggle) this.setActiveBox(this.emailBox);
+					}
+					else this.setActiveBox(this.usernameBox);
 				}
 				else if (key === 'Enter') {
 					// TODO: Select next input box or send sign in request
 					if (this.activeBox === this.usernameBox) {
-						this.setActive(this.passwordBox);
+						this.setActiveBox(this.passwordBox);
 					}
 					else if (this.activeBox === this.passwordBox) {
-						const client = this.scene.get('clientScene');
-						const username = this.usernameBox.message;
-						const password = this.passwordBox.message;
-						client.emitSignIn(username, password);
+						if (this.activeToggle === this.signInToggle) this.submitInfo();
+						else if (this.activeToggle === this.signUpToggle) this.setActiveBox(this.emailBox);
+					}
+					else if (this.activeBox === this.emailBox) {
+						if (this.activeToggle === this.signInToggle) this.setActiveBox(this.usernameBox);
+						else if (this.activeToggle === this.signUpToggle) this.submitInfo();
 					}
 					else {
-						this.setActive(this.usernameBox);
+						this.setActiveBox(this.usernameBox);
 					}
 				}
 				else if (key === 'Space') {
@@ -72,15 +105,40 @@ export default class SignInScene extends Scene {
 				}
 			}
 			else {
-				if (this.inputKeys['SHIFT'].isDown) key = key.toUpperCase();
+				if (this.inputKeys.SHIFT.isDown) key = key.toUpperCase();
 				this.activeBox.addChar(key);
 			}
 		});
 	}
 
-	setActive(inputBox) {
+	setActiveBox(inputBox) {
 		if (this.activeBox) this.activeBox.setFocus(false);
 		this.activeBox = inputBox;
 		this.activeBox.setFocus(true);
+	}
+
+	setActiveToggle(toggle) {
+		if (this.activeToggle) this.activeToggle.onUp();
+		this.activeToggle = toggle;
+		this.activeToggle.onDown();
+		if (toggle === this.signInToggle) {
+			this.emailBox.setVisible(false);
+			if (this.activeBox === this.emailBox) this.setActiveBox(this.usernameBox);
+		}
+		else if (toggle === this.signUpToggle) {
+			this.emailBox.setVisible(true);
+		}
+	}
+
+	submitInfo() {
+		const username = this.usernameBox.message;
+		const password = this.passwordBox.message;
+		if (!username || !password) {
+			this.setActiveBox(this.usernameBox);
+		}
+		else {
+			if (this.activeToggle === this.signInToggle) this.client.emitSignIn(username, password);
+			else if (this.activeToggle === this.signUpToggle) this.client.emitSignUp(username, password);
+		}
 	}
 }
