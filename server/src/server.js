@@ -37,7 +37,7 @@ class Server {
 		db.log(`${socket.id} - Socket connected.`);
 		
 		socket.on('disconnect', () => this.onDisconnect(socket));
-		socket.on('signup', (data) => this.onSignUp(data.username, data.password, data.email));
+		socket.on('signup', (data) => this.onSignUp(socket, data.username, data.password, data.email));
 		socket.on('signin', (data) => this.onSignIn(socket, data.username, data.password));
 		socket.on('signout', () => this.onSignOut(socket));
 		// Tell client they have connected
@@ -51,13 +51,14 @@ class Server {
 		delete this.socketList[socket.id];
 	}
 
-	async onSignUp(username, password, email) {
-		let success = await db.addAccount(username, password, email);
-		if (success) {
-			console.log("Tell client signup was successful");
+	async onSignUp(socket, username, password, email) {
+		let accountId = await db.addAccount(username, password, email);
+		if (accountId) {
+			db.log(`${socket.id} - Account added: ${username}`);
+			socket.emit('signedUp', {username, password});
 		}
 		else {
-			console.log("Tell client signup was not successful");
+			socket.emit('signedUp', null);
 		}
 	}
 
@@ -79,17 +80,15 @@ class Server {
 		socket.accountId = account._id;
 		this.activeAccounts[account._id] = username;
 
-		socket.on('addPlayer', (data) => this.onAddPlayer(socket, data.name, data.templateName));
+		socket.on('addPlayer', (data) => this.onAddPlayer(socket, data.name, data.templateId));
 		socket.on('login', (name) => this.onLogIn(socket, name));
 		socket.on('logout', () => this.onLogOut(socket));
 		socket.on('addPlayerTemplate', (data) => this.onAddPlayerTemplate(data));
 
 		db.log(`${socket.id} - ${username} signed in.`);
 		let players = await db.getPlayersByAccount(account._id);
-		socket.emit('signedIn', {
-			account,
-			players
-		});
+		let playerTemplates = await db.getAllPlayerTemplates();
+		socket.emit('signedIn', {account, players, playerTemplates});
 	}
 	
 	async onSignOut(socket) {
@@ -105,14 +104,14 @@ class Server {
 	}
 
 	async onAddPlayer(socket, name, templateId) {
-		let success = await db.addPlayer(socket.accountId, name, templateId);
-		if (success) {
+		let playerId = await db.addPlayer(socket.accountId, name, templateId);
+		if (playerId) {
 			const username = this.activeAccounts[socket.accountId];
 			db.log(`${socket.id} - ${name} has been added as a player to account ${username}.`);
-			// Tell client add player was successful
+			socket.emit('playerAdded', playerId);
 		}
 		else {
-			// Tell client add player was not successful
+			socket.emit('playerAdded', null);
 		}
 	}
 	
@@ -128,7 +127,7 @@ class Server {
 		}
 	}
 
-	async onLogIn(socket, name) {
+	async onLogIn(socket, playerId) {
 		if (!socket.accountId) {
 			console.log("Not signed into account.");
 			socket.emit('loggedIn', false);
@@ -140,7 +139,7 @@ class Server {
 			return;
 		}
 
-		let playerData = await db.getPlayer(name);
+		let playerData = await db.getPlayer(playerId);
 		if (!playerData) {
 			console.log("No player with that name.");
 			socket.emit('loggedIn', false);
