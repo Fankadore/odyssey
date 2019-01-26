@@ -103,15 +103,12 @@ class Database {
 		account = new Account({
 			_id: new mongoose.Types.ObjectId,
 			username,
-			password: hashedPassword
+			password: hashedPassword,
+			email
 		});
-		//if (email) account.email = email;
 
 		return await account.save()
-		.then(result => {
-			this.log(`Account added: ${username}.`)
-			return true;
-		})
+		.then(result => account._id)
 		.catch(err => console.log(err));
 	}
 	async getAccount(accountId) {
@@ -153,17 +150,17 @@ class Database {
 		let account = await this.getAccount(accountId);
 		if (!account) {
 			console.log("Account does not exist with that id.");
-			return false;
+			return null;
 		}
 		let template = await this.getPlayerTemplate(templateId);
 		if (!template) {
 			console.log("Player Template does not exist with that id.");
-			return false;
+			return null;
 		}
-		let player = await this.getPlayer(name);
+		let player = await this.getPlayerByName(name);
 		if (player) {
 			console.log("Player already exists with that name.");
-			return false;
+			return null;
 		}
 
 		player = new Player({
@@ -174,10 +171,18 @@ class Database {
 		});
 
 		return await player.save()
-		.then(result => true)
+		.then(result => player._id)
 		.catch(err => console.log(err));
 	}
-	async getPlayer(name) {
+	async getPlayer(playerId) {
+		return await Player.findById(playerId)
+		.select('_id account name template level experience mapId x y direction adminAccess sprite')
+		.populate('template')
+		.exec()
+		.then(player => player)
+		.catch(err => console.log(err));
+	}
+	async getPlayerByName(name) {
 		return await Player.findOne({name: name})
 		.select('_id account name template level experience mapId x y direction adminAccess sprite')
 		.populate('template')
