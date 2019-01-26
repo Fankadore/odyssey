@@ -93,10 +93,17 @@ class Database {
 	}
 
 	async addAccount(username, password, email) {
-		let account = await this.getAccountId(username);
-		if (account) {
-			console.log(`Account already exists with username ${username}.`);
-			return false;
+		let admin = false;
+		let accounts = await this.getAllAccounts();
+		if (accounts.length === 0) {
+			admin = true;
+		}
+		else {
+			let existingAccount = accounts.find(account => account.username === username)
+			if (existingAccount) {
+				console.log(`Account already exists with username ${username}.`);
+				return false;
+			}
 		}
 
 		const hashedPassword = await this.hashPassword(password);
@@ -104,7 +111,9 @@ class Database {
 			_id: new mongoose.Types.ObjectId,
 			username,
 			password: hashedPassword,
-			email
+			email,
+			verified: false,
+			admin
 		});
 
 		return await account.save()
@@ -137,6 +146,13 @@ class Database {
 				return null;
 			}
 		})
+		.catch(err => console.log(err));
+	}
+	async getAllAccounts() {
+		return await Account.find({})
+		.select('_id username password email verified admin')
+		.exec()
+		.then(accounts => accounts)
 		.catch(err => console.log(err));
 	}
 	async saveAccount(data) {
@@ -336,6 +352,8 @@ class Database {
 			defenceBase: data.defenceBase,
 			healthMaxBase: data.healthMaxBase,
 			energyMaxBase: data.energyMaxBase,
+			healthRegenBase: data.healthRegenBase,
+			energyRegenBase: data.energyRegenBase,
 			rangeBase: data.rangeBase,
 			healthPerLevel: data.healthPerLevel,
 			energyPerLevel: data.energyPerLevel
@@ -347,14 +365,14 @@ class Database {
 	}
 	async getPlayerTemplate(templateId) {
 		return await PlayerTemplate.findById(templateId)
-		.select('name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase healthPerLevel, energyPerLevel')
+		.select('name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase healthPerLevel, energyPerLevel')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
 	async getAllPlayerTemplates() {
 		return await PlayerTemplate.find({})
-		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase healthPerLevel, energyPerLevel')
+		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase healthPerLevel, energyPerLevel')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));
@@ -369,6 +387,8 @@ class Database {
 			defenceBase: data.defenceBase,
 			healthMaxBase: data.healthMaxBase,
 			energyMaxBase: data.energyMaxBase,
+			healthRegenBase: data.healthRegenBase,
+			energyRegenBase: data.energyRegenBase,
 			rangeBase: data.rangeBase,
 			hostile: data.hostile
 		});
@@ -379,14 +399,14 @@ class Database {
 	}
 	async getBotTemplate(templateId) {
 		return await BotTemplate.findById(templateId)
-		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase hostile')
+		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase hostile')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
 	async getAllBotTemplates() {
 		return await BotTemplate.find({})
-		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase rangeBase hostile')
+		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase hostile')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));
@@ -430,11 +450,15 @@ class Database {
 			passiveDefence: data.passiveDefence,
 			passiveHealthMax: data.passiveHealthMax,
 			passiveEnergyMax: data.passiveEnergyMax,
+			passiveHealthRegen: data.passiveHealthRegen,
+			passiveEnergyRegen: data.passiveEnergyRegen,
 			passiveRange: data.passiveRange,
 			equippedDamage: data.equippedDamage,
 			equippedDefence: data.equippedDefence,
 			equippedHealthMax: data.equippedHealthMax,
 			equippedEnergyMax: data.equippedEnergyMax,
+			equippedHealthRegen: data.equippedHealthRegen,
+			equippedEnergyRegen: data.equippedEnergyRegen,
 			equippedRange: data.equippedRange
 		});
 
@@ -444,7 +468,7 @@ class Database {
 	}
 	async getItemTemplate(templateId) {
 		return await ItemTemplate.findById(templateId)
-		.select('name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.select('name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.populate('type')
 		.exec()
 		.then(template => template)
@@ -452,7 +476,7 @@ class Database {
 	}
 	async getAllItemTemplates() {
 		return await ItemTemplate.find({})
-		.select('_id name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedRange')
+		.select('_id name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.populate('type')
 		.exec()
 		.then(templates => templates)
