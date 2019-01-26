@@ -1,7 +1,7 @@
-import config from '../config.js';
+import config from '../../config.js';
 
-import Cursor from '../objects/chatbox/cursor.js';
-import Message from '../objects/chatbox/message.js';
+import Cursor from './cursor.js';
+import Message from './message.js';
 
 export default class Chatbox {
 	constructor(scene) {

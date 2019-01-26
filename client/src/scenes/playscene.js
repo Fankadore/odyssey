@@ -1,9 +1,9 @@
 import { Scene } from '../lib/phaser.js';
 import util from '../lib/util.js';
 import config from '../config.js';
-import Game from '../containers/game.js';
-import Menu from '../containers/menu.js';
-import Chatbox from '../containers/chatbox.js';
+import Game from '../objects/game/game.js';
+import Menu from '../objects/menu/menu.js';
+import Chatbox from '../objects/chatbox/chatbox.js';
 
 export default class PlayScene extends Scene {
   constructor() {

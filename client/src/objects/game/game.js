@@ -1,10 +1,10 @@
-import util from '../lib/util.js';
-import config from '../config.js';
+import util from '../../lib/util.js';
+import config from '../../config.js';
 
-import Actor from '../objects/game/actor.js';
-import MapItem from '../objects/game/mapitem.js';
-import Text from '../objects/game/text.js';
-import Effect from '../objects/game/effect.js';
+import Actor from './actor.js';
+import MapItem from './mapitem.js';
+import Text from './text.js';
+import Effect from './effect.js';
 
 export default class Game {
   constructor(scene) {

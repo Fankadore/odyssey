@@ -1,9 +1,9 @@
-import util from '../lib/util.js';
-import config from '../config.js';
+import util from '../../lib/util.js';
+import config from '../../config.js';
 
-import Statbox from '../objects/menu/statbox.js';
-import Inventory from '../objects/menu/inventory.js';
-import Infobox from '../objects/menu/infobox.js';
+import Statbox from './statbox.js';
+import Inventory from './inventory.js';
+import Infobox from './infobox.js';
 
 export default class Menu {
 	constructor(scene) {

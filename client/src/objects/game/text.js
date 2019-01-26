@@ -1,5 +1,4 @@
 import Phaser from '../../lib/phaser.js';
-import util from '../../lib/util.js';
 import config from '../../config.js';
 
 const offsetX = 0.5;

@@ -9,8 +9,8 @@ import config from './config.js';
 
 const phaserConfig = {
 	type: Phaser.AUTO,
-	width: config.WIDTH,
-	height: config.HEIGHT,
+	width: config.GAME_WIDTH,
+	height: config.GAME_HEIGHT,
 	parent: 'game-window',
 	scene: [ClientScene, SignInScene, PlayerSelectScene, PlayScene],	// TODO: create/select player scene
 	input: { gamepad: true }
