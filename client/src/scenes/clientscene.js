@@ -13,30 +13,50 @@ export default class ClientScene extends Scene {
 	create() {
 		this.socket = io.connect();
 		
+		this.socket.on('signedUp', (data) => this.onSignedUp(data));
 		this.socket.on('signedIn', (data) => this.onSignedIn(data));
 		this.socket.on('signedOut', () => this.onSignedOut());
 		this.socket.on('loggedIn', (data) => this.onLoggedIn(data));
 		this.socket.on('loggedOut', () => this.onLoggedOut());
 		this.socket.on('loadMap', (data) => this.onLoadMap(data));
 		this.socket.on('update', (data) => this.onUpdate(data));
+		this.socket.on('playerAdded', (playerId) => this.onPlayerAdded(playerId));
 		this.scene.launch('signInScene');
 	}
 	
+	onSignedUp(data) {
+		if (data) {
+			this.socket.emit('signin', data);
+		}
+		else {
+			console.log("Account already exists with that username.");
+		}
+	}
 	onSignedIn(data) {
 		if (data) {
-			// Show create/select player scene
-			this.account = data.account;
-			this.players = data.players;
-			this.emitLogIn(this.players[0].name);
+			this.scene.stop('signInScene');
+			this.scene.launch('playerSelectScene', data);
+		}
+		else {
+			console.log("Incorrect username/password.");
 		}
 	}
 	onSignedOut() {
-		// Show signup/signin scene
+		this.scene.stop('playerSelectScene');
+		this.scene.launch('signInScene');
 		this.account = null;
+	}
+	onPlayerAdded(playerId) {
+		if (playerId) {
+			this.emitLogIn(playerId);
+		}
+		else {
+			console.log("Player already exists with that name.");
+		}
 	}
 	onLoggedIn(mapData) {
 		if (mapData) {
-			this.scene.stop('signInScene');
+			this.scene.stop('playerSelectScene');
 			this.scene.launch('playScene', mapData);
 		}
 	}
@@ -63,8 +83,8 @@ export default class ClientScene extends Scene {
 		this.socket.emit('signout');
 	}
 
-	emitAddPlayer(name, templateName) {
-		this.socket.emit('addPlayer', {name, templateName});
+	emitAddPlayer(name, templateId) {
+		this.socket.emit('addPlayer', {name, templateId});
 	}
 	emitLogIn(name) {
 		this.socket.emit('login', name);
