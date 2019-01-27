@@ -15,32 +15,6 @@ export default class Game {
     this.effects = [];
 		this.tilemap = null;
     this.layer = [];
-    
-    // Create Anims
-    for (let sprite = 0; sprite < config.SPRITE_COUNT; sprite++) {
-      const frame = sprite * config.SPRITE_FRAMES;
-
-      scene.anims.create({
-        key: sprite + 'walkleft',
-        frames: scene.anims.generateFrameNumbers('sprites', { frames: [frame + 6, frame + 7, frame + 6] }),
-        frameRate: 5
-      });
-      scene.anims.create({
-        key: sprite + 'walkright',
-        frames: scene.anims.generateFrameNumbers('sprites', { frames: [frame + 9, frame + 10, frame + 9] }),
-        frameRate: 5
-      });
-      scene.anims.create({
-        key: sprite + 'walkup',
-        frames: scene.anims.generateFrameNumbers('sprites', { frames: [frame + 3, frame + 4, frame + 3] }),
-        frameRate: 5
-      });
-      scene.anims.create({
-        key: sprite + 'walkdown',
-        frames: scene.anims.generateFrameNumbers('sprites', { frames: [frame + 0, frame + 1, frame + 0] }),
-        frameRate: 5
-      });
-    }
 
     // Create Tilemap
     scene.add.image(0, 0, 'map').setOrigin(0, 0).setDepth(-101);  // TODO: remove
