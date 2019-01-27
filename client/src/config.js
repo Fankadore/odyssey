@@ -97,9 +97,13 @@ class Config {
 
 		this.SPRITESHEETS = ['sprites', 'effects', 'floor', 'potions'];
 		this.IMAGES = [
-			'map', 'menu', 'menu-panel', 'map-name', 'slot', 'equipment-slot', 'infobox', 'info-preview', 'chatbox',
+			'map', 'menu', 'menu-panel', 'map-name', 'slot', 'equipment-slot', 'infobox', 'info-preview',
 			'statbox', 'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty', 'mana-bar', 'mana-bar-empty',
-			'experience-bar', 'experience-bar-empty'
+			'experience-bar', 'experience-bar-empty',
+			'chatbox', 'chatbox-input', 'chatbox-input-active',
+			'background-small', 'background-medium', 'background-large', 'text-input', 'text-input-active',
+			'toggle', 'toggle-active', 'toggle-slim', 'toggle-slim-active',
+			'button', 'button-active', 'button-slim', 'button-slim-active', 'close-button', 'close-button-active'
 		];
 		this.KEYBOARD_KEYS = 'ARROWLEFT,ARROWRIGHT,ARROWUP,ARROWDOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12';
 		this.CRENDALE = {
