@@ -1,4 +1,4 @@
-import Button from './button.js';
+import { Button } from '../../lib/phaser-ui.js';
 
 export default class SubmitButton extends Button {
 	constructor(scene, x, y, callback) {

@@ -1,4 +1,4 @@
-import Button from './button.js';
+import { Button } from '../../lib/phaser-ui.js';
 
 export default class ButtonLightSlim extends Button {
 	constructor(scene, x, y, label, callback) {

@@ -1,17 +1,7 @@
-import Phaser from '../../lib/phaser.js';
+import { Button } from '../../lib/phaser-ui.js';
 
-export default class CloseButton extends Phaser.GameObjects.Image {
+export default class CloseButton extends Button {
 	constructor(scene, x, y, callback) {
-		super(scene, x, y, 'close-button').setInteractive();
-		this.normalTexture = 'close-button';
-		this.activeTexture = 'close-button-active';
-    this.callback = callback;
-    
-    this.on('pointerdown', () => {
-      if (this.callback) this.callback();
-    });
-    this.on('pointerover', pointer => this.setTexture(this.activeTexture));
-    this.on('pointerout', pointer => this.setTexture(this.normalTexture));
-		scene.add.existing(this);
+    super(scene, x, y, 'close-button', 'close-button-active', "", null, callback);
 	}
 }

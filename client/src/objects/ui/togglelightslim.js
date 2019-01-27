@@ -1,4 +1,4 @@
-import Toggle from './toggle.js';
+import { Toggle } from '../../lib/phaser-ui.js';
 
 export default class ToggleLightSlim extends Toggle {
 	constructor(scene, x, y, label, callback) {
