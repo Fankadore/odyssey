@@ -5,7 +5,7 @@ const itemTemplateSchema = new mongoose.Schema({
 	name: {type: String, required: true},
 	sprite: {type: Number, default: 1},
 	reusable: {type: Boolean, default: true},
-	type: {type: mongoose.SchemaTypes.ObjectId, ref: 'ItemType', required: true},
+	itemType: {type: Number, required: true},
 	passiveDamage: {type: Number, default: 0},
 	passiveDefence: {type: Number, default: 0},
 	passiveHealthMax: {type: Number, default: 0},
