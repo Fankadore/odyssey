@@ -12,7 +12,7 @@ export default class ClientScene extends Scene {
 
 	create() {
 		this.socket = io.connect();
-		
+		this.socket.on('disconnect', () => this.onDisconnect());
 		this.socket.on('signedUp', (data) => this.onSignedUp(data));
 		this.socket.on('signedIn', (data) => this.onSignedIn(data));
 		this.socket.on('signedOut', () => this.onSignedOut());
@@ -21,7 +21,12 @@ export default class ClientScene extends Scene {
 		this.socket.on('loadMap', (data) => this.onLoadMap(data));
 		this.socket.on('update', (data) => this.onUpdate(data));
 		this.socket.on('playerAdded', (playerId) => this.onPlayerAdded(playerId));
+		
 		this.scene.launch('signInScene');
+	}
+
+	onDisconnect() {
+		this.onSignedOut();
 	}
 	
 	onSignedUp(data) {
@@ -42,7 +47,9 @@ export default class ClientScene extends Scene {
 		}
 	}
 	onSignedOut() {
-		this.scene.stop('playerSelectScene');
+		if (this.scene.isActive('playerSelectScene')) this.scene.stop('playerSelectScene');
+		else if (this.scene.isActive('playScene')) this.scene.stop('playScene');
+
 		this.scene.launch('signInScene');
 		this.account = null;
 	}
@@ -61,8 +68,10 @@ export default class ClientScene extends Scene {
 		}
 	}
 	onLoggedOut() {
-		// Show create/select character scene
+		this.scene.stop('playScene');
+		this.scene.launch('playerSelectScene');
 	}
+
 	onLoadMap(mapData) {
 		const play = this.scene.get('playScene');
 		play.onLoadMap(mapData);
