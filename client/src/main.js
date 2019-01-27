@@ -1,6 +1,7 @@
 /*** Entry Point ***/
 
 import Phaser from './lib/phaser.js';
+import LoaderScene from './scenes/loaderscene.js';
 import ClientScene from './scenes/clientscene.js';
 import SignInScene from './scenes/signinscene.js';
 import PlayerSelectScene from './scenes/playerselectscene.js';
@@ -12,7 +13,7 @@ const phaserConfig = {
 	width: config.GAME_WIDTH,
 	height: config.GAME_HEIGHT,
 	parent: 'game-window',
-	scene: [ClientScene, SignInScene, PlayerSelectScene, PlayScene],	// TODO: create/select player scene
+	scene: [LoaderScene, ClientScene, SignInScene, PlayerSelectScene, PlayScene],
 	input: { gamepad: true }
 };
 
