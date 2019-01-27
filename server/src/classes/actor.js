@@ -36,8 +36,6 @@ export default class Actor extends Entity {
 		this.energy = this.energyMax;
 		this.regenTimer = 0;
 		this.isHit = false;
-
-		this.calcBonusStats();
 	}
 	
 	// Character Stats
@@ -392,7 +390,7 @@ export default class Actor extends Entity {
 		
 		this.isHit = true;
 		this.health -= damage;
-		console.log(`${this.name} - ${this.health}`);
+
 		if (this.health <= 0) {
 			this.setDead();
 			
@@ -403,11 +401,9 @@ export default class Actor extends Entity {
 
 			attacker.kills++;
 			if (attacker.target === this) attacker.target = null;
-			if (attacker.playerId) {
-				game.sendGameInfoGlobal(attacker.name + " has murdered " + this.name + " in cold blood!");
-			}
-			else {
-				game.sendGameInfoGlobal(this.name + " has been killed by " + attacker.name + "!");
+			if (this.playerId) {
+				if (attacker.playerId) game.sendGameInfoGlobal(attacker.name + " has murdered " + this.name + " in cold blood!");
+				else game.sendGameInfoGlobal(this.name + " has been killed by " + attacker.name + "!");
 			}
 		}
 	}	
@@ -554,8 +550,8 @@ export default class Actor extends Entity {
 
 	moveItemToSlot(slot, newSlot) {
 		if (slot == null || newSlot == null || slot === newSlot) return;	// null == undefined, null != 0
-		if (slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
-		if (newSlot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
+		if (slot < 0 || slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
+		if (newSlot < 0 || newSlot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return;
 
 		const item = this.getItem(slot);
 		const newItem = this.getItem(newSlot);

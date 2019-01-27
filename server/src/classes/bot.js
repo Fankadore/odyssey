@@ -33,6 +33,7 @@ export default class Bot extends Actor {
 		this.healthRegenBase = healthRegenBase;
 		this.energyRegenBase = energyRegenBase;
 		this.rangeBase = rangeBase;
+		this.calcBonusStats();
 		this.restore();
 		
 		this.hostile = hostile;

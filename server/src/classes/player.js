@@ -20,6 +20,7 @@ export default class Player extends Actor {
 		this.templateId = data.template._id;
 		this.template = data.template.name;
 		this.calcBaseStats(data.template);
+		this.calcBonusStats();
 		this.restore();
 
 		this.isDead = false;
