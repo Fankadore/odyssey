@@ -122,14 +122,14 @@ class Database {
 	}
 	async getAccount(accountId) {
 		return await Account.findById(accountId)
-		.select('_id username password email verified')
+		.select('_id username password email verified admin')
 		.exec()
 		.then(account => account)
 		.catch(err => console.log(err));
 	}
 	async getAccountByUsername(username) {
 		return await Account.findOne({username: username})
-		.select('_id username password email verified')
+		.select('_id username password email verified admin')
 		.exec()
 		.then(account => account)
 		.catch(err => console.log(err));
@@ -253,7 +253,7 @@ class Database {
 	}
 	async getBot(botId) {
 		return await Bot.findOne({_id: botId})
-		.select('_id name sprite template level experience mapId x y direction')
+		.select('_id template mapId x y direction')
 		.populate('template')
 		.exec()
 		.then(bot => bot)
@@ -412,40 +412,13 @@ class Database {
 		.catch(err => console.log(err));
 	}
 
-	async addItemType(data) {
-		const type = new ItemType({
-			_id: new mongoose.Types.ObjectId,
-			name: data.name,
-			stackable: data.stackable,
-			equippedSlot: data.equippedSlot
-		});
-
-		return await type.save()
-		.then(result => true)
-		.catch(err => console.log(err));
-	}
-	async getItemType(typeId) {
-		return await ItemType.findById(typeId)
-		.select('name stackable equippedSlot')
-		.exec()
-		.then(type => type)
-		.catch(err => console.log(err));
-	}
-	async getAllItemTypes() {
-		return await ItemType.find({})
-		.select('_id name stackable equippedSlot')
-		.exec()
-		.then(types => types)
-		.catch(err => console.log(err));
-	}
-
 	async addItemTemplate(data) {
 		const template = new ItemTemplate({
 			_id: new mongoose.Types.ObjectId,
 			name: data.name,
 			sprite: data.sprite,
 			reusable: data.reusable,
-			type: data.typeId,
+			itemType: data.itemTypeId,
 			passiveDamage: data.passiveDamage,
 			passiveDefence: data.passiveDefence,
 			passiveHealthMax: data.passiveHealthMax,
@@ -468,16 +441,14 @@ class Database {
 	}
 	async getItemTemplate(templateId) {
 		return await ItemTemplate.findById(templateId)
-		.select('name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
-		.populate('type')
+		.select('name sprite reusable itemType passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
 	async getAllItemTemplates() {
 		return await ItemTemplate.find({})
-		.select('_id name sprite reusable type passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
-		.populate('type')
+		.select('_id name sprite reusable itemType passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));
@@ -508,13 +479,6 @@ class Database {
 
 		return await item.save()
 		.then(result => true)
-		.catch(err => console.log(err));
-	}
-	async getItem(itemId) {
-		return await Item.findOne({_id: itemId})
-		.select('_id template stack playerId botId slot mapId x y createdDate createdBy')
-		.exec()
-		.then(item => item)
 		.catch(err => console.log(err));
 	}
 	async saveItem(data) {
