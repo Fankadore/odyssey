@@ -7,8 +7,8 @@ export default class Item extends Entity {
 		if (!data) return;
 
 		let { _id, playerId, botId, slot, mapId, x, y, template, stack, sprite, name, description, reusable, createdBy, createdDate,
-					passiveDamage, passiveDefence, passiveHealthMax, passiveEnergyMax, passiveRange,
-					equippedDamage, equippedDefence, equippedHealthMax, equippedEnergyMax, equippedRange
+					passiveDamage, passiveDefence, passiveHealthMax, passiveEnergyMax, passiveHealthRegen, passiveEnergyRegen, passiveRange,
+					equippedDamage, equippedDefence, equippedHealthMax, equippedEnergyMax, equippedHealthRegen, equippedEnergyRegen, equippedRange
 				} = data;
 
 		if (_id == null) _id = game.requestDBId();
@@ -29,11 +29,15 @@ export default class Item extends Entity {
 		if (passiveDefence === undefined) passiveDefence = template.passiveDefence;
 		if (passiveHealthMax === undefined) passiveHealthMax = template.passiveHealthMax;
 		if (passiveEnergyMax === undefined) passiveEnergyMax = template.passiveEnergyMax;
+		if (passiveHealthRegen === undefined) passiveHealthRegen = template.passiveHealthRegen;
+		if (passiveEnergyRegen === undefined) passiveEnergyRegen = template.passiveEnergyRegen;
 		if (passiveRange === undefined) passiveRange = template.passiveRange;
 		if (equippedDamage === undefined) equippedDamage = template.equippedDamage;
 		if (equippedDefence === undefined) equippedDefence = template.equippedDefence;
 		if (equippedHealthMax === undefined) equippedHealthMax = template.equippedHealthMax;
 		if (equippedEnergyMax === undefined) equippedEnergyMax = template.equippedEnergyMax;
+		if (equippedHealthRegen === undefined) equippedHealthRegen = template.equippedHealthRegen;
+		if (equippedEnergyRegen === undefined) equippedEnergyRegen = template.equippedEnergyRegen;
 		if (equippedRange === undefined) equippedRange = template.equippedRange;
 
 		super(mapId, x, y, sprite);
@@ -57,6 +61,8 @@ export default class Item extends Entity {
 			defence: passiveDefence,
 			healthMax: passiveHealthMax,
 			energyMax: passiveEnergyMax,
+			healthRegen: passiveHealthRegen,
+			energyRegen: passiveEnergyRegen,
 			range: passiveRange
 		};
 		this.equipped = {
@@ -64,6 +70,8 @@ export default class Item extends Entity {
 			defence: equippedDefence,
 			healthMax: equippedHealthMax,
 			energyMax: equippedEnergyMax,
+			healthRegen: equippedHealthRegen,
+			energyRegen: equippedEnergyRegen,
 			range: equippedRange
 		};
 		
