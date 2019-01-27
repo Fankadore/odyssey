@@ -78,6 +78,7 @@ class Game {
 		.then(templates => {
 			this.itemTemplates = {};
 			templates.forEach(template => {
+				template.type = config.ITEM_TYPES[template.itemType];
 				this.itemTemplates[template._id] = template;
 			});
 		}).catch(err => console.log(err));
@@ -136,7 +137,10 @@ class Game {
 	async loadItems() {
 		let itemData = await db.getAllItems();
 		for (let i = 0; i < itemData.length; i++) {
-			new Item(itemData[i]);
+			const item = itemData[i];
+			if (!item) continue;
+			item.template.type = config.ITEM_TYPES[item.template.itemType]
+			new Item(item);
 		}
 	}
 	async loadBots() {
