@@ -22,4 +22,14 @@ config.MAX_ENERGY_BONUS = 55;
 config.INVENTORY_SIZE = 20;
 config.EQUIPMENT_SIZE = 5;
 
+config.ITEM_TYPES = [
+  {name: "Normal", equippedSlot: null, stackable: false},
+  {name: "Stacking", equippedSlot: null, stackable: true},
+  {name: "Weapon", equippedSlot: 0, stackable: false},
+  {name: "Shield", equippedSlot: 1, stackable: false},
+  {name: "Armour", equippedSlot: 2, stackable: false},
+  {name: "Helmet", equippedSlot: 3, stackable: false},
+  {name: "Ring", equippedSlot: 4, stackable: false}
+];
+
 export default config;
