@@ -46,19 +46,6 @@ export default class PlayScene extends Scene {
 		this.initData = mapData;
 	}
 
-  preload() {
-		this.load.setPath('client/assets/gfx/');
-		for (let i = 0; i < config.SPRITESHEETS.length; i++) {
-			const assetName = config.SPRITESHEETS[i];
-			this.load.spritesheet(assetName, `${assetName}.png`, {frameWidth: 32, frameHeight: 32});
-		}
-
-		for (let i = 0; i < config.IMAGES.length; i++) {
-			const assetName = config.IMAGES[i];
-			this.load.image(assetName, `${assetName}.png`);
-		}
-  }
-
   create() {
 		this.client = this.scene.get('clientScene');
 		this.world = new Game(this);
