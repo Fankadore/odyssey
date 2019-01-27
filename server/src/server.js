@@ -22,7 +22,7 @@ class Server {
 		this.socketList = {};
 		this.activeAccounts = {};
 
-		io.sockets.on('connection', socket => this.onConnect(socket));
+		io.sockets.on('connect', socket => this.onConnect(socket));
 	}
 
 	/* connect => signin => selectplayer
