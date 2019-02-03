@@ -95,8 +95,8 @@ export default class ClientScene extends Scene {
 	emitAddPlayer(name, templateId) {
 		this.socket.emit('addPlayer', {name, templateId});
 	}
-	emitLogIn(name) {
-		this.socket.emit('login', name);
+	emitLogIn(playerId) {
+		this.socket.emit('login', playerId);
 	}
 	emitLogOut() {
 		this.socket.emit('logout');
@@ -117,6 +117,9 @@ export default class ClientScene extends Scene {
 	}
 	emitInputDrag(input, slot, newSlot) {
 		this.socket.emit('input', {input, slot, newSlot});
+	}
+	emitMapChat(message) {
+		this.socket.emit('input', {input: 'mapChat', message});
 	}
 	
 	emitCommand(command, ...args) {
