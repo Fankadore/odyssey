@@ -59,6 +59,11 @@ function getIndexFromXY(x, y, columns) {
 	return (y * columns) + x;
 }
 
+function isWithinBounds(rect, x, y) {
+	if (!rect || x == null || y == null || rect.x == null || rect.y == null || rect.width == null || rect.height == null) return null;
+	return (x >= rect.x && x < rect.x + rect.width && y >= rect.y && y < rect.y + rect.height);
+}
+
 function timestamp(date) {
 	if (!(date instanceof Date)) return "Invalid date";
 	let month = date.getMonth() + 1;
@@ -116,6 +121,7 @@ export default {
 	getXFromIndex,
 	getYFromIndex,
 	getIndexFromXY,
+	isWithinBounds,
 	timestamp,
 	indefiniteArticle,
 	plural
