@@ -1,29 +1,30 @@
+import Phaser from '../../lib/phaser.js';
 import config from '../../config.js';
 
-export default class Infobox {
-  constructor(scene) {
-    this.preview = null;
-    this.name = null;
-    this.description = null;
+export default class Infobox extends Phaser.GameObjects.Container {
+	constructor(scene, x, y) {
+		super(scene, x, y);
 
-    scene.add.image(config.INFOBOX_LEFT, config.INFOBOX_TOP, 'infobox').setOrigin(0, 0);
-		scene.add.image(config.INFOPREVIEW_LEFT, config.INFOPREVIEW_TOP, 'info-preview').setOrigin(0, 0);
-    this.preview = scene.add.sprite(config.INFOPREVIEW_LEFT + 3, config.INFOPREVIEW_TOP + 3, 'potions').setOrigin(0, 0);
-    this.name = scene.add.text(config.INFOPREVIEW_LEFT, config.INFOPREVIEW_TOP - (config.FONT_SIZE * 1.2) - 7, "", { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 1.2) + 'px', fill: '#ffffff' });
-    this.description = scene.add.text(config.INFOPREVIEW_RIGHT + 7, config.INFOPREVIEW_TOP, "", { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 0.9) + 'px', fill: '#ffffff' });
-  }
+		// Item Info
+		const style = { fontFamily: 'Arial', fontSize: '14px', fill: '#ffffff' }
+		this.name = scene.add.text(328, -13, "", style).setOrigin(0.5);
+		this.description = scene.add.text(0, 0, "", style).setFontSize(11);
+		this.add([this.name, this.description]);
+		scene.add.existing(this);
+	}
 
-  setPreview(item) {
-    this.preview.setFrame(item.sprite);
-    let name = item.name;
+	setSelected(item) {
+		let name = item.name;
 		if (item.stack > 0) name = `${name} x${stack}`;
 		this.name.setText(name);
-		this.description.setText(item.description);
+		let description = [];
+		if (item.equipped.damage) description.push(`Damage: +${item.equipped.damage}`);
+		if (item.equipped.defence) description.push(`Defence: +${item.equipped.defence}`);
+		this.description.setText(description);
 	}
 	
 	clear() {
-		this.preview.setFrame(0);	
-    this.name.setText("");
-    this.description.setText("");
+		this.name.setText("");
+		this.description.setText("");
 	}
 }
