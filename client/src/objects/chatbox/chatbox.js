@@ -1,10 +1,13 @@
 import config from '../../config.js';
 
-import Cursor from './cursor.js';
+import ChatInput from './chatinput.js';
 import Message from './message.js';
 
 export default class Chatbox {
-	constructor(scene) {
+	constructor(scene, x, y) {
+		this.scene = scene;
+		this.x = x;
+		this.y = y;
 		this.messages = [];
 		this.visibleMessages = [];
 		this.showGameInfo = true;
@@ -12,23 +15,18 @@ export default class Chatbox {
 		this.showMapMessages = true;
 		this.showPlayerMessages = true;
 		this.currentLine = 0;
-		this.cursor = null;
-
-		scene.add.image(config.CHATBOX_LEFT, config.CHATBOX_TOP, 'chatbox').setOrigin(0, 0);
-		this.cursor = new Cursor(scene);
-
-		this.Message = (messageData) => new Message(scene, messageData);
+		this.focus = false;
+		
+		this.chatInput = new ChatInput(scene, config.CHATINPUT.x, config.CHATINPUT.y, "", () => this.setFocus(true));
 	}
 
 	onUpdate(data) {
 		if (data && data.messages) {
 			data.messages.forEach((messageData) => {
-				this.messages.unshift(this.Message(messageData));
+				this.messages.unshift(new Message(this.scene, messageData));
 				this.refresh();
 			});	
 		}
-
-		this.cursor.onUpdate();
 	}
 	
 	refresh() {
@@ -47,8 +45,8 @@ export default class Chatbox {
 		this.messages.forEach((message) => {
 			if (this.visibleMessages.includes(message)) {
 				const index = this.visibleMessages.indexOf(message);
-				if (index >= this.currentLine && index < config.CHATBOX_LINES + this.currentLine) {
-					message.y = config.CHATBOX_BOTTOM - config.FONT_SIZE - (config.FONT_SIZE * (index - this.currentLine + 2));
+				if (index >= this.currentLine && index < config.CHATBOX.lines + this.currentLine) {
+					message.y = this.y + config.CHATBOX.height - (config.FONT.height * (index + 1 - this.currentLine)) - 2;
 					message.setVisible(true);
 				}
 				else {
@@ -68,8 +66,20 @@ export default class Chatbox {
 			type: 'gameInfo',
 			colour: colour
 		};
-		this.messages.unshift(this.Message(messageData));
+		this.messages.unshift(new Message(this.scene, messageData));
 		this.refresh();
+	}
+
+	setFocus(focus) {
+		this.focus = focus;
+		this.chatInput.setFocus(focus);
+		if (focus) this.chatInput.defaultMessage.setText("Type to chat...");
+		else this.chatInput.defaultMessage.setText("");
+	}
+
+	submitChat() {
+		this.scene.client.emitMapChat(this.chatInput.message);
+		this.chatInput.updateText("");
 	}
 
 	scrollUp() {
