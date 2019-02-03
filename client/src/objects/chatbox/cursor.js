@@ -4,10 +4,10 @@ import config from '../../config.js';
 export default class Cursor extends Phaser.GameObjects.Graphics {
 	constructor(scene) {
 		super(scene);
-		this.x = config.CHATBOX_LEFT + (config.TILE_SIZE / 2);
-		this.y = config.CHATBOX_BOTTOM - config.FONT_SIZE;
+		this.x = config.CHATBOX.x + (config.TILE_SIZE / 2);
+		this.y = config.CHATBOX.y + config.CHATBOX.height - config.FONT.height;
 		this.width = 5;
-		this.height = config.FONT_SIZE;
+		this.height = config.FONT.height;
 		this.focus = true;
 		this.speed = 500;
 		this.timer = 0;

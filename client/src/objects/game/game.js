@@ -17,12 +17,12 @@ export default class Game {
     this.layer = [];
 
     // Create Tilemap
-    scene.add.image(0, 0, 'map').setOrigin(0, 0).setDepth(-101);  // TODO: remove
-    this.tilemap = scene.make.tilemap({ width: 12, height: 12, tileWidth: 32, tileHeight: 32 });
+    scene.add.image(config.MAP.x, config.MAP.y, 'map').setOrigin(0).setDepth(-101);  // TODO: remove
+    this.tilemap = scene.make.tilemap({ width: config.MAP.columns, height: config.MAP.rows, tileWidth: config.TILE_SIZE, tileHeight: config.TILE_SIZE });
     const tiles = this.tilemap.addTilesetImage('floor');
     this.layer = [];
-    for (let i = 0; i < config.MAP_LAYERS; i++) {
-      this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles);
+    for (let i = 0; i < config.MAP.layers; i++) {
+      this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles).setPosition(config.MAP.x, config.MAP.y);
 		}
 		this.onLoadMap(scene.initData.tiles);
   }
@@ -116,7 +116,7 @@ export default class Game {
 
   onLoadMap(tiles) {
 		// Update Tiles
-		for (let i = 0; i < config.MAP_LAYERS; i++) {
+		for (let i = 0; i < config.MAP.layers; i++) {
 			if (this.layer[i]) {
 				this.layer[i].putTilesAt(tiles[i], 0, 0);
 			}
@@ -125,8 +125,10 @@ export default class Game {
 
   clickMap(pixelX, pixelY, rightClick) {
 		if (rightClick) return null;
-		const x = ((pixelX - config.MAP_LEFT) - (pixelX % config.TILE_SIZE)) / config.TILE_SIZE;
-		const y = ((pixelY - config.MAP_TOP) - (pixelY % config.TILE_SIZE)) / config.TILE_SIZE;
+		pixelX -= config.MAP.x;
+		pixelY -= config.MAP.y;
+		const x = (pixelX - (pixelX % config.TILE_SIZE)) / config.TILE_SIZE;
+		const y = (pixelY - (pixelY % config.TILE_SIZE)) / config.TILE_SIZE;
 		const messages = [];
 		
 		this.items.forEach((item) => {

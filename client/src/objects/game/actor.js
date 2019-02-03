@@ -75,8 +75,8 @@ export default class Actor extends Entity {
 		/* this.grid.lerp is a float between 0 and 1, showing the distance between tiles.
 		** 0 = on starting tile, 1 = on destination tile, 0.5 = half way, etc. */
 
-		const x = this.grid.x * config.TILE_SIZE;
-		const y = this.grid.y * config.TILE_SIZE;
+		const x = config.MAP.x + this.grid.x * config.TILE_SIZE;
+		const y = config.MAP.y + this.grid.y * config.TILE_SIZE;
 		const lerp = this.grid.lerp * config.TILE_SIZE;
 
 		if (this.grid.x > this.grid.destinationX) {	// Moving Left

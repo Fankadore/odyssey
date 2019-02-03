@@ -6,9 +6,10 @@ const offsetY = -0.75;
 
 export default class Text extends Phaser.GameObjects.Text {
 	constructor(scene, data) {
-		const x = (data.x + data.lerpX + offsetX) * config.TILE_SIZE;
-		const y = (data.y + data.lerpY + offsetY) * config.TILE_SIZE;
-		const style = { fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour };
+		const x = config.MAP.x + (data.x + data.lerpX + offsetX) * config.TILE_SIZE;
+		const y = config.MAP.y + (data.y + data.lerpY + offsetY) * config.TILE_SIZE;
+		const style = config.FONT;
+		style.fill = data.colour;
 		super(scene, x, y, data.message, style).setOrigin(0.5).setAlign('center').setDepth(100);
 
 		this.gameId = data.gameId;
@@ -16,9 +17,9 @@ export default class Text extends Phaser.GameObjects.Text {
 	}
 
 	onUpdate(data) {
-		if (data.x != null && data.lerpX != null) this.x = (data.x + data.lerpX + offsetX) * config.TILE_SIZE;
-		if (data.y != null && data.lerpY != null) this.y = (data.y + data.lerpY + offsetY) * config.TILE_SIZE;
+		if (data.x != null && data.lerpX != null) this.x = config.MAP.x + (data.x + data.lerpX + offsetX) * config.TILE_SIZE;
+		if (data.y != null && data.lerpY != null) this.y = config.MAP.y + (data.y + data.lerpY + offsetY) * config.TILE_SIZE;
 		if (data.message != null) this.setText(data.message);
-		if (data.colour != null) this.setStyle({ fontFamily: 'Arial', fontSize: config.FONT_SIZE + 'px', fill: data.colour });
+		if (data.colour != null) this.setColor(data.colour);
 	}
 }

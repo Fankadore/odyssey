@@ -8,8 +8,8 @@ export default class Effect extends Entity {
   }
 
   onUpdate(data) {
-    if (data.x != null) this.x = data.x * config.TILE_SIZE;
-    if (data.y != null) this.y = data.y * config.TILE_SIZE;
+    if (data.x != null) this.x = config.MAP.x + (data.x * config.TILE_SIZE);
+    if (data.y != null) this.y = config.MAP.y + (data.y * config.TILE_SIZE);
     if (data.currentFrame != null && data.currentFrame !== this.currentFrame) {
       this.currentFrame = data.currentFrame;
       if (data.sprite == null || data.sprite === this.sprite) this.setFrame();
