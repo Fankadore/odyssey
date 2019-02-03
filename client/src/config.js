@@ -83,7 +83,7 @@ class Config {
 			y: this.GAME.y + 394,
 			width: 793,
 			height: 128,
-			lines: 9
+			style: {fontFamily: this.FONT.fontFamily, fontSize: this.FONT.fontSize, fill: '#ffffff'}
 		};
 		this.CHATBOX.centreX = this.CHATBOX.x + (this.CHATBOX.width / 2);
 		this.CHATBOX.centreY = this.CHATBOX.y + (this.CHATBOX.height / 2);		

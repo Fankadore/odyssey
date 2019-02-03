@@ -17,7 +17,7 @@ export default class Chatbox {
     
     this.textMask = scene.make.graphics();
     this.textMask.fillRect(this.x, this.y, this.width, this.height);
-    this.displayText = scene.add.text(this.x, this.y + this.height - 2, "", config.FONT)
+    this.displayText = scene.add.text(this.x, this.y + this.height - 2, "", config.CHATBOX.style)
     .setColor('#ffffff').setOrigin(0, 1).setWordWrapWidth(this.width).setMask(this.textMask.createGeometryMask());
 
     this.chatInput = new ChatInput(scene, () => this.setFocus(true));
