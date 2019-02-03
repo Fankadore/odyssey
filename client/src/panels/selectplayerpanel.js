@@ -77,10 +77,10 @@ export default class SelectPlayerPanel extends Panel {
 	}
 
 	onKeyDown(key) {
-		if (key === 'ArrowUp') {
+		if (key === 'Up') {
 			this.selectPrevToggle();
 		}
-		else if (key === 'ArrowDown') {
+		else if (key === 'Down') {
 			this.selectNextToggle();
 		}
 		else if (key === 'Tab') {	//	Switch selected player
