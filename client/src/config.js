@@ -1,111 +1,131 @@
 class Config {
 	constructor() {
 		// Client Config
-		this.MAP_COLUMNS = 12;
-		this.MAP_ROWS = 12;
-		this.MAP_LAYERS = 6;
-		
 		this.TILE_SIZE = 32;
-		this.SLOT_SIZE = this.TILE_SIZE + 6;
+		this.SLOT_SIZE = this.TILE_SIZE + 4;
 
-		this.FONT_FAMILY = 'Arial';
-		this.FONT_SIZE = 12;
-		this.FONT_COLOUR = '#000000';
-		this.FONT_STYLE = { fontFamily: this.FONT_FAMILY, fontSize: this.FONT_SIZE + "px", fill: this.FONT_COLOUR };
+		this.FONT = {
+			fontFamily: 'Arial',
+			fontSize: '12px',
+			height: 14,
+			fill: '#000000'
+		};
 
 		this.SPRITE_FRAMES = 13;
 		this.SPRITE_COUNT = 13;
 		this.EFFECT_FRAMES = 8;
-
-		this.INVENTORY_COLUMNS = 5;
-		this.INVENTORY_ROWS = 4;
-		this.INVENTORY_SIZE = this.INVENTORY_COLUMNS * this.INVENTORY_ROWS;
 		
-		this.EQUIPMENT_COLUMNS = 5;
-		this.EQUIPMENT_ROWS = 1;
-		this.EQUIPMENT_SIZE = this.EQUIPMENT_COLUMNS * this.EQUIPMENT_ROWS;
+		this.GAME = {
+			x: 0,
+			y: 0,
+			width: 800,
+			height: 556
+		};
+		this.GAME.centreX = this.GAME.x + (this.GAME.width / 2);
+		this.GAME.centreY = this.GAME.y + (this.GAME.height / 2);
+
+		this.MAP = {
+			x: this.GAME.x + 3,
+			y: this.GAME.y + 3,
+			layers: 6,
+			columns: 12,
+			rows: 12
+		};
+		this.MAP.width = this.MAP.columns * this.TILE_SIZE;
+		this.MAP.height = this.MAP.rows * this.TILE_SIZE;
+		this.MAP.centreX = this.MAP.x + (this.MAP.width / 2);
+		this.MAP.centreY = this.MAP.y + (this.MAP.height / 2);
+
+		this.INVENTORY = {
+			x: this.GAME.x + 452,
+			y: this.GAME.y + 86,
+			columns: 5,
+			rows: 4
+		};
+		this.INVENTORY.size = this.INVENTORY.columns * this.INVENTORY.rows;
+		this.INVENTORY.width = this.INVENTORY.columns * this.SLOT_SIZE;
+		this.INVENTORY.height = this.INVENTORY.rows * this.SLOT_SIZE;
+		this.INVENTORY.centreX = this.INVENTORY.x + (this.INVENTORY.width / 2);
+		this.INVENTORY.centreY = this.INVENTORY.y + (this.INVENTORY.height / 2);
+
+		this.EQUIPMENT = {
+			x: this.INVENTORY.x,
+			y: this.INVENTORY.y + this.INVENTORY.height + 2,
+			columns: this.INVENTORY.columns,
+			rows: 1
+		};
+		this.EQUIPMENT.size = this.EQUIPMENT.columns * this.EQUIPMENT.rows;
+		this.EQUIPMENT.width = this.EQUIPMENT.columns * this.SLOT_SIZE;
+		this.EQUIPMENT.height = this.EQUIPMENT.rows * this.SLOT_SIZE;
+		this.EQUIPMENT.centreX = this.EQUIPMENT.x + (this.EQUIPMENT.width / 2);
+		this.EQUIPMENT.centreY = this.EQUIPMENT.y + (this.EQUIPMENT.height / 2);
+
+		this.MAPNAME = {
+			x: this.GAME.x + 394,
+			y: this.GAME.y + 6,
+			width: 241,
+			height: 18
+		};
+		this.MAPNAME.centreX = this.MAPNAME.x + (this.MAPNAME.width / 2);
+		this.MAPNAME.centreY = this.MAPNAME.y + (this.MAPNAME.height / 2);
+
+		this.STATBOX = {
+			x: this.GAME.x + 480,
+			y: this.GAME.y + 32,
+			width: 151,
+			height: 44
+		};
+		this.STATBOX.centreX = this.STATBOX.x + (this.STATBOX.width / 2);
+		this.STATBOX.centreY = this.STATBOX.y + (this.STATBOX.height / 2);
+
+		this.CHATBOX = {
+			x: this.GAME.x + 3,
+			y: this.GAME.y + 394,
+			width: 793,
+			height: 128,
+			lines: 9
+		};
+		this.CHATBOX.centreX = this.CHATBOX.x + (this.CHATBOX.width / 2);
+		this.CHATBOX.centreY = this.CHATBOX.y + (this.CHATBOX.height / 2);		
+
+		this.CHATINPUT = {
+			x: this.GAME.x + 3,
+			y: this.GAME.y + 527,
+			width: 793,
+			height: 24
+		};
+		this.CHATINPUT.centreX = this.CHATINPUT.x + (this.CHATINPUT.width / 2);
+		this.CHATINPUT.centreY = this.CHATINPUT.y + (this.CHATINPUT.height / 2);
+
+		this.INFOBOX = {
+			x: this.GAME.x + 400,
+			y: this.GAME.y + 300,
+			width: 390,
+			height: 84
+		};
+		this.INFOBOX.centreX = this.INFOBOX.x + (this.INFOBOX.width / 2);
+		this.INFOBOX.centreY = this.INFOBOX.y + (this.INFOBOX.height / 2);
 		
-		this.CHATBOX_LINES = 9;
-
-		this.GAME_LEFT = 0;
-		this.GAME_TOP = 0;
-		this.MAP_LEFT = this.GAME_LEFT;
-		this.MAP_TOP = this.GAME_TOP;
-		this.MAP_WIDTH = this.MAP_COLUMNS * this.TILE_SIZE;
-		this.MAP_HEIGHT = this.MAP_ROWS * this.TILE_SIZE;
-		this.MAP_RIGHT = this.MAP_LEFT + this.MAP_WIDTH;
-		this.MAP_BOTTOM = this.MAP_TOP + this.MAP_HEIGHT;
-
-		this.MENU_LEFT = this.MAP_RIGHT;
-		this.MENU_TOP = this.MAP_TOP;
-		this.MENU_WIDTH = (this.INVENTORY_COLUMNS * this.SLOT_SIZE) + this.SLOT_SIZE;
-		this.MENU_HEIGHT = this.MAP_HEIGHT;
-		this.MENU_RIGHT = this.MENU_LEFT + this.MENU_WIDTH;
-		this.MENU_BOTTOM = this.MENU_TOP + this.MENU_HEIGHT;
-		
-		this.MAPNAME_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
-		this.MAPNAME_TOP = this.MENU_TOP + 8;
-		this.MAPNAME_WIDTH = this.MENU_WIDTH - this.SLOT_SIZE;
-		this.MAPNAME_HEIGHT = this.FONT_SIZE * 2;
-
-		this.STATBAR_WIDTH = this.SLOT_SIZE * 4;
-		this.STATBAR_HEIGHT = 12;
-
-		this.STATBOX_LEFT = this.MAP_RIGHT + (this.SLOT_SIZE / 2);
-		this.STATBOX_TOP = this.MENU_TOP + this.SLOT_SIZE;
-		this.STATBOX_WIDTH = this.STATBAR_WIDTH + this.SLOT_SIZE;
-		this.STATBOX_HEIGHT = ((this.STATBAR_HEIGHT + 2) * 4) + 10;
-		this.STATBOX_RIGHT = this.STATBOX_LEFT + this.STATBOX_WIDTH;
-		this.STATBOX_BOTTOM = this.STATBOX_TOP + this.STATBOX_HEIGHT;
-
-		this.STATBAR_LEFT = this.STATBOX_LEFT + (this.SLOT_SIZE / 2);
-		this.STATBAR_TOP = this.STATBOX_TOP + 6;
-
-		this.INVENTORY_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
-		this.INVENTORY_TOP = this.STATBOX_BOTTOM + 9;
-		this.INVENTORY_WIDTH = this.INVENTORY_COLUMNS * this.SLOT_SIZE;
-		this.INVENTORY_HEIGHT = this.INVENTORY_ROWS * this.SLOT_SIZE;
-		this.INVENTORY_RIGHT = this.INVENTORY_LEFT + this.INVENTORY_WIDTH;
-		this.INVENTORY_BOTTOM = this.INVENTORY_TOP + this.INVENTORY_HEIGHT;
-		
-		this.EQUIPMENT_LEFT = this.INVENTORY_LEFT;
-		this.EQUIPMENT_TOP = this.INVENTORY_BOTTOM + 1;
-		this.EQUIPMENT_WIDTH = this.EQUIPMENT_COLUMNS * this.SLOT_SIZE;
-		this.EQUIPMENT_HEIGHT = this.EQUIPMENT_ROWS * this.SLOT_SIZE;
-		this.EQUIPMENT_RIGHT = this.EQUIPMENT_LEFT + this.EQUIPMENT_WIDTH;
-		this.EQUIPMENT_BOTTOM = this.EQUIPMENT_TOP + this.EQUIPMENT_HEIGHT;
-
-		this.INFOBOX_LEFT = this.MENU_LEFT + (this.SLOT_SIZE / 2);
-		this.INFOBOX_TOP = this.EQUIPMENT_BOTTOM + 4;
-		this.INFOBOX_WIDTH = this.EQUIPMENT_WIDTH;
-		this.INFOBOX_HEIGHT = this.SLOT_SIZE * 2;
-		this.INFOBOX_RIGHT = this.INFOBOX_LEFT + this.INFOBOX_WIDTH;
-		this.INFOBOX_BOTTOM = this.INFOBOX_TOP + this.INFOBOX_HEIGHT;
-
-		this.INFOPREVIEW_WIDTH = this.SLOT_SIZE;
-		this.INFOPREVIEW_HEIGHT = this.SLOT_SIZE;
-		this.INFOPREVIEW_LEFT = this.INFOBOX_LEFT + 6;
-		this.INFOPREVIEW_TOP = this.INFOBOX_TOP + (this.FONT_SIZE * 1.2) + 10;
-		this.INFOPREVIEW_RIGHT = this.INFOPREVIEW_LEFT + this.INFOPREVIEW_WIDTH;
-
-		this.CHATBOX_LEFT = this.MAP_LEFT;
-		this.CHATBOX_TOP = this.MAP_BOTTOM;
-		this.CHATBOX_WIDTH = this.MAP_WIDTH + this.MENU_WIDTH;
-		this.CHATBOX_HEIGHT = this.FONT_SIZE * (this.CHATBOX_LINES + 3);
-		this.CHATBOX_RIGHT = this.CHATBOX_LEFT + this.CHATBOX_WIDTH;
-		this.CHATBOX_BOTTOM = this.CHATBOX_TOP + this.CHATBOX_HEIGHT;
+		this.PREVIEW = {
+			x: 400,
+			y: 256,
+			width: 32,
+			height: 32
+		};
+		this.PREVIEW.centreX = this.PREVIEW.x + (this.PREVIEW.width / 2);
+		this.PREVIEW.centreY = this.PREVIEW.y + (this.PREVIEW.height / 2);
 
 		this.SPRITESHEETS = ['sprites', 'effects', 'floor', 'potions'];
 		this.IMAGES = [
-			'map', 'menu', 'menu-panel', 'map-name', 'slot', 'equipment-slot', 'infobox', 'info-preview',
-			'statbox', 'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty', 'mana-bar', 'mana-bar-empty',
-			'experience-bar', 'experience-bar-empty',
-			'chatbox', 'chatbox-input', 'chatbox-input-active',
+			'map', 'interface', 'chatbox-input', 'chatbox-input-active', 'selected',
+			'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty',
+			'mana-bar', 'mana-bar-empty', 'experience-bar', 'experience-bar-empty',
 			'background-small', 'background-medium', 'background-large', 'text-input', 'text-input-active',
 			'toggle', 'toggle-active', 'toggle-slim', 'toggle-slim-active',
-			'button', 'button-active', 'button-slim', 'button-slim-active', 'close-button', 'close-button-active'
+			'button', 'button-active', 'button-slim', 'button-slim-active',
+			'close-button', 'close-button-active', 'logout-button', 'logout-button-active'
 		];
-		this.KEYBOARD_KEYS = 'ARROWLEFT,ARROWRIGHT,ARROWUP,ARROWDOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12';
+		this.KEYBOARD_KEYS = 'LEFT,RIGHT,UP,DOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12';
 		this.CRENDALE = {
 			mapId: 1,
 			tiles: [
@@ -209,25 +229,6 @@ class Config {
 				[true, false, false, false, false, false, false, false, false, true, true, true]
 			]
 		};
-
-		if (this.EQUIPMENT_BOTTOM > this.MENU_BOTTOM) {
-			this.MENU_HEIGHT = this.INVENTORY_HEIGHT + this.EQUIPMENT_HEIGHT + (this.TILE_SIZE * 2);
-			this.MENU_BOTTOM = this.MENU_TOP + this.MENU_HEIGHT;
-			this.CHATBOX_WIDTH = this.MAP_WIDTH;
-			this.CHATBOX_RIGHT = this.CHATBOX_LEFT + this.CHATBOX_WIDTH;
-		}
-
-		if (this.MENU_BOTTOM > this.CHATBOX_BOTTOM) {
-			this.CHATBOX_BOTTOM = this.MENU_BOTTOM;
-			this.CHATBOX_HEIGHT = this.CHATBOX_BOTTOM - this.CHATBOX_TOP;
-		}
-
-		this.GAME_WIDTH = this.MAP_WIDTH + this.MENU_WIDTH;
-		this.GAME_HEIGHT = this.MAP_HEIGHT + this.CHATBOX_HEIGHT;
-		this.GAME_RIGHT = this.GAME_LEFT + this.GAME_WIDTH;
-		this.GAME_BOTTOM = this.GAME_TOP + this.GAME_HEIGHT;
-		this.GAME_CENTREX = this.GAME_LEFT + (this.GAME_WIDTH / 2);
-		this.GAME_CENTREY = this.GAME_TOP + (this.GAME_HEIGHT / 2);
 	}
 }
 
