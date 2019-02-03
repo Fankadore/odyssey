@@ -2,7 +2,7 @@ import Phaser from '../../lib/phaser.js';
 
 export default class InventoryItem extends Phaser.GameObjects.Sprite {
 	constructor(scene, data) {
-		super(scene, data.x, data.y, 'potions', data.sprite).setOrigin(0, 0).setInteractive();
+		super(scene, data.x, data.y, 'potions', data.sprite).setInteractive();
 		this.clickedTime = 0;
 		this.dragged = false;
 		this.passive = {};
