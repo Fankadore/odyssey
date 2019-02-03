@@ -50,10 +50,156 @@ export default class PlayScene extends Scene {
 		this.client = this.scene.get('clientScene');
 		this.world = new Game(this);
 		this.menu = new Menu(this);
-		this.chatbox = new Chatbox(this);
+		this.chatbox = new Chatbox(this, config.CHATBOX.x, config.CHATBOX.y);
 		this.createGamepadInputs();
-		this.createKeyboardInputs();
 		this.createMouseInputs();
+
+		this.inputKeys = this.input.keyboard.addKeys(config.KEYBOARD_KEYS);
+		this.input.keyboard.on('keydown', event => this.onKeyDown(event));
+		this.input.keyboard.on('keyup', event => this.onKeyUp(event));
+	}
+
+	onKeyDown(event) {
+		let key = event.key;
+		key = key.replace(/Page/g, 'Page_');
+		key = key.replace(/Arrow/g, '');
+		if (key === ' ') key = 'Space';
+
+		if (this.inputKeys[key.toUpperCase()]) {
+			if (key === 'Left') {
+				this.inputs.left = true;
+				this.inputs.direction = 'left';
+			}
+			else if (key === 'Right') {
+				this.inputs.right = true;
+				this.inputs.direction = 'right';
+			}
+			else if (key === 'Up') {
+				this.inputs.up = true;
+				this.inputs.direction = 'up';
+			}
+			else if (key === 'Down') {
+				this.inputs.down = true;
+				this.inputs.direction = 'down';
+			}
+			else if (key === 'Enter') {
+				this.inputs.pickUp = true;
+				if (this.chatbox.focus) this.chatbox.submitChat();
+			}
+			else if (key === 'Control') {
+				this.inputs.attack = true;
+			}
+			else if (key === 'Shift') {
+				this.inputs.run = true;
+			}
+			else if (key === 'F1') {
+				this.inputs.macro1 = true;
+			}
+			else if (key === 'F2') {
+				this.inputs.macro2 = true;
+			}
+			else if (key === 'F3') {
+				this.inputs.macro3 = true;
+			}
+			else if (key === 'F4') {
+				this.inputs.macro4 = true;
+			}
+			else if (key === 'Page_Up') {
+				this.inputs.scrollUp = true;
+			}
+			else if (key === 'Page_Down') {
+				this.inputs.scrollDown = true;
+			}
+			else if (key === 'Tab') {
+				this.chatbox.setFocus(!this.chatbox.focus);
+			}
+			else if (key === 'Space') {
+				if (this.chatbox.focus) this.chatbox.chatInput.addChar(' ');
+			}
+			else if (key === 'Backspace' || key === 'Delete') {
+				if (this.chatbox.focus) this.chatbox.chatInput.removeChar();
+			}
+		}
+		else {
+			if (this.chatbox.focus) {
+				if (this.inputKeys.SHIFT.isDown) key = key.toUpperCase();
+				this.chatbox.chatInput.addChar(key);
+			}
+		}
+	}
+	
+	onKeyUp(event) {
+		let key = event.key;
+		key = key.replace(/Page/g, 'Page_');
+		key = key.replace(/Arrow/g, '');
+		if (key === ' ') key = 'Space';
+
+		if (this.inputKeys[key.toUpperCase()]) {
+			if (key === 'Left') {
+				this.inputs.left = false;
+				if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (key === 'Right') {
+				this.inputs.right = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (key === 'Up') {
+				this.inputs.up = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.down) this.inputs.direction = 'down';
+				else this.inputs.direction = null;
+			}
+			else if (key === 'Down') {
+				this.inputs.down = false;
+				if (this.inputs.left) this.inputs.direction = 'left';
+				else if (this.inputs.right) this.inputs.direction = 'right';
+				else if (this.inputs.up) this.inputs.direction = 'up';
+				else this.inputs.direction = null;
+			}
+			else if (key === 'Enter') {
+				this.inputs.pickUp = false;
+			}
+			else if (key === 'Control') {
+				this.inputs.attack = false;
+			}
+			else if (key === 'Shift') {
+				this.inputs.run = false;
+			}
+			else if (key === 'F1') {
+				this.inputs.macro1 = false;
+			}
+			else if (key === 'F2') {
+				this.inputs.macro2 = false;
+			}
+			else if (key === 'F3') {
+				this.inputs.macro3 = false;
+			}
+			else if (key === 'F4') {
+				this.inputs.macro4 = false;
+			}
+			else if (key === 'Page_Up') {
+				this.inputs.scrollUp = false;
+			}
+			else if (key === 'Page_Down') {
+				this.inputs.scrollDown = false;
+			}
+			else if (key === 'Tab') {
+
+			}
+			else if (key === 'Space') {
+	
+			}
+			else if (key === 'Backspace' || key === 'Delete') {
+	
+			}
+		}
 	}
 
 	createGamepadInputs() {
@@ -82,75 +228,6 @@ export default class PlayScene extends Scene {
 		});
 	}
 
-	createKeyboardInputs() {
-		this.input.keyboard.on('keydown', event => {
-			if (event.keyCode === 37) {
-				this.inputs.left = true;
-				this.inputs.direction = 'left';
-			}
-			else if (event.keyCode === 39) {
-				this.inputs.right = true;
-				this.inputs.direction = 'right';				
-			}
-			else if (event.keyCode === 38) {
-				this.inputs.up = true;
-				this.inputs.direction = 'up';
-			}
-			else if (event.keyCode === 40) {
-				this.inputs.down = true;
-				this.inputs.direction = 'down';
-			}
-			else if (event.keyCode === 13) this.inputs.pickUp = true;
-			else if (event.keyCode === 16) this.inputs.run = true;
-			else if (event.keyCode === 17) this.inputs.attack = true;
-			else if (event.keyCode === 112) this.inputs.macro1 = true;
-			else if (event.keyCode === 113) this.inputs.macro2 = true;
-			else if (event.keyCode === 114) this.inputs.macro3 = true;
-			else if (event.keyCode === 115) this.inputs.macro4 = true;
-			else if (event.keyCode === 33) this.inputs.scrollUp = true;
-			else if (event.keyCode === 34) this.inputs.scrollDown = true;
-		});
-		this.input.keyboard.on('keyup', event => {
-			if (event.keyCode === 37) {
-				this.inputs.left = false;
-				if (this.inputs.right) this.inputs.direction = 'right';
-				else if (this.inputs.up) this.inputs.direction = 'up';
-				else if (this.inputs.down) this.inputs.direction = 'down';
-				else this.inputs.direction = null;
-			}
-			else if (event.keyCode === 39) {
-				this.inputs.right = false;
-				if (this.inputs.left) this.inputs.direction = 'left';
-				else if (this.inputs.up) this.inputs.direction = 'up';
-				else if (this.inputs.down) this.inputs.direction = 'down';
-				else this.inputs.direction = null;
-			}
-			else if (event.keyCode === 38) {
-				this.inputs.up = false;
-				if (this.inputs.left) this.inputs.direction = 'left';
-				else if (this.inputs.right) this.inputs.direction = 'right';
-				else if (this.inputs.down) this.inputs.direction = 'down';
-				else this.inputs.direction = null;
-			}
-			else if (event.keyCode === 40) {
-				this.inputs.down = false;
-				if (this.inputs.left) this.inputs.direction = 'left';
-				else if (this.inputs.right) this.inputs.direction = 'right';
-				else if (this.inputs.up) this.inputs.direction = 'up';
-				else this.inputs.direction = null;
-			}
-			else if (event.keyCode === 13) this.inputs.pickUp = false;
-			else if (event.keyCode === 16) this.inputs.run = false;
-			else if (event.keyCode === 17) this.inputs.attack = false;
-			else if (event.keyCode === 112) this.inputs.macro1 = false;
-			else if (event.keyCode === 113) this.inputs.macro2 = false;
-			else if (event.keyCode === 114) this.inputs.macro3 = false;
-			else if (event.keyCode === 115) this.inputs.macro4 = false;
-			else if (event.keyCode === 33) this.inputs.scrollUp = false;
-			else if (event.keyCode === 34) this.inputs.scrollDown = false;
-		});
-	}
-
 	createMouseInputs() {
 		this.input.mouse.disableContextMenu();
 		
@@ -158,8 +235,9 @@ export default class PlayScene extends Scene {
 			const x = pointer.x;
 			const y = pointer.y;
 			const rightClick = !!pointer.rightButtonDown();
-			
-			if (this.isWithinMapBounds(x, y)) {
+			let chatboxFocus = false;
+
+			if (util.isWithinBounds(config.MAP, x, y)) {
 				const messages = this.world.clickMap(x, y, rightClick);
 				if (messages) {
 					messages.forEach(message => {
@@ -167,8 +245,20 @@ export default class PlayScene extends Scene {
 					});
 				}
 			}
-			else if (this.isWithinInventoryBounds(x, y)) this.menu.clickInventory(x, y, rightClick);
-			else if (this.isWithinEquipmentBounds(x, y)) this.menu.clickEquipment(x, y, rightClick);
+			else if (util.isWithinBounds(config.INVENTORY, x, y)) {
+				this.menu.clickInventory(x, y, rightClick);
+			}
+			else if (util.isWithinBounds(config.EQUIPMENT, x, y)) {
+				this.menu.clickEquipment(x, y, rightClick);
+			}
+			else if (util.isWithinBounds(config.CHATBOX, x, y)) {
+				chatboxFocus = true;
+			}
+			else if (util.isWithinBounds(config.CHATINPUT, x, y)) {
+				chatboxFocus = true;
+			}
+
+			if (this.chatbox.focus !== chatboxFocus) this.chatbox.setFocus(chatboxFocus);
 		});
 
 		this.input.on('dragstart', (pointer, item) => {
@@ -176,31 +266,31 @@ export default class PlayScene extends Scene {
 		});
 
 		this.input.on('drag', (pointer, item, dragX, dragY) => {
-			item.x = pointer.x - (config.TILE_SIZE / 2);
-			item.y = pointer.y - (config.TILE_SIZE / 2);
+			item.x = pointer.x;
+			item.y = pointer.y;
 		});
 
 		this.input.on('dragend', (pointer, item) => {
 			setTimeout(() => item.dragged = false, 50);
 	
-			if (this.isWithinMapBounds(pointer.x, pointer.y)) {
+			if (util.isWithinBounds(config.MAP, pointer.x, pointer.y)) {
 				this.client.emitInputDrag('dragStopGame', item.slot);
 				this.menu.clearItemInfo();
 			}
-			else if (this.isWithinInventoryBounds(pointer.x, pointer.y)) {
-				const newSlotX = this.menu.inventory.getSlotXFromX(pointer.x, config.INVENTORY_LEFT);
-				const newSlotY = this.menu.inventory.getSlotYFromY(pointer.y, config.INVENTORY_TOP);
-				const newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.INVENTORY_COLUMNS);
+			else if (util.isWithinBounds(config.INVENTORY, pointer.x, pointer.y)) {
+				const newSlotX = this.menu.inventory.getSlotXFromX(pointer.x, config.INVENTORY.x);
+				const newSlotY = this.menu.inventory.getSlotYFromY(pointer.y, config.INVENTORY.y);
+				const newSlot = util.getIndexFromXY(newSlotX, newSlotY, config.INVENTORY.columns);
 				if (item.slot !== newSlot) {
 					this.client.emitInputDrag('dragStopInventory', item.slot, newSlot);
 					this.menu.inventory.setSelected(newSlot);
 				}
 				
 			}
-			else if (this.isWithinEquipmentBounds(pointer.x, pointer.y)) {
-				const newSlotX = this.menu.inventory.getSlotXFromX(pointer.x, config.EQUIPMENT_LEFT);
-				const newSlotY = this.menu.inventory.getSlotYFromY(pointer.y, config.EQUIPMENT_TOP);
-				const newSlot = config.INVENTORY_SIZE + util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT_COLUMNS);
+			else if (util.isWithinBounds(config.EQUIPMENT, pointer.x, pointer.y)) {
+				const newSlotX = this.menu.inventory.getSlotXFromX(pointer.x, config.EQUIPMENT.x);
+				const newSlotY = this.menu.inventory.getSlotYFromY(pointer.y, config.EQUIPMENT.y);
+				const newSlot = config.INVENTORY.size + util.getIndexFromXY(newSlotX, newSlotY, config.EQUIPMENT.columns);
 				if (item.slot !== newSlot) {
 					this.client.emitInputDrag('dragStopEquipment', item.slot, newSlot);
 					this.menu.inventory.setSelected(newSlot);
@@ -218,18 +308,6 @@ export default class PlayScene extends Scene {
 	onLoadMap(mapData) {
 		this.world.onLoadMap(mapData.tiles);
 		this.menu.onLoadMap(mapData.name);
-	}
-
-	isWithinMapBounds(x, y) {
-		return (x >= config.MAP_LEFT && x < config.MAP_RIGHT && y >= config.MAP_TOP && y < config.MAP_BOTTOM);
-	}
-
-	isWithinInventoryBounds(x, y) {
-		return (x >= config.INVENTORY_LEFT && x < config.INVENTORY_RIGHT && y >= config.INVENTORY_TOP && y < config.INVENTORY_BOTTOM);
-	}
-	
-	isWithinEquipmentBounds(x, y) {
-		return (x >= config.EQUIPMENT_LEFT && x < config.EQUIPMENT_RIGHT && y >= config.EQUIPMENT_TOP && y < config.EQUIPMENT_BOTTOM);
 	}
 
 	update() {
