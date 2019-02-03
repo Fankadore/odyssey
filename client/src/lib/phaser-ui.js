@@ -12,7 +12,10 @@ class Panel {
 
   setActive(value) {
 		this.active = value;
-		this.children.forEach(child => child.setActive(value).setVisible(value));
+		this.children.forEach(child => {
+			if (typeof child.setActive === 'function') child.setActive(value);
+			if (typeof child.setVisible === 'function') child.setVisible(value);
+		});
 		return this;
 	}
 
@@ -60,17 +63,20 @@ class TextInput extends Phaser.GameObjects.Container {
 		this.password = password;
 		this.message = "";
 		this.callback = callback;
-		
+		this.origin = {x: 0.5, y: 0.5};
+
 		// Background Image
 		this.image = scene.add.image(0, 0, texture);
+		this.left = 0 - (this.image.width / 2);
+		this.top = 0 - (this.image.height / 2);
 
-		const rect = new Phaser.Geom.Rectangle(0 - (this.image.width / 2), 0 - (this.image.height / 2), this.image.width, this.image.height);
+		const rect = new Phaser.Geom.Rectangle(this.x + this.left, this.y + this.top, this.image.width, this.image.height);
 		this.setInteractive(rect, Phaser.Geom.Rectangle.Contains);
 
 		// Text Mask
 		this.graphics = scene.make.graphics();
 		this.setMask(this.graphics.createGeometryMask());
-		this.graphics.fillRect(this.x - (this.image.width / 2), this.y - (this.image.height / 2), this.image.width, this.image.height);
+		this.drawMask();
 		
 		// Display Text
 		if (!style) style = { fontFamily: 'Arial', fontSize: (this.image.height / 2) + "px", fill: '#000000' };
@@ -85,43 +91,67 @@ class TextInput extends Phaser.GameObjects.Container {
 		this.add([this.image, this.defaultMessage, this.inputText, this.graphics]);
 		scene.add.existing(this);
 	}
-	
-	setPosition(x, y, z, w) {
-		super.setPosition(x, y, z, w);
+
+	drawMask() {
 		if (this.graphics) {
 			this.graphics.clear();
-			this.graphics.fillRect(this.x - (this.image.width / 2), this.y - (this.image.height / 2), this.image.width, this.image.height);
+			this.graphics.fillRect(this.x + this.left, this.y + this.top, this.image.width, this.image.height);
 		}
+	}
+
+	setOrigin(x = 0, y) {
+		if (y == null) y = x;
+		this.left = 0 - (this.image.width * x);
+		this.top = 0 - (this.image.height * y);
+
+		this.image.setOrigin(x, y);
+		
+		this.defaultMessage.setPosition(this.left + 4, this.top + (this.image.height / 2));
+		this.inputText.setPosition(this.left + 4, this.top + (this.image.height / 2));
+
+		const rect = new Phaser.Geom.Rectangle(this.x + this.left, this.y + this.top, this.image.width, this.image.height);
+		this.setInteractive(rect, Phaser.Geom.Rectangle.Contains);
+
+		this.drawMask();
+		return this;
+	}
+
+	setPosition(x, y, z, w) {
+		super.setPosition(x, y, z, w);
+		this.drawMask();
+		return this;
 	}
 
 	setFocus(focus) {
 		if (focus) this.image.setTexture(this.focusTexture);
 		else this.image.setTexture(this.normalTexture);
+		return this;
 	}
 
 	addChar(char) {
 		this.updateText(this.message + char);
-		this.defaultMessage.setVisible(false);
 	}
 
 	removeChar() {
 		this.updateText(this.message.slice(0, -1));
-		if (this.message === "") this.defaultMessage.setVisible(true);
 	}
 
 	updateText(text) {
 		this.message = text;
 		if (this.password) text = text.replace(/./g, '*');
 		this.inputText.setText(text);
-
+		
 		if (this.inputText.width > this.image.width - 8) {
 			this.inputText.setOrigin(1, 0.5);
-			this.inputText.x = (this.image.width / 2) - 4;
+			this.inputText.x = this.left + this.image.width - 4;
 		}
 		else {
 			this.inputText.setOrigin(0, 0.5);
-			this.inputText.x = 4 - (this.image.width / 2);
+			this.inputText.x = this.left + 4;
 		}
+
+		if (this.message === "") this.defaultMessage.setVisible(true);
+		else this.defaultMessage.setVisible(false);
 	}
 }
 
