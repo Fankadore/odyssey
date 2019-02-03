@@ -172,6 +172,7 @@ class Server {
 		if (socket.playerId != null) {
 			await game.playerLogout(socket.playerId);
 			socket.playerId = null;
+			socket.emit('loggedOut');
 		}
 	}
 	
