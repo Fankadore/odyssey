@@ -1,22 +1,15 @@
+import { Panel } from '../../lib/phaser-ui.js';
 import util from '../../lib/util.js';
 import config from '../../config.js';
 import InventoryItem from './inventoryitem.js';
 
-export default class Inventory {
-	constructor(scene) {
+export default class Inventory extends Panel {
+	constructor(scene, x, y) {
+		super(scene, x, y, true);
+
 		this.items = [];
 		this.slots = [];
-		this.selected = null;
-
-		for (let slot = 0; slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE; slot++) {
-			const x = this.getXFromSlot(slot);
-			const y = this.getYFromSlot(slot);
-			let imageRef = 'slot';
-			if (slot >= config.INVENTORY_SIZE) imageRef = 'equipment-slot';
-			this.slots[slot] = scene.add.image(x, y, imageRef).setOrigin(0, 0);
-		}
-
-		this.InventoryItem = (itemData) => new InventoryItem(scene, itemData);
+		this.selected = scene.add.image(x + (config.SLOT_SIZE / 2), y + (config.SLOT_SIZE / 2), 'selected').setVisible(false);
 	}
 
 	onUpdate(data) {
@@ -25,9 +18,9 @@ export default class Inventory {
 		// Add Items - filter for items on new list but not old
 		data.filter(itemData => itemData && !this.items[itemData.slot])
 		.forEach(itemData => {
-			itemData.x = this.getXFromSlot(itemData.slot) + 3;
-			itemData.y = this.getYFromSlot(itemData.slot) + 3;
-			this.items[itemData.slot] = this.InventoryItem(itemData);
+			itemData.x = this.getXFromSlot(itemData.slot);
+			itemData.y = this.getYFromSlot(itemData.slot);
+			this.items[itemData.slot] = new InventoryItem(this.scene, itemData);
 		});
 
 		// Remove Items - filter for items on old list but not new
@@ -42,22 +35,21 @@ export default class Inventory {
 		this.items.filter(item => item && data[item.slot])
 		.forEach(item => {
 			const itemData = data[item.slot];
-			itemData.x = this.getXFromSlot(itemData.slot) + 3;
-			itemData.y = this.getYFromSlot(itemData.slot) + 3;
+			itemData.x = this.getXFromSlot(itemData.slot);
+			itemData.y = this.getYFromSlot(itemData.slot);
 			item.onUpdate(itemData);
 		});
 	}
 
 	setSelected(slot) {
-		if (this.selected != null) this.slots[this.selected].setTint(0xffffff);
-
-		if (slot != null && slot >= 0 && slot < config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) {
-			this.selected = slot;
-			this.slots[slot].setTint(0x00ffff);
+		if (slot != null && slot >= 0 && slot < config.INVENTORY.size + config.EQUIPMENT.size) {
+			if (!this.selected.visible) this.selected.setVisible(true);
+			this.selected.setPosition(this.getXFromSlot(slot), this.getYFromSlot(slot));
+			this.selected.slot = slot;
 			return this.items[slot];
 		}
 		else {
-			this.selected = null;
+			this.selected.setVisible(false);
 			return null;
 		}
 	}
@@ -87,24 +79,24 @@ export default class Inventory {
 	}
 
 	getXFromSlot(slot) {	// Takes a slot number and turns it into a pixel x
-		if (slot < 0 || slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return null;
+		if (slot < 0 || slot >= config.INVENTORY.size + config.EQUIPMENT.size) return null;
 	
-		if (slot < config.INVENTORY_SIZE) {
-			return config.INVENTORY_LEFT + (util.getXFromIndex(slot, config.INVENTORY_COLUMNS) * config.SLOT_SIZE);
+		if (slot < config.INVENTORY.size) {
+			return this.x + (config.SLOT_SIZE / 2) + (util.getXFromIndex(slot, config.INVENTORY.columns) * config.SLOT_SIZE);
 		}
 		else {
-			return config.EQUIPMENT_LEFT + (util.getXFromIndex(slot - config.INVENTORY_SIZE, config.EQUIPMENT_COLUMNS) * config.SLOT_SIZE);
+			return this.x + (config.SLOT_SIZE / 2) + (util.getXFromIndex(slot - config.INVENTORY.size, config.EQUIPMENT.columns) * config.SLOT_SIZE);
 		}
 	}
 	
 	getYFromSlot(slot) {	// Takes a slot number and turns it into a pixel y
-		if (slot < 0 || slot >= config.INVENTORY_SIZE + config.EQUIPMENT_SIZE) return null;
+		if (slot < 0 || slot >= config.INVENTORY.size + config.EQUIPMENT.size) return null;
 	
-		if (slot < config.INVENTORY_SIZE) {
-			return config.INVENTORY_TOP + (util.getYFromIndex(slot, config.INVENTORY_COLUMNS) * config.SLOT_SIZE);
+		if (slot < config.INVENTORY.size) {
+			return this.y + (config.SLOT_SIZE / 2) + (util.getYFromIndex(slot, config.INVENTORY.columns) * config.SLOT_SIZE);
 		}
 		else {
-			return config.EQUIPMENT_TOP + (util.getYFromIndex(slot - config.INVENTORY_SIZE, config.EQUIPMENT_COLUMNS) * config.SLOT_SIZE);
+			return this.y + (config.SLOT_SIZE / 2) + 2 + (util.getYFromIndex(slot, config.INVENTORY.columns) * config.SLOT_SIZE);
 		}
 	}
 
