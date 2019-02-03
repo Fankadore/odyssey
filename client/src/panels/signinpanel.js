@@ -15,7 +15,7 @@ export default class SignInPanel extends Panel {
 		this.signInPanel = scene.add.image(x, y + 64, 'background-medium');
 		
 		// Title
-		let style = { fontFamily: 'Arial', fontSize: (config.FONT_SIZE * 3) + 'px', fill: '#ffffff' };
+		let style = { fontFamily: 'Arial', fontSize: '36px', fill: '#ffffff' };
 		this.title = scene.add.text(x, y / 2, "Odyssey", style).setOrigin(0.5);
 		
 		// Sign In / Sign Up Buttons
@@ -77,10 +77,10 @@ export default class SignInPanel extends Panel {
 
   onKeyDown(key) {
     if (this.scene.inputKeys[key.toUpperCase()]) {
-			if (key === 'ArrowLeft') {	// Move cursor left
+			if (key === 'Left') {	// Move cursor left
 				// TODO: Move cursor left
 			}
-			else if (key === 'ArrowRight') {	// Move cursor right
+			else if (key === 'Right') {	// Move cursor right
 				// TODO: Move cursor right
 			}
 			else if (key === 'Tab') {	// Select next inputbox

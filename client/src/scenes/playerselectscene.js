@@ -17,8 +17,8 @@ export default class PlayerSelectScene extends Scene {
   create() {
 		this.client = this.scene.get('clientScene');
 
-		const centreX = config.GAME_LEFT + (config.GAME_WIDTH / 2);
-		const centreY = config.GAME_TOP + (config.GAME_HEIGHT / 2);
+		const centreX = config.GAME.x + (config.GAME.width / 2);
+		const centreY = config.GAME.y + (config.GAME.height / 2);
 		this.selectPlayerPanel = new SelectPlayerPanel(this, centreX, centreY);
 		this.addPlayerPanel = new AddPlayerPanel(this, centreX, centreY);
 
@@ -29,6 +29,7 @@ export default class PlayerSelectScene extends Scene {
 	onKeyDown(event) {
 		let key = event.key;
 		key = key.replace(/Page/g, 'Page_');
+		key = key.replace(/Arrow/g, '');
 		if (key === ' ') key = 'Space';
 
 		if (this.selectPlayerPanel.active) this.selectPlayerPanel.onKeyDown(key);
