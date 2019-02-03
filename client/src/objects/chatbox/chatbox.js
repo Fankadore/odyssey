@@ -1,62 +1,43 @@
 import config from '../../config.js';
 
 import ChatInput from './chatinput.js';
-import Message from './message.js';
 
 export default class Chatbox {
-	constructor(scene, x, y) {
+	constructor(scene) {
 		this.scene = scene;
-		this.x = x;
-		this.y = y;
-		this.messages = [];
-		this.visibleMessages = [];
-		this.showGameInfo = true;
-		this.showGlobalMessages = true;
-		this.showMapMessages = true;
-		this.showPlayerMessages = true;
-		this.currentLine = 0;
+		this.x = config.CHATBOX.x;
+    this.y = config.CHATBOX.y;
+    this.width = config.CHATBOX.width;
+    this.height = config.CHATBOX.height;
+
+    this.messages = [];
+    this.filteredMessages = [];
+    this.filters = ['gameInfo', 'messageGlobal', 'messageMap', 'messagePlayer'];
 		this.focus = false;
-		
-		this.chatInput = new ChatInput(scene, config.CHATINPUT.x, config.CHATINPUT.y, "", () => this.setFocus(true));
+    
+    this.textMask = scene.make.graphics();
+    this.textMask.fillRect(this.x, this.y, this.width, this.height);
+    this.displayText = scene.add.text(this.x, this.y + this.height - 2, "", config.FONT)
+    .setColor('#ffffff').setOrigin(0, 1).setWordWrapWidth(this.width).setMask(this.textMask.createGeometryMask());
+
+    this.chatInput = new ChatInput(scene, () => this.setFocus(true));
 	}
 
 	onUpdate(data) {
 		if (data && data.messages) {
 			data.messages.forEach((messageData) => {
-				this.messages.unshift(new Message(this.scene, messageData));
-				this.refresh();
+        this.messages.push(messageData);
+        if (this.filters.includes(messageData.type)) {
+          this.filteredMessages.push(messageData.message);
+          this.refresh();
+        }
 			});	
 		}
 	}
 	
 	refresh() {
-		this.visibleMessages = this.messages.filter((message) => {
-			if (message.type === 'gameInfo' && this.showGameInfo) return true;
-			if (message.type === 'messageGlobal' && this.showGlobalMessages) return true;
-			if (message.type === 'messageMap' && this.showMapMessages) return true;
-			if (message.type === 'messagePlayer' && this.showPlayerMessages) return true;
-			return false;
-		});
-		
-		if (this.currentLine >= this.visibleMessages.length) {
-			this.currentLine = 0;
-		}
-
-		this.messages.forEach((message) => {
-			if (this.visibleMessages.includes(message)) {
-				const index = this.visibleMessages.indexOf(message);
-				if (index >= this.currentLine && index < config.CHATBOX.lines + this.currentLine) {
-					message.y = this.y + config.CHATBOX.height - (config.FONT.height * (index + 1 - this.currentLine)) - 2;
-					message.setVisible(true);
-				}
-				else {
-					message.setVisible(false);
-				}
-			}
-			else {
-				message.setVisible(false);
-			}
-		});
+    const text = this.filteredMessages.join('\n');
+    this.displayText.setText(text);
 	}
 
 	clientsideMessage(message, colour) {
@@ -66,8 +47,11 @@ export default class Chatbox {
 			type: 'gameInfo',
 			colour: colour
 		};
-		this.messages.unshift(new Message(this.scene, messageData));
-		this.refresh();
+    this.messages.push(messageData);
+    if (this.filters.includes(messageData.type)) {
+      this.filteredMessages.push(messageData.message);
+      this.refresh();
+    }
 	}
 
 	setFocus(focus) {
@@ -78,41 +62,75 @@ export default class Chatbox {
 	}
 
 	submitChat() {
-		this.scene.client.emitMapChat(this.chatInput.message);
-		this.chatInput.updateText("");
+    if (this.chatInput.message !== "") {
+      this.scene.client.emitMapChat(this.chatInput.message);
+      this.chatInput.updateText("");
+    }
 	}
 
 	scrollUp() {
-		if (this.currentLine < this.visibleMessages.length - 1) {
-			this.currentLine++;
-			this.refresh();
-		}
+    if (this.displayText.y - this.displayText.height + config.FONT.height < this.y + config.CHATBOX.height - 2) {
+      this.displayText.y += config.FONT.height;
+    }
+	}
+  
+	scrollDown() {
+    if (this.displayText.y > this.y + config.CHATBOX.height - 2) {
+      this.displayText.y -= config.FONT.height;
+    }
 	}
 
-	scrollDown() {
-		if (this.currentLine > 0) {
-			this.currentLine--;
-			this.refresh();
-		}
-	}
+  filterMessages() {
+    this.filteredMessages = [];
+    this.messages.forEach(message => {
+      if (this.filters.includes(message.type)) {
+        this.filteredMessages.push(message.message);
+      }
+    });
+    this.refresh();
+  }
 
 	toggleGameInfo() {
-		this.showGameInfo = !this.showGameInfo;
-		this.refresh();
+    if (this.filters.includes('gameInfo')) {
+      const index = this.filters.indexOf('gameInfo');
+      this.filters.splice(index, 1);
+    }
+    else {
+      this.filters.push('gameInfo');
+    }
+    this.filterMessages();
 	}
 	
 	toggleGlobalMessages() {
-		this.showGlobalMessages = !this.showGlobalMessages;
-		this.refresh();
+    if (this.filters.includes('messageGlobal')) {
+      const index = this.filters.indexOf('messageGlobal');
+      this.filters.splice(index, 1);
+    }
+    else {
+      this.filters.push('messageGlobal');
+    }
+    this.filterMessages();
 	}
 	
 	toggleMapMessages() {
-		this.showMapMessages = !this.showMapMessages;
-		this.refresh();
+    if (this.filters.includes('messageMap')) {
+      const index = this.filters.indexOf('messageMap');
+      this.filters.splice(index, 1);
+    }
+    else {
+      this.filters.push('messageMap');
+    }
+    this.filterMessages();
 	}
 	
 	togglePlayerMessages() {
-		this.showPlayerMessages = !this.showPlayerMessages;
-		this.refresh();
+    if (this.filters.includes('messagePlayer')) {
+      const index = this.filters.indexOf('messagePlayer');
+      this.filters.splice(index, 1);
+    }
+    else {
+      this.filters.push('messagePlayer');
+    }
+    this.filterMessages();
 	}
 }

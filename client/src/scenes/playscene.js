@@ -50,7 +50,7 @@ export default class PlayScene extends Scene {
 		this.client = this.scene.get('clientScene');
 		this.world = new Game(this);
 		this.menu = new Menu(this);
-		this.chatbox = new Chatbox(this, config.CHATBOX.x, config.CHATBOX.y);
+		this.chatbox = new Chatbox(this);
 		this.createGamepadInputs();
 		this.createMouseInputs();
 
