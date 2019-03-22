@@ -56,10 +56,10 @@ export default class AddPlayerPanel extends Panel {
 
 	onKeyDown(key) {
 		if (this.scene.inputKeys[key.toUpperCase()]) {
-			if (key === 'ArrowLeft') {	// Move cursor left
+			if (key === 'Left') {	// Move cursor left
 				// TODO: Move cursor left
 			}
-			else if (key === 'ArrowRight') {	// Move cursor right
+			else if (key === 'Right') {	// Move cursor right
 				// TODO: Move cursor right
 			}
 			else if (key === 'Tab') {	//	Switch selected template
