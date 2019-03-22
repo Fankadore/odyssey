@@ -10,7 +10,6 @@ import Bot from './models/bot.js';
 import BotTemplate from './models/botTemplate.js';
 import Item from './models/item.js';
 import ItemTemplate from './models/itemTemplate.js';
-import ItemType from './models/itemType.js';
 import Map from './models/map.js';
 
 const fsp = fs.promises;
@@ -22,11 +21,11 @@ class Database {
 		this.serverLog = [];
 	}
 
-	async backup(data = {}) {
+	backup(data = {}) {
 		//TODO save everything
 		// const maps = save-all-maps
 		let players = this.saveOnlinePlayers(data.players);
-		const bots = this.saveAllBots(data.bots);
+		let bots = this.saveAllBots(data.bots);
 		let items = this.saveAllItems(data.items);
 		let logSaved = this.saveLog();
 		Promise.all([players, bots, items, logSaved])
@@ -69,16 +68,16 @@ class Database {
 	generateId() {
 		return new mongoose.Types.ObjectId;
 	}
-	async hashPassword(password) {
-		return await new Promise((resolve, reject) => {
+	hashPassword(password) {
+		return new Promise((resolve, reject) => {
 			bcrypt.hash(password, 10, (err, hash) => {
 				if (err) reject(err);
 				else resolve(hash);
 			});
 		});
 	}
-	async comparePassword(password, hashedPassword) {
-		return await new Promise((resolve, reject) => {
+	comparePassword(password, hashedPassword) {
+		return new Promise((resolve, reject) => {
 			bcrypt.compare(password, hashedPassword, (err, match) => {
 				if (err) reject(err);
 				else resolve(match);
@@ -86,10 +85,10 @@ class Database {
 		});
 	}
 	async authAccount(username, password) {
-		let account = await Account.findOne({username: username}).exec();
+		let account = await Account.findOne({usernameLowerCase: username.toLowerCase()}).exec();
 		if (!account) return false;
-		
-		return this.comparePassword(password, account.password);
+		let match = await this.comparePassword(password, account.password);
+		return match;
 	}
 
 	async addAccount(username, password, email) {
@@ -99,17 +98,18 @@ class Database {
 			admin = true;
 		}
 		else {
-			let existingAccount = accounts.find(account => account.username === username)
+			let existingAccount = accounts.find(account => account.username.toLowerCase() === username.toLowerCase());
 			if (existingAccount) {
 				console.log(`Account already exists with username ${username}.`);
 				return false;
 			}
 		}
 
-		const hashedPassword = await this.hashPassword(password);
-		account = new Account({
+		let hashedPassword = await this.hashPassword(password);
+		const account = new Account({
 			_id: new mongoose.Types.ObjectId,
 			username,
+			usernameLowerCase: username.toLowerCase(),
 			password: hashedPassword,
 			email,
 			verified: false,
@@ -120,43 +120,29 @@ class Database {
 		.then(result => account._id)
 		.catch(err => console.log(err));
 	}
-	async getAccount(accountId) {
-		return await Account.findById(accountId)
+	getAccount(accountId) {
+		return Account.findById(accountId)
 		.select('_id username password email verified admin')
 		.exec()
 		.then(account => account)
 		.catch(err => console.log(err));
 	}
-	async getAccountByUsername(username) {
-		return await Account.findOne({username: username})
+	getAccountByUsername(username) {
+		return Account.findOne({usernameLowerCase: username.toLowerCase()})
 		.select('_id username password email verified admin')
 		.exec()
 		.then(account => account)
 		.catch(err => console.log(err));
 	}
-	async getAccountId(username) {
-		return await Account.findOne({username: username})
-		.select('_id')
-		.exec()
-		.then(account => {
-			if (account) {
-				return account._id;
-			}
-			else {
-				return null;
-			}
-		})
-		.catch(err => console.log(err));
-	}
-	async getAllAccounts() {
-		return await Account.find({})
+	getAllAccounts() {
+		return Account.find({})
 		.select('_id username password email verified admin')
 		.exec()
 		.then(accounts => accounts)
 		.catch(err => console.log(err));
 	}
-	async saveAccount(data) {
-		return await Account.updateOne({username: data.username}, {$set: data})
+	saveAccount(data) {
+		return Account.updateOne({username: data.username}, {$set: data})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
@@ -182,50 +168,54 @@ class Database {
 		player = new Player({
 			_id : new mongoose.Types.ObjectId,
 			name,
+			nameLowerCase: name.toLowerCase(),
 			account: accountId,
 			template: templateId
 		});
 
-		return await player.save()
+		return player.save()
 		.then(result => player._id)
 		.catch(err => console.log(err));
 	}
-	async getPlayer(playerId) {
-		return await Player.findById(playerId)
+	getPlayer(playerId) {
+		return Player.findById(playerId)
 		.select('_id account name template level experience mapId x y direction adminAccess sprite')
 		.populate('template')
 		.exec()
 		.then(player => player)
 		.catch(err => console.log(err));
 	}
-	async getPlayerByName(name) {
-		return await Player.findOne({name: name})
+	getPlayerByName(name) {
+		return Player.findOne({nameLowerCase: name.toLowerCase()})
 		.select('_id account name template level experience mapId x y direction adminAccess sprite')
 		.populate('template')
 		.exec()
 		.then(player => player)
 		.catch(err => console.log(err));
 	}
-	async getPlayersByAccount(accountId) {
-		return await Player.find({account: accountId})
+	getPlayersByAccount(accountId) {
+		return Player.find({account: accountId})
 		.select('_id account name template level experience mapId x y direction adminAccess sprite')
 		.populate('template')
 		.exec()
 		.then(players => players)
 		.catch(err => console.log(err));
 	}
-	async savePlayer(data) {
-		return await Player.updateOne({name: data.name}, {$set: data})
+	savePlayer(data) {
+		return Player.updateOne({name: data.name}, {$set: data})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
 	saveOnlinePlayers(players = []) {
-		for (let i = 0; i < players.length; i++) {
-			const player = players[i];
-			if (!player) continue;
-			this.savePlayer(player);
-		}
+		return new Promise((resolve, reject) => {
+			for (let i = 0; i < players.length; i++) {
+				const player = players[i];
+				if (!player) continue;
+				this.savePlayer(player);
+			}
+			resolve(true);
+		});
 	}
 
 	async addBot(data) {
@@ -247,26 +237,26 @@ class Database {
 			direction: data.direction
 		});
 
-		return await bot.save()
+		return bot.save()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getBot(botId) {
-		return await Bot.findOne({_id: botId})
+	getBot(botId) {
+		return Bot.findOne({_id: botId})
 		.select('_id template mapId x y direction')
 		.populate('template')
 		.exec()
 		.then(bot => bot)
 		.catch(err => console.log(err));
 	}
-	async saveBot(data) {
-		return await Bot.updateOne({_id: data.botId}, {$set: data})
+	saveBot(data) {
+		return Bot.updateOne({_id: data.botId}, {$set: data})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getAllBots() {
-		return await Bot.find({})
+	getAllBots() {
+		return Bot.find({})
 		.select('_id template mapId x y direction')
 		.populate('template')
 		.exec()
@@ -302,30 +292,25 @@ class Database {
 		}
 	}
 
-	async getMap(mapId) {
-		return await Map.findOne({mapId: mapId})
+	getMap(mapId) {
+		return Map.findOne({mapId: mapId})
 		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
 		.exec()
 		.then(map => map)
 		.catch(err => console.log(err));
 	}
-	async saveMap(data) {
-		return await Map.updateOne({mapId: data.mapId}, {$set: data}, {upsert: true})
+	saveMap(data) {
+		return Map.updateOne({mapId: data.mapId}, {$set: data}, {upsert: true})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getAllMaps() {
-		try {
-			return await Map.find({})
-			.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
-			.exec()
-			.then(maps => maps)
-			.catch(err => console.log(err));
-		}
-		catch(err) {
-			console.log(err);
-		}
+	getAllMaps() {
+		return Map.find({})
+		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
+		.exec()
+		.then(maps => maps)
+		.catch(err => console.log(err));
 	}
 
 	async addPlayerTemplate(data) {
@@ -359,26 +344,26 @@ class Database {
 			energyPerLevel: data.energyPerLevel
 		});
 
-		return await template.save()
+		return template.save()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getPlayerTemplate(templateId) {
-		return await PlayerTemplate.findById(templateId)
+	getPlayerTemplate(templateId) {
+		return PlayerTemplate.findById(templateId)
 		.select('name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase healthPerLevel, energyPerLevel')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
-	async getAllPlayerTemplates() {
-		return await PlayerTemplate.find({})
+	getAllPlayerTemplates() {
+		return PlayerTemplate.find({})
 		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase healthPerLevel, energyPerLevel')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));
 	}
 
-	async addBotTemplate(data) {
+	addBotTemplate(data) {
 		const template = new BotTemplate({
 			_id: new mongoose.Types.ObjectId,
 			name: data.name,
@@ -393,26 +378,26 @@ class Database {
 			hostile: data.hostile
 		});
 
-		return await template.save()
+		return template.save()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getBotTemplate(templateId) {
-		return await BotTemplate.findById(templateId)
+	getBotTemplate(templateId) {
+		return BotTemplate.findById(templateId)
 		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase hostile')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
-	async getAllBotTemplates() {
-		return await BotTemplate.find({})
+	getAllBotTemplates() {
+		return BotTemplate.find({})
 		.select('_id name sprite damageBase defenceBase healthMaxBase energyMaxBase healthRegenBase energyRegenBase rangeBase hostile')
 		.exec()
 		.then(templates => templates)
 		.catch(err => console.log(err));
 	}
 
-	async addItemTemplate(data) {
+	addItemTemplate(data) {
 		const template = new ItemTemplate({
 			_id: new mongoose.Types.ObjectId,
 			name: data.name,
@@ -435,19 +420,19 @@ class Database {
 			equippedRange: data.equippedRange
 		});
 
-		return await template.save()
+		return template.save()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getItemTemplate(templateId) {
-		return await ItemTemplate.findById(templateId)
+	getItemTemplate(templateId) {
+		return ItemTemplate.findById(templateId)
 		.select('name sprite reusable itemType passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.exec()
 		.then(template => template)
 		.catch(err => console.log(err));
 	}
-	async getAllItemTemplates() {
-		return await ItemTemplate.find({})
+	getAllItemTemplates() {
+		return ItemTemplate.find({})
 		.select('_id name sprite reusable itemType passiveDamage passiveDefence passiveHealthMax passiveEnergyMaxBase passiveHealthRegen passiveEnergyRegen passiveRange equippedDamage equippedDefence equippedHealthMax equippedEnergyMaxBase equippedHealthRegen equippedEnergyRegen equippedRange')
 		.exec()
 		.then(templates => templates)
@@ -477,28 +462,23 @@ class Database {
 			createdDate: data.createdDate
 		});
 
-		return await item.save()
+		return item.save()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async saveItem(data) {
-		return await Item.updateOne({_id: data.itemId}, {$set: data}, {upsert: true})
+	saveItem(data) {
+		return Item.updateOne({_id: data.itemId}, {$set: data}, {upsert: true})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
 	}
-	async getAllItems() {
-		try {
-			return await Item.find({})
-			.select('_id template stack playerId botId slot mapId x y createdDate createdBy')
-			.populate('template')
-			.exec()
-			.then(items => items)
-			.catch(err => console.log(err));
-		}
-		catch(err) {
-			console.log(err);
-		}
+	getAllItems() {
+		return Item.find({})
+		.select('_id template stack playerId botId slot mapId x y createdDate createdBy')
+		.populate('template')
+		.exec()
+		.then(items => items)
+		.catch(err => console.log(err));
 	}
 	async saveAllItems(currentItems) {
 		if (!currentItems) return;
