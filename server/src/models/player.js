@@ -4,6 +4,7 @@ const playerSchema = new mongoose.Schema({
   _id: mongoose.SchemaTypes.ObjectId,
   account: {type: mongoose.SchemaTypes.ObjectId, ref: 'Account', required: true},
   name: {type: String, required: true, unique: true},
+  nameLowerCase: {type: String, required: true, unique: true},
   template: {type: mongoose.SchemaTypes.ObjectId, ref: 'PlayerTemplate', required: true},
   level: {type: Number, default: 1},
   experience: {type: Number, default: 0},
