@@ -1,0 +1,11 @@
+body {
+  background-color: #201f22;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#game-window {
+  margin: 0;
+}
