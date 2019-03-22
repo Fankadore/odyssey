@@ -94,7 +94,7 @@ export default class SelectPlayerPanel extends Panel {
 		}
 		else if (key === 'Home') {
 			if (this.scene.account.admin) {
-				console.log("WORKS");
+				this.scene.openAdminPanel();
 			}
 		}
 	}
