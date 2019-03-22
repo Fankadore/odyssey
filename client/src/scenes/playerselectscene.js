@@ -2,6 +2,7 @@ import { Scene } from '../lib/phaser.js';
 import config from '../config.js';
 import SelectPlayerPanel from '../panels/selectplayerpanel.js';
 import AddPlayerPanel from '../panels/addplayerpanel.js';
+import AdminPanel from '../panels/adminpanel.js';
 
 export default class PlayerSelectScene extends Scene {
   constructor() {
@@ -21,6 +22,7 @@ export default class PlayerSelectScene extends Scene {
 		const centreY = config.GAME.y + (config.GAME.height / 2);
 		this.selectPlayerPanel = new SelectPlayerPanel(this, centreX, centreY);
 		this.addPlayerPanel = new AddPlayerPanel(this, centreX, centreY);
+		this.adminPanel = new AdminPanel(this, centreX, centreY);
 
 		this.inputKeys = this.input.keyboard.addKeys(config.KEYBOARD_KEYS);
 		this.input.keyboard.on('keydown', event => this.onKeyDown(event));
@@ -30,14 +32,28 @@ export default class PlayerSelectScene extends Scene {
 		let key = event.key;
 		key = key.replace(/Page/g, 'Page_');
 		key = key.replace(/Arrow/g, '');
+		key = key.replace(/Control/g, 'Ctrl');
+		key = key.replace(/\'/g, 'BackTick');
 		if (key === ' ') key = 'Space';
 
 		if (this.selectPlayerPanel.active) this.selectPlayerPanel.onKeyDown(key);
 		if (this.addPlayerPanel.active) this.addPlayerPanel.onKeyDown(key);
+		if (this.adminPanel.active) this.adminPanel.onKeyDown(key);
 	}
 
 	switchPanel() {
-		this.selectPlayerPanel.setActive(!this.selectPlayerPanel.active);
-		this.addPlayerPanel.setActive(!this.addPlayerPanel.active);
+		if (this.adminPanel.active) {
+			this.selectPlayerPanel.setActive(true);
+			this.adminPanel.setActive(false);
+		}
+		else {
+			this.selectPlayerPanel.setActive(!this.selectPlayerPanel.active);
+			this.addPlayerPanel.setActive(!this.addPlayerPanel.active);
+		}
+	}
+
+	openAdminPanel() {
+		this.adminPanel.setActive(true);
+		this.selectPlayerPanel.setActive(false);
 	}
 }
