@@ -122,10 +122,10 @@ class Config {
 			'mana-bar', 'mana-bar-empty', 'experience-bar', 'experience-bar-empty',
 			'background-small', 'background-medium', 'background-large', 'text-input', 'text-input-active',
 			'toggle', 'toggle-active', 'toggle-slim', 'toggle-slim-active',
-			'button', 'button-active', 'button-slim', 'button-slim-active',
+			'button-light', 'button-light-active', 'button-slim', 'button-slim-active',
 			'close-button', 'close-button-active', 'logout-button', 'logout-button-active'
 		];
-		this.KEYBOARD_KEYS = 'LEFT,RIGHT,UP,DOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPSLOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12';
+		this.KEYBOARD_KEYS = 'LEFT,RIGHT,UP,DOWN,SPACE,BACKSPACE,DELETE,CONTROL,SHIFT,ALT,ALTGRAPH,ENTER,TAB,ESCAPE,CAPS_LOCK,PAGE_UP,PAGE_DOWN,HOME,END,INSERT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,BACKTICK';
 		this.CRENDALE = {
 			mapId: 1,
 			tiles: [
