@@ -32,25 +32,23 @@ class Game {
 		this.loadBots();
 	}
 
-	loadMaps() {
-		db.getAllMaps()
-		.then(mapData => {
-			const orderedMapData = [];
-			for (let id = 0; id < mapData.length; id++) {
-				const data = mapData[id];
-				if (data) orderedMapData[data.mapId] = data;
-			}
+	async loadMaps() {
+		let mapData = await db.getAllMaps();
+		const orderedMapData = [];
 
-			for (let id = 0; id < config.MAX_MAPS; id++) {
-				if (orderedMapData[id]) {
-					this.maps[id] = new Map(id, orderedMapData[id]);
-				}
-				else {
-					this.maps[id] = new Map(id);
-				}
+		for (let id = 0; id < mapData.length; id++) {
+			const data = mapData[id];
+			if (data) orderedMapData[data.mapId] = data;
+		}
+
+		for (let id = 0; id < config.MAX_MAPS; id++) {
+			if (orderedMapData[id]) {
+				this.maps[id] = new Map(id, orderedMapData[id]);
 			}
-		})
-		.catch(err => console.log(err));
+			else {
+				this.maps[id] = new Map(id);
+			}
+		}
 	}
 
 	loadPlayerTemplates() {
