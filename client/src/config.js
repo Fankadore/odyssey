@@ -14,7 +14,17 @@ class Config {
 		this.SPRITE_FRAMES = 13;
 		this.SPRITE_COUNT = 13;
 		this.EFFECT_FRAMES = 8;
-		
+
+		this.MAX_HEALTH_BASE = 200;
+		this.MAX_ENERGY_BASE = 200;
+		this.MAX_DAMAGE_BASE = 255;
+		this.MAX_DEFENCE_BASE = 255;
+		this.MAX_RANGE_BASE = 11;
+		this.MAX_HEALTH_REGEN_BASE = 255;
+		this.MAX_ENERGY_REGEN_BASE = 255;
+		this.MAX_HEALTH_PER_LEVEL = 255;
+		this.MAX_ENERGY_PER_LEVEL = 255;
+
 		this.GAME = {
 			x: 0,
 			y: 0,
@@ -120,7 +130,8 @@ class Config {
 			'map', 'interface', 'chatbox-input', 'chatbox-input-active', 'selected',
 			'health-bar', 'health-bar-empty', 'energy-bar', 'energy-bar-empty',
 			'mana-bar', 'mana-bar-empty', 'experience-bar', 'experience-bar-empty',
-			'background-small', 'background-medium', 'background-large', 'text-input', 'text-input-active',
+			'background-small', 'background-medium', 'background-large',
+			'text-input', 'text-input-active', 'number-input', 'number-input-active',
 			'toggle', 'toggle-active', 'toggle-slim', 'toggle-slim-active',
 			'button-light', 'button-light-active', 'button-slim', 'button-slim-active',
 			'close-button', 'close-button-active', 'logout-button', 'logout-button-active'
