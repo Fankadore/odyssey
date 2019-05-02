@@ -7,7 +7,7 @@ export default class AdminPanel extends Panel {
 
 		// Panel
 		this.background = scene.add.image(x, y, 'background-large');
-		this.closeButton = new CloseButton(scene, this.background.x + (this.background.width / 2) - 16, this.background.y - (this.background.height / 2) + 16, scene.switchPanel.bind(scene));
+		this.closeButton = new CloseButton(scene, this.background.x + (this.background.width / 2) - 16, this.background.y - (this.background.height / 2) + 16, () => scene.switchPanel("selectPlayer"));
 		this.width = this.background.width;
 		this.height = this.background.height;
 
@@ -34,7 +34,7 @@ export default class AdminPanel extends Panel {
 				this.addPlayer();
 			}
 			else if (key === 'Escape') {	// Return to player select
-				this.scene.switchPanel();
+				this.scene.switchPanel("selectPlayer");
 			}
 			else if (key === 'Space') {
 				this.nameBox.addChar(' ');

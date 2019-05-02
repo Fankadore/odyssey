@@ -17,7 +17,7 @@ export default class SelectPlayerPanel extends Panel {
 		this.signOutButton = new ButtonLightSlim(scene, x - 78, y - 64, "Sign Out", () => scene.client.emitSignOut());
 
 		// Add Player Button
-		this.addPlayerButton = new ButtonLightSlim(scene, x + 78, y - 64, "Add Player", () => scene.switchPanel());
+		this.addPlayerButton = new ButtonLightSlim(scene, x + 78, y - 64, "Add Player", () => scene.switchPanel("addPlayer"));
 
 		// Player Select Toggles
 		this.activeToggle = null;
@@ -72,7 +72,7 @@ export default class SelectPlayerPanel extends Panel {
 			this.scene.client.emitLogIn(this.scene.players[index]._id);
 		}
 		else {
-			this.scene.switchPanel();
+			this.scene.switchPanel("addPlayer");
 		}
 	}
 
@@ -94,7 +94,7 @@ export default class SelectPlayerPanel extends Panel {
 		}
 		else if (key === 'Home') {
 			if (this.scene.account.admin) {
-				this.scene.openAdminPanel();
+				this.scene.switchPanel("admin");
 			}
 		}
 	}
