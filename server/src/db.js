@@ -14,7 +14,7 @@ import Map from './models/map.js';
 
 const fsp = fs.promises;
 mongoose.Promise = Promise;
-mongoose.connect('mongodb://localhost/odyssey', {useNewUrlParser: true});
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/odyssey', {useNewUrlParser: true});
 
 class Database {
 	constructor() {
@@ -316,7 +316,7 @@ class Database {
 	async addPlayerTemplate(data) {
 		if (!data.name) {
 			console.log("Name is required.");
-			return;
+			return false;
 		}
 
 		let checkTemplate = await PlayerTemplate.findOne({name: data.name})
@@ -326,7 +326,7 @@ class Database {
 
 		if (checkTemplate) {
 			console.log("Template already exists with that name.");
-			return;
+			return false;
 		}
 
 		const template = new PlayerTemplate({
