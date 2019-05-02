@@ -1,16 +1,18 @@
-import { Panel } from '../lib/phaser-ui.js';
+import { Panel, Button } from '../lib/phaser-ui.js';
 import InputBox from '../objects/ui/inputbox.js';
 import SubmitButton from '../objects/ui/submitbutton.js';
 import ToggleLightSlim from '../objects/ui/togglelightslim.js';
+import ButtonLightSlim from '../objects/ui/buttonlightslim.js';
 import CloseButton from '../objects/ui/closebutton.js';
 
 export default class AddPlayerPanel extends Panel {
-	constructor(scene, x, y) {
+	constructor(scene, x, y, admin) {
 		super(scene, x, y, false);
+		this.admin = admin;
 
 		// Panel
 		this.background = scene.add.image(x, y, 'background-large');
-		this.closeButton = new CloseButton(scene, this.background.x + (this.background.width / 2) - 16, this.background.y - (this.background.height / 2) + 16, scene.switchPanel.bind(scene));
+		this.closeButton = new CloseButton(scene, this.background.x + (this.background.width / 2) - 16, this.background.y - (this.background.height / 2) + 16, () => scene.switchPanel("selectPlayer"));
 		this.width = this.background.width;
 		this.height = this.background.height;
 
@@ -21,6 +23,9 @@ export default class AddPlayerPanel extends Panel {
 		// Name Field
 		this.nameBox = new InputBox(scene, x, y - 64, "Player Name");
 		this.nameBox.setFocus(true);
+
+		// Add Player Template Button - Admin
+		this.addTemplateButton = new ButtonLightSlim(scene, x, y - 32, "Add Class", (button) => scene.switchPanel("addTemplate"));
 
 		// Player Template Buttons
 		this.activeToggle = null;
@@ -36,7 +41,7 @@ export default class AddPlayerPanel extends Panel {
 		// Submit Button
 		this.submitButton = new SubmitButton(scene, x, y + 160, () => this.addPlayer());
 
-		this.children = [this.background, this.closeButton, this.title, this.nameBox, this.submitButton].concat(this.templateToggles);
+		this.children = [this.background, this.closeButton, this.title, this.nameBox, this.addTemplateButton, this.submitButton].concat(this.templateToggles);
 		this.setActive(false);
 	}
 
@@ -69,7 +74,7 @@ export default class AddPlayerPanel extends Panel {
 				this.addPlayer();
 			}
 			else if (key === 'Escape') {	// Return to player select
-				this.scene.switchPanel();
+				this.scene.switchPanel("selectPlayer");
 			}
 			else if (key === 'Space') {
 				this.nameBox.addChar(' ');

@@ -2,6 +2,7 @@ import { Scene } from '../lib/phaser.js';
 import config from '../config.js';
 import SelectPlayerPanel from '../panels/selectplayerpanel.js';
 import AddPlayerPanel from '../panels/addplayerpanel.js';
+import AddTemplatePanel from '../panels/addtemplatepanel.js';
 import AdminPanel from '../panels/adminpanel.js';
 
 export default class PlayerSelectScene extends Scene {
@@ -22,6 +23,7 @@ export default class PlayerSelectScene extends Scene {
 		const centreY = config.GAME.y + (config.GAME.height / 2);
 		this.selectPlayerPanel = new SelectPlayerPanel(this, centreX, centreY);
 		this.addPlayerPanel = new AddPlayerPanel(this, centreX, centreY);
+		this.addTemplatePanel = new AddTemplatePanel(this, centreX, centreY);
 		this.adminPanel = new AdminPanel(this, centreX, centreY);
 
 		this.inputKeys = this.input.keyboard.addKeys(config.KEYBOARD_KEYS);
@@ -38,22 +40,28 @@ export default class PlayerSelectScene extends Scene {
 
 		if (this.selectPlayerPanel.active) this.selectPlayerPanel.onKeyDown(key);
 		if (this.addPlayerPanel.active) this.addPlayerPanel.onKeyDown(key);
+		if (this.addTemplatePanel.active) this.addTemplatePanel.onKeyDown(key);
 		if (this.adminPanel.active) this.adminPanel.onKeyDown(key);
 	}
 
-	switchPanel() {
-		if (this.adminPanel.active) {
+	switchPanel(panelName) {
+		if (panelName === "selectPlayer") {
 			this.selectPlayerPanel.setActive(true);
+			this.addPlayerPanel.setActive(false);
 			this.adminPanel.setActive(false);
 		}
-		else {
-			this.selectPlayerPanel.setActive(!this.selectPlayerPanel.active);
-			this.addPlayerPanel.setActive(!this.addPlayerPanel.active);
+		else if (panelName === "addPlayer") {
+			this.addPlayerPanel.setActive(true);
+			this.selectPlayerPanel.setActive(false);
+			this.addTemplatePanel.setActive(false);
 		}
-	}
-
-	openAdminPanel() {
-		this.adminPanel.setActive(true);
-		this.selectPlayerPanel.setActive(false);
+		else if (panelName === "addTemplate") {
+			this.addTemplatePanel.setActive(true);
+			this.addPlayerPanel.setActive(false);
+		}
+		else if (panelName === "admin") {
+			this.adminPanel.setActive(true);
+			this.selectPlayerPanel.setActive(false);
+		}
 	}
 }
