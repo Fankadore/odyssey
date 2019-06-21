@@ -14,6 +14,7 @@ import Map from './models/map.js';
 
 const fsp = fs.promises;
 mongoose.Promise = Promise;
+process.env.MONGODB_URI = 'mongodb://Fankadore:odyssey1@ds149706.mlab.com:49706/odyssey'; // REMOVE
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/odyssey', {useNewUrlParser: true});
 
 class Database {
