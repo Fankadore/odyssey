@@ -1,6 +1,7 @@
 const config = {};
 
 config.PORT = 2000;
+config.DB_URL = 'ds149706.mlab.com:49706/odyssey';
 config.FRAMERATE = 1000 / 60;
 config.BACKUP_TIME = 120;
 

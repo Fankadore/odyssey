@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 
+import keys from './keys.js';
+import config from './config.js';
 import util from "./util.js";
 import Account from './models/account.js';
 import Player from './models/player.js';
@@ -14,8 +16,8 @@ import Map from './models/map.js';
 
 const fsp = fs.promises;
 mongoose.Promise = Promise;
-process.env.MONGODB_URI = 'mongodb://Fankadore:odyssey1@ds149706.mlab.com:49706/odyssey'; // REMOVE
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/odyssey', {useNewUrlParser: true});
+mongoose.connect(process.env.MONGODB_URI || `mongodb://${keys.mongo.user}:${keys.mongo.pass}@${config.DB_URL}`, {useNewUrlParser: true});
+//'mongodb://localhost/odyssey', {useNewUrlParser: true});
 
 class Database {
 	constructor() {
@@ -301,7 +303,7 @@ class Database {
 		.catch(err => console.log(err));
 	}
 	saveMap(data) {
-		return Map.updateOne({mapId: data.mapId}, {$set: data}, {upsert: true})
+		return Map.updateOne({mapId: data.mapId}, {$set: data}, {new: true, upsert: true, setDefaultsOnInsert: true})
 		.exec()
 		.then(result => true)
 		.catch(err => console.log(err));
