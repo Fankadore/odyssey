@@ -22,7 +22,8 @@ export default class Game {
     const tiles = this.tilemap.addTilesetImage('floor');
     this.layer = [];
     for (let i = 0; i < config.MAP.layers; i++) {
-      this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles).setPosition(config.MAP.x, config.MAP.y);
+			this.layer[i] = this.tilemap.createBlankDynamicLayer(i, tiles).setPosition(config.MAP.x, config.MAP.y);
+			if (i >= 4) this.layer[i].setDepth(1000 + i);
 		}
 		this.onLoadMap(scene.initData.tiles);
   }
