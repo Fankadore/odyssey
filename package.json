@@ -4,9 +4,10 @@
   "description": "An open source remake of the Odyssey game engine.",
   "main": "server/server.app.js",
   "dependencies": {
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^3.0.6",
     "express": "^4.16.3",
     "mongoose": "^5.3.12",
+    "node": "^10.16.0",
     "node-gameloop": "^0.1.4",
     "socket.io": "^2.1.1"
   },
@@ -21,6 +22,6 @@
     "start-dev": "nodemon ./server/server.app.js --config ./nodemon.json",
     "start": "npm start ./server/server.app.js"
   },
-  "author": "Fankadore",
+  "author": "Ruaidhri MacKenzie - Fankadore",
   "license": "MIT"
 }
