@@ -152,7 +152,7 @@ class Server {
 			return;
 		}
 
-		const player = game.playerLogin(socket.id, playerData);
+		const player = game.playerLogin(socket, playerData);
 		if (!player) {
 			socket.emit('loggedIn', false);
 			return;
@@ -186,7 +186,7 @@ class Server {
 		
 		game.players.forEach((player) => {
 			if (player.mapId === data.mapId) {
-				this.sendMapData(this.socketList[player.socketId], player.mapId);
+				this.sendMapData(player.socket, player.mapId);
 			}
 		});
 	}
@@ -207,7 +207,7 @@ class Server {
 			};
 
 			for (let playerData of updatePack.players) {
-				if (playerData && ((playerData.mapId === player.mapId && playerData.isVisible) || playerData.socketId === player.socketId)) {
+				if (playerData && ((playerData.mapId === player.mapId && playerData.isVisible) || playerData.socketId === player.socket.id)) {
 					pack.game.players[playerData.gameId] = playerData;
 				}
 			}
@@ -235,13 +235,63 @@ class Server {
 				return (message.mapId == null && message.id == null) || player.mapId === message.mapId || player.gameId === message.id;
 			});
 			
-			this.socketList[player.socketId].emit('update', pack);
+			player.socket.emit('update', pack);
 		});
 	}
 	
 	sendMapData(socket, mapId) {
 		const mapData = game.maps[mapId].getPack();
 		socket.emit('loadMap', mapData);
+	}
+
+	addDefaultTemplates() {
+				// db.addPlayerTemplate({
+		// 	name: "Knight",
+		// 	sprite: "1",
+		// 	damageBase: 10,
+		// 	defenceBase: 0,
+		// 	healthMaxBase: 20,
+		// 	energyMaxBase: 40,
+		// 	healthRegenBase: 1,
+		// 	energyRegenBase: 1,
+		// 	rangeBase: 1,
+		// 	healthPerLevel: 1,
+		// 	energyPerLevel: 1,
+		// });
+
+		// db.addBotTemplate({
+		// 	name: "Rat",
+		// 	sprite: "3",
+		// 	damageBase: 10,
+		// 	defenceBase: 0,
+		// 	healthMaxBase: 20,
+		// 	energyMaxBase: 40,
+		// 	healthRegenBase: 1,
+		// 	energyRegenBase: 1,
+		// 	rangeBase: 1,
+		// 	hostile: false,
+		// });
+		
+		// db.addItemTemplate({
+		// 	name: "Sword",
+		// 	itemTypeId: 2,
+		// 	sprite: 1,
+		// 	reusable: true,
+		// 	passiveDamage: 0,
+		// 	passiveDefence: 0,
+		// 	passiveHealthMax: 0,
+		// 	passiveEnergyMax: 0,
+		// 	passiveHealthRegen: 0,
+		// 	passiveEnergyRegen: 0,
+		// 	passiveRange: 0,
+		// 	equippedDamage: 1,
+		// 	equippedDefence: 0,
+		// 	equippedHealthMax: 0,
+		// 	equippedEnergyMax: 0,
+		// 	equippedHealthRegen: 0,
+		// 	equippedEnergyRegen: 0,
+		// 	equippedRange: 0,
+		// });
 	}
 }
 

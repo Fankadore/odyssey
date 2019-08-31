@@ -297,7 +297,7 @@ class Database {
 
 	getMap(mapId) {
 		return Map.findOne({mapId: mapId})
-		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
+		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY exitLeft exitRight exitUp exitDown')
 		.exec()
 		.then(map => map)
 		.catch(err => console.log(err));
@@ -310,7 +310,7 @@ class Database {
 	}
 	getAllMaps() {
 		return Map.find({})
-		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY')
+		.select('mapId name dropChance dropAmountEQ tiles isWall isHostile damage warpMap warpX warpY exitLeft exitRight exitUp exitDown')
 		.exec()
 		.then(maps => maps)
 		.catch(err => console.log(err));

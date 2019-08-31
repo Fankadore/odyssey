@@ -1,4 +1,5 @@
 import db from './db.js';
+import server from './server.js';
 import config from './config.js';
 
 import Map from './classes/map.js';
@@ -46,7 +47,8 @@ class Game {
 				this.maps[id] = new Map(id, orderedMapData[id]);
 			}
 			else {
-				this.maps[id] = new Map(id);
+				this.maps[id + 1] = new Map(id);
+				db.saveMap({mapId: id});
 			}
 		}
 	}
@@ -109,12 +111,12 @@ class Game {
 				}
 			},
 			macro1: (data) => {
-				if (data) this.spawnMapItem(1, 5, 5, "5c1bfeb7d8fb6012cc966083");
+				if (data) this.spawnMapItem(1, 5, 5, "5d25c5200b126c011c6af28d");
 			},
 			macro2: (data) => {
-				if (data) this.spawnBot(1, 5, 5, "5c1becde28d05b077cbaa385");
+				if (data) this.spawnBot(1, 5, 5, "5d25c3aa76cb6f1fbc10e7bf");
 			},
-			macro3: (data) => {
+			macro3: (data, player) => {
 				if (data) {
 					if (player.sprite >= config.MAX_SPRITES) player.sprite = 1;
 					else player.sprite++;
@@ -198,7 +200,7 @@ class Game {
 	}
 
 	// Players
-	playerLogin(socketId, data) {
+	playerLogin(socket, data) {
 		for (let player of this.players) {
 			if (player && player.name === data.name) {
 				console.log("Player is already signed in.");
@@ -206,8 +208,8 @@ class Game {
 			}
 		}
 
-		const player = new Player(socketId, data);
-		db.log(`${socketId} - ${player.name} has logged in.`);
+		const player = new Player(socket, data);
+		db.log(`${socket.id} - ${player.name} has logged in.`);
 		this.sendGameInfoGlobal(`${player.name} has logged in.`);
 		return player;
 	}
@@ -215,7 +217,7 @@ class Game {
 		let player = this.players[playerId];
 		if (player) {
 			const playerData = player.getDBPack()
-			db.log(`${player.socketId} - ${player.name} has logged out.`);
+			db.log(`${player.socket.id} - ${player.name} has logged out.`);
 			this.sendGameInfoGlobal(`${player.name} has logged out.`);
 			delete this.texts[player.displayNameId];
 			delete this.players[playerId];
@@ -253,6 +255,10 @@ class Game {
 	}
 
 	// Map
+	sendMapData(socket, mapId) {
+		server.sendMapData(socket, mapId);
+	}
+
 	isVacant(mapId, x, y) {
 		// Check for Map Edges
 		if (x < 0 || x >= config.MAP_COLUMNS || y < 0 || y >= config.MAP_ROWS) return false;

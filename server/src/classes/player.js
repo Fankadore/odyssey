@@ -6,12 +6,12 @@ import Actor from './actor.js';
 // A Player is an immortal Actor which takes input from a client
 
 export default class Player extends Actor {
-	constructor(socketId, data) {
+	constructor(socket, data) {
 		if (data.sprite == null) data.sprite = data.template.sprite;
 
 		super(data.mapId, data.x, data.y, data.direction, data.name, data.sprite);
 		this.playerId = data._id;
-		this.socketId = socketId;
+		this.socket = socket;
 		this.accountId = data.account;
 		this.adminAccess = data.adminAccess;
 
@@ -135,6 +135,17 @@ export default class Player extends Actor {
 		}
 	}
 
+	move(direction) {
+		if (this.isMoving) return;
+
+		if ((direction === 'left' && this.x === 0) || (direction === 'right' && this.x === config.MAP_COLUMNS - 1) || (direction === 'up' && this.y === 0) || (direction === 'down' && this.y === config.MAP_ROWS - 1)) {
+			super.switchMap(direction);
+		}
+		else {
+			super.move(direction);
+		}
+	}
+
 	pickUp() {
 		if (super.pickUp() === false) game.sendGameInfoPlayer(this.gameId, "Your inventory is full.");
 	}
@@ -200,5 +211,44 @@ export default class Player extends Actor {
 	calcBaseStats(template) {
 		if (!template) template = game.playerTemplates[this.templateId];
 		super.calcBaseStats(template);
+	}
+
+	switchMap(mapId, direction) {
+		if (direction === 'left') {
+			if (this.x !== 0) return;
+
+			const newMap = game.maps[mapId].exitLeft;
+			if (newMap) {
+				this.mapId = newMap;
+				this.x = config.MAP_COLUMNS - 1;
+			}
+		}
+		else if (direction === 'right') {
+			if (this.x !== config.MAP_COLUMNS - 1) return;
+
+			const newMap = game.maps[mapId].exitRight;
+			if (newMap) {
+				this.mapId = newMap;
+				this.x = 0;
+			}
+		}
+		else if (direction === 'up') {
+			if (this.y !== 0) return;
+
+			const newMap = game.maps[mapId].exitUp;
+			if (newMap) {
+				this.mapId = newMap;
+				this.y = config.MAP_COLUMNS - 1;
+			}
+		}
+		else if (direction === 'down') {
+			if (this.y !== config.MAP_ROWS - 1) return;
+
+			const newMap = game.maps[mapId].exitDown;
+			if (newMap) {
+				this.mapId = newMap;
+				this.y = 0;
+			}
+		}
 	}
 }

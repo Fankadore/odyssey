@@ -15,6 +15,10 @@ export default class Map {
 		if (!data.warpMap) data.warpMap = util.create2dArray(config.MAP_COLUMNS, config.MAP_ROWS, null);
 		if (!data.warpX) data.warpX = util.create2dArray(config.MAP_COLUMNS, config.MAP_ROWS, null);
 		if (!data.warpY) data.warpY = util.create2dArray(config.MAP_COLUMNS, config.MAP_ROWS, null);
+		if (!data.exitLeft) data.exitLeft = 0;
+		if (!data.exitRight) data.exitRight = 0;
+		if (!data.exitUp) data.exitUp = 0;
+		if (!data.exitDown) data.exitDown = 0;
 
 		this.name = data.name;
 		this.dropChance = util.clamp(data.dropChance, 0, 100);
@@ -28,6 +32,10 @@ export default class Map {
 		this.warpMap = data.warpMap;
 		this.warpX = data.warpX;
 		this.warpY = data.warpY;
+		this.exitLeft = data.exitLeft;
+		this.exitRight = data.exitRight;
+		this.exitUp = data.exitUp;
+		this.exitDown = data.exitDown;
 	}
 	
 	upload(data) {
@@ -41,6 +49,10 @@ export default class Map {
 		if (data.warpMap) this.warpMap = data.warpMap;
 		if (data.warpX) this.warpX = data.warpX;
 		if (data.warpY) this.warpY = data.warpY;
+		if (data.exitLeft) this.warpY = data.exitLeft;
+		if (data.exitRight) this.warpY = data.exitRight;
+		if (data.exitUp) this.warpY = data.exitUp;
+		if (data.exitDown) this.warpY = data.exitDown;
 	}
 
 	getPack() {
@@ -55,7 +67,11 @@ export default class Map {
 			damage: this.damage,
 			warpMap: this.warpMap,
 			warpX: this.warpX,
-			warpY: this.warpY
+			warpY: this.warpY,
+			exitLeft: this.exitLeft,
+			exitRight: this.exitRight,
+			exitUp: this.exitUp,
+			exitDown: this.exitDown,
 		};
 	}
 

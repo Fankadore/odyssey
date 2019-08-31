@@ -17,6 +17,10 @@ const mapSchema = new mongoose.Schema({
 	warpMap: {type: [[Number]], default: nullLayer},
 	warpX: {type: [[Number]], default: nullLayer},
 	warpY: {type: [[Number]], default: nullLayer},
+	exitLeft: {type: Number, default: 0},
+	exitRight: {type: Number, default: 0},
+	exitUp: {type: Number, default: 0},
+	exitDown: {type: Number, default: 0},
 });
 
 export default mongoose.model('Map', mapSchema);

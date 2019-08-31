@@ -159,6 +159,16 @@ export default class Actor extends Entity {
 	}
 
 	// Movement
+	setPosition(mapId, x, y) {
+		this.mapId = mapId;
+		this.x = x;
+		this.startX = x;
+		this.destinationX = x;
+		this.y = y;
+		this.startY = y;
+		this.destinationY = y;
+	}
+
 	move(direction) {
 		if (this.isMoving) return;
 
@@ -214,6 +224,42 @@ export default class Actor extends Entity {
 		this.isMoving = true;
 	}
 	
+	switchMap(direction) {
+		if (!direction) return;
+		this.direction = direction;
+
+		const map = game.maps[this.mapId];
+		let newMapId = null;
+		let newX = null;
+		let newY = null;
+
+		if (direction === 'left') {
+			newMapId = map.exitLeft;
+			newX = config.MAP_COLUMNS - 1;
+			newY = this.y;
+		}
+		else if (direction === 'right') {
+			newMapId = map.exitRight;
+			newX = 0;
+			newY = this.y;
+		}
+		else if (direction === 'up') {
+			newMapId = map.exitUp;
+			newX = this.x;
+			newY = config.MAP_ROWS - 1;
+		}
+		else if (direction === 'down') {
+			newMapId = map.exitDown;
+			newX = this.x;
+			newY = 0;
+		}
+
+		if (newMapId) {
+			this.setPosition(newMapId, newX, newY);
+			game.sendMapData(this.socket, newMapId);
+		}
+	}
+
 	moveToTarget(target, hostile) {
 		if (!target) return;
 		
