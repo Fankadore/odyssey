@@ -5,7 +5,7 @@
   "main": "server/server.app.js",
   "dependencies": {
     "bcrypt": "^3.0.6",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "mongoose": "^5.3.12",
     "node": "^10.16.0",
     "node-gameloop": "^0.1.4",
